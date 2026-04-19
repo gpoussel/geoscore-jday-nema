@@ -291,23 +291,61 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
 
     const sessionMarkersPlugin = {
       id: "sessionMarkers",
+      afterEvent(chart: any, args: any) {
+        const e = args.event;
+        if (!e || !boundaries.length) return;
+        const prev = chart.$sessionHovered ?? -1;
+        let next = -1;
+        if (e.type === "mousemove" || e.type === "touchmove") {
+          const { chartArea, scales } = chart;
+          if (e.x >= chartArea.left && e.x <= chartArea.right &&
+              e.y >= chartArea.top && e.y <= chartArea.bottom) {
+            const val = scales.x.getValueForPixel(e.x);
+            if (val != null && Number.isFinite(val)) {
+              for (let i = boundaries.length - 1; i >= 0; i--) {
+                if (val >= boundaries[i].idx) { next = i; break; }
+              }
+            }
+          }
+        }
+        if (next !== prev) {
+          chart.$sessionHovered = next;
+          args.changed = true;
+        }
+      },
       beforeDatasetsDraw(chart: any) {
         if (!boundaries.length) return;
         const { ctx, chartArea, scales } = chart;
         ctx.save();
+        ctx.font = '500 9px "JetBrains Mono", monospace';
+        ctx.textAlign = "left";
+        const xs = boundaries.map((b: any) => scales.x.getPixelForValue(b.idx));
+        const widths = boundaries.map((b: any) => ctx.measureText(`${b.date} · ${b.time}`).width);
+        let crowded = false;
+        for (let i = 0; i < boundaries.length - 1; i++) {
+          if (xs[i] + widths[i] + 8 > xs[i + 1]) { crowded = true; break; }
+        }
         ctx.setLineDash([3, 3]);
         ctx.strokeStyle = "rgba(255,255,255,0.12)";
         ctx.lineWidth = 1;
-        ctx.fillStyle = "rgba(255,255,255,0.55)";
-        ctx.font = '500 9px "JetBrains Mono", monospace';
-        ctx.textAlign = "left";
-        for (const b of boundaries) {
-          const x = scales.x.getPixelForValue(b.idx);
+        for (const x of xs) {
           ctx.beginPath();
           ctx.moveTo(x, chartArea.top);
           ctx.lineTo(x, chartArea.bottom);
           ctx.stroke();
-          ctx.fillText(`${b.date} · ${b.time}`, x + 4, chartArea.top - 4);
+        }
+        ctx.setLineDash([]);
+        const drawLabel = (i: number, alpha: number) => {
+          const b = boundaries[i];
+          const tx = xs[i] + 4 + widths[i] > chartArea.right ? xs[i] - 4 - widths[i] : xs[i] + 4;
+          ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+          ctx.fillText(`${b.date} · ${b.time}`, tx, chartArea.top - 4);
+        };
+        const hovered = chart.$sessionHovered ?? -1;
+        if (crowded) {
+          if (hovered >= 0) drawLabel(hovered, 0.85);
+        } else {
+          for (let i = 0; i < boundaries.length; i++) drawLabel(i, 0.55);
         }
         ctx.restore();
       },
