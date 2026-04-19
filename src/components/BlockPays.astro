@@ -188,7 +188,13 @@ const nameOf = countryName;
 
       <Card class="card-flop">
         <div class="topflop">
-          <div class="tf-title">Flop 10<span class="tf-sub">pires</span></div>
+          <div class="tf-title">
+            Flop 10<span class="tf-sub">pires</span>
+            <label class="filter-chk" data-filter-chk>
+              <input type="checkbox" />
+              <span>≥ 6 fois seulement</span>
+            </label>
+          </div>
           <ol class="tf-list" data-metric="precision" data-filter="all">
             {flopByAcc.map(([code, s], i) => (
               <li>
@@ -302,12 +308,12 @@ const nameOf = countryName;
     btn.addEventListener("click", () => applyMetric(btn.dataset.metric as Metric));
   });
 
-  document.querySelectorAll<HTMLInputElement>("[data-filter-chk] input").forEach((input) => {
+  document.querySelectorAll<HTMLLabelElement>("[data-filter-chk]").forEach((label) => {
+    const input = label.querySelector<HTMLInputElement>("input");
+    const card = label.closest<HTMLElement>(".card-top, .card-flop");
+    if (!input || !card) return;
     input.addEventListener("change", () => {
-      document.body.classList.toggle("precision-trusted", input.checked);
-      document.querySelectorAll<HTMLInputElement>("[data-filter-chk] input").forEach((other) => {
-        other.checked = input.checked;
-      });
+      card.classList.toggle("trusted", input.checked);
     });
   });
 
@@ -354,8 +360,10 @@ const nameOf = countryName;
     row-gap: 6px;
   }
 
-  body:not(.precision-trusted) .tf-list[data-metric="precision"][data-filter="trusted"] { display: none; }
-  body.precision-trusted       .tf-list[data-metric="precision"][data-filter="all"]     { display: none; }
+  .card-top:not(.trusted)  .tf-list[data-metric="precision"][data-filter="trusted"] { display: none; }
+  .card-top.trusted        .tf-list[data-metric="precision"][data-filter="all"]     { display: none; }
+  .card-flop:not(.trusted) .tf-list[data-metric="precision"][data-filter="trusted"] { display: none; }
+  .card-flop.trusted       .tf-list[data-metric="precision"][data-filter="all"]     { display: none; }
   body:not(.metric-precision) [data-filter-chk] { display: none; }
 </style>
 
