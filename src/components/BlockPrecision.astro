@@ -125,15 +125,14 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
     background: var(--bg-1);
     border: 1px solid var(--border-hi);
     border-radius: 6px;
-    padding: 6px 10px;
-    font-family: var(--mono); font-size: 11px; color: var(--fg-0);
+    padding: 4px 8px;
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
+    color: var(--fg-0);
     white-space: nowrap;
     opacity: 0;
     transition: opacity 0.12s;
     z-index: 3;
   }
-  .histo-tooltip b { color: var(--fg-0); font-weight: 600; }
-  .histo-tooltip .htt-lbl { color: var(--fg-2); margin-right: 6px; letter-spacing: 0.04em; }
   .histo-bar-wrap { width: 100%; height: 150px; display: flex; align-items: flex-end; }
   .histo-bar {
     width: 100%; border-radius: 3px 3px 0 0; min-height: 3px;
@@ -298,11 +297,7 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
       col.addEventListener("mousemove", (e) => {
         const rect = root.getBoundingClientRect();
         const perfect = (e.target as HTMLElement).closest<HTMLElement>("[data-perfect-count]");
-        if (perfect) {
-          tip.innerHTML = `<span class="htt-lbl">★ parfaits</span><b>${perfect.dataset.perfectCount}</b>`;
-        } else {
-          tip.innerHTML = `<span class="htt-lbl">${col.dataset.bucketLabel}</span><b>${col.dataset.bucketCount}</b>`;
-        }
+        tip.textContent = perfect ? perfect.dataset.perfectCount! : col.dataset.bucketCount!;
         const x = e.clientX - rect.left + 12;
         const y = e.clientY - rect.top + 12;
         const maxX = rect.width - tip.offsetWidth - 4;
