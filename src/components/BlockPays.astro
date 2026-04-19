@@ -42,7 +42,7 @@ const maxSeen = seenEntries.reduce((m, [, s]) => Math.max(m, s.seen), 1);
 const colorFor = (code: string) => {
   const s = countryStats[code];
   if (!s || s.seen < 1) return "var(--map-unseen)";
-  const t = Math.max(0, Math.min(1, (s.acc - 55) / 40));
+  const t = Math.max(0, Math.min(1, (s.acc - 75) / 25));
   if (t < 0.5) {
     const k = t * 2;
     return `color-mix(in oklch, var(--loss) ${(1 - k) * 100}%, var(--map-mid) ${k * 100}%)`;
@@ -137,9 +137,9 @@ const nameOf = countryName;
             <span style="background: var(--win)"></span>
           </div>
           <div class="wml-ticks">
-            <span data-tick-lo>55%</span>
-            <span data-tick-mid>75%</span>
-            <span data-tick-hi>95%</span>
+            <span data-tick-lo>75%</span>
+            <span data-tick-mid>88%</span>
+            <span data-tick-hi>100%</span>
           </div>
         </div>
 
@@ -266,8 +266,8 @@ const nameOf = countryName;
 <script>
   type Metric = "score" | "precision" | "occurrence";
 
-  const LO = { score: -1500, precision: 55 };
-  const HI = { score: 1500, precision: 95 };
+  const LO = { score: -1500, precision: 75 };
+  const HI = { score: 1500, precision: 100 };
 
   const scoreToT = (val: number) => {
     const max = HI.score;
@@ -338,7 +338,7 @@ const nameOf = countryName;
         } else if (metric === "occurrence") {
           lo.textContent = "1"; mid.textContent = String(Math.round((maxSeen + 1) / 2)); hi.textContent = maxSeenLabel.slice(1);
         } else {
-          lo.textContent = "55%"; mid.textContent = "75%"; hi.textContent = "95%";
+          lo.textContent = "75%"; mid.textContent = "88%"; hi.textContent = "100%";
         }
       }
     });
