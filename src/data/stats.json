@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-19T12:37:06",
+  "generatedAt": "2026-04-19T12:41:51",
   "duoRank": "Master 1",
   "games": [
     {
@@ -10272,7 +10272,18 @@
       "games": 14,
       "wins": 10,
       "losses": 4,
-      "vods": []
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2746931545?t=4h18m29s"
+        },
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2747004024"
+        }
+      ]
     },
     {
       "id": "1.2",
@@ -10286,7 +10297,18 @@
       "games": 16,
       "wins": 9,
       "losses": 7,
-      "vods": []
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2747870024?t=0h0m1s"
+        },
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2747870220?t=0h0m1s"
+        }
+      ]
     },
     {
       "id": "1.3",
@@ -10300,7 +10322,18 @@
       "games": 11,
       "wins": 4,
       "losses": 7,
-      "vods": []
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2747870024?t=6h55m8s"
+        },
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2747870220?t=6h55m26s"
+        }
+      ]
     },
     {
       "id": "1.4",
@@ -10314,7 +10347,18 @@
       "games": 13,
       "wins": 5,
       "losses": 8,
-      "vods": []
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2749280552?t=3h58m49s"
+        },
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2749353697"
+        }
+      ]
     },
     {
       "id": "1.5",
@@ -10328,7 +10372,18 @@
       "games": 28,
       "wins": 12,
       "losses": 16,
-      "vods": []
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2751057598?t=2h7m53s"
+        },
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2751133232"
+        }
+      ]
     }
   ]
 }
