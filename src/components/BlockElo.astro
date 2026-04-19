@@ -201,8 +201,8 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
         ctx.fillText(`${label} ${vals[idx]}`, pt.x, pt.y + dy);
         ctx.restore();
       };
-      if (opts.highIdx >= 0) draw(opts.highIdx, "HIGH", -12);
-      if (opts.lowIdx >= 0) draw(opts.lowIdx, "LOW", 20);
+      if (opts.highIdx >= 0) draw(opts.highIdx, "MAX", -12);
+      if (opts.lowIdx >= 0) draw(opts.lowIdx, "MIN", 20);
     },
   };
 
