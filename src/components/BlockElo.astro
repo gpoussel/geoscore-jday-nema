@@ -7,24 +7,17 @@ import type { Game } from "../types";
 interface Props { games: Game[]; }
 const { games } = Astro.props;
 
-const W = 720, H = 260, PAD = 32;
 const elos = games.map((g) => g.elo);
-const minE = games.length ? Math.min(...elos) - 15 : 0;
-const maxE = games.length ? Math.max(...elos) + 15 : 1;
 const highIdx = games.length ? elos.indexOf(Math.max(...elos)) : -1;
 const lowIdx = games.length ? elos.indexOf(Math.min(...elos)) : -1;
 
-const x = (i: number) => PAD + (i / Math.max(1, games.length - 1)) * (W - PAD * 2);
-const y = (e: number) => H - PAD - ((e - minE) / (maxE - minE)) * (H - PAD * 2);
-
-const path = games.map((g, i) => (i === 0 ? "M" : "L") + x(i) + "," + y(g.elo)).join(" ");
-const area = games.length ? `${path} L ${x(games.length - 1)},${H - PAD} L ${x(0)},${H - PAD} Z` : "";
-
-const grid: { y: number; v: number }[] = [];
-for (let i = 0; i <= 4; i++) {
-  const v = minE + (maxE - minE) * (i / 4);
-  grid.push({ y: y(v), v: Math.round(v) });
-}
+const eloData = games.map((g) => ({
+  elo: g.elo,
+  eloDelta: g.eloDelta,
+  won: g.won,
+  rounds: g.rounds,
+  myAcc: g.myAcc,
+}));
 
 const wins = games.filter((g) => g.won).length;
 const losses = games.length - wins;
@@ -49,72 +42,9 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
   <div class="grid">
     <Card class="card-elo">
       <CardHead eyebrow="Évolution" />
-      <div class="elo-chart">
-        <svg viewBox={`0 0 ${W} ${H}`} width="100%">
-          <defs>
-            <linearGradient id="eloArea" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.22" />
-              <stop offset="100%" stop-color="var(--accent)" stop-opacity="0" />
-            </linearGradient>
-          </defs>
-          {grid.map((g) => (
-            <>
-              <line x1={PAD} y1={g.y} x2={W - PAD} y2={g.y} stroke="rgba(255,255,255,0.05)" />
-              <text x={8} y={g.y + 3} fill="rgba(255,255,255,0.35)" font-size="10" font-family="var(--mono)">{g.v}</text>
-            </>
-          ))}
-          {games.length > 0 && (
-            <>
-              <path d={area} fill="url(#eloArea)" />
-              <path d={path} stroke="rgba(255,255,255,0.4)" stroke-width="1.5" fill="none" />
-            </>
-          )}
-          {games.map((g, i) => {
-            const tipX = x(i) < W / 2 ? x(i) + 12 : x(i) - 150;
-            const tipY = Math.max(20, y(g.elo) - 80);
-            return (
-              <g class="point">
-                <line class="hover-line" x1={x(i)} y1={PAD} x2={x(i)} y2={H - PAD} stroke="rgba(255,255,255,0.2)" stroke-dasharray="2 3" />
-                <circle
-                  class="point-circle"
-                  cx={x(i)}
-                  cy={y(g.elo)}
-                  r={3.5}
-                  fill={g.won ? "var(--win)" : "var(--loss)"}
-                  stroke={i === highIdx || i === lowIdx ? "white" : "transparent"}
-                  stroke-width="2"
-                />
-                {(i === highIdx || i === lowIdx) && (
-                  <text
-                    x={x(i)}
-                    y={y(g.elo) + (i === highIdx ? -14 : 20)}
-                    text-anchor="middle"
-                    font-size="10"
-                    font-family="var(--mono)"
-                    fill="white"
-                    font-weight="600"
-                  >
-                    {i === highIdx ? "HIGH " : "LOW "}{g.elo}
-                  </text>
-                )}
-                <g class="tooltip" transform={`translate(${tipX}, ${tipY})`}>
-                  <rect width="138" height="76" rx="8" fill="var(--bg-1)" stroke="var(--border-hi)" />
-                  <text x="10" y="20" font-size="10" font-family="var(--mono)" fill="var(--fg-2)">Partie #{i + 1}</text>
-                  <text x="10" y="40" font-size="13" font-family="var(--serif)" font-style="italic" fill={g.won ? "var(--win)" : "var(--loss)"}>
-                    {g.won ? "Victoire" : "Défaite"} {g.eloDelta > 0 ? "+" : ""}{g.eloDelta}
-                  </text>
-                  <text x="10" y="56" font-size="10" font-family="var(--mono)" fill="var(--fg-2)">
-                    ELO <tspan fill="var(--fg-0)">{g.elo}</tspan>
-                  </text>
-                  <text x="10" y="70" font-size="10" font-family="var(--mono)" fill="var(--fg-2)">
-                    Rounds <tspan fill="var(--fg-0)">{g.rounds}</tspan> · Préc. <tspan fill="var(--fg-0)">{g.myAcc}%</tspan>
-                  </text>
-                </g>
-                <rect class="hit" x={x(i) - 10} y={0} width={20} height={H} fill="transparent" />
-              </g>
-            );
-          })}
-        </svg>
+      <div class="elo-chart" data-high-idx={highIdx} data-low-idx={lowIdx}>
+        <canvas></canvas>
+        <script type="application/json" class="elo-data" is:inline set:html={JSON.stringify(eloData)} />
       </div>
     </Card>
 
@@ -168,13 +98,29 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
   .grid :global(.card-donut)  { grid-column: 2; grid-row: 1; }
   .grid :global(.card-margin) { grid-column: 2; grid-row: 2; }
 
-  .elo-chart { position: relative; }
-  .point .tooltip { opacity: 0; pointer-events: none; transition: opacity 0.12s; }
-  .point .hover-line { opacity: 0; transition: opacity 0.12s; }
-  .point:hover .tooltip,
-  .point:hover .hover-line { opacity: 1; }
-  .point:hover .point-circle { r: 6; }
-  .point .point-circle { transition: r 0.1s; }
+  .elo-chart { position: relative; height: 260px; }
+  .elo-chart canvas { display: block; }
+  .elo-chart :global(.elo-tooltip) {
+    position: absolute;
+    pointer-events: none;
+    background: var(--bg-1);
+    border: 1px solid var(--border-hi);
+    border-radius: 8px;
+    padding: 10px 12px;
+    min-width: 140px;
+    opacity: 0;
+    transition: opacity 0.12s;
+    z-index: 2;
+  }
+  .elo-chart :global(.elo-tooltip .etl) {
+    font-family: var(--mono); font-size: 10px; color: var(--fg-2);
+    line-height: 1.5;
+  }
+  .elo-chart :global(.elo-tooltip .etl b) { color: var(--fg-0); font-weight: 500; }
+  .elo-chart :global(.elo-tooltip .ett) {
+    font-family: var(--serif); font-style: italic; font-size: 13px;
+    margin: 2px 0 4px;
+  }
 
   .donut-block { display: flex; flex-direction: column; align-items: center; gap: 16px; }
   .donut-wrap { display: grid; place-items: center; }
@@ -217,3 +163,164 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
     .grid :global(.card-margin) { grid-column: 1; grid-row: auto; }
   }
 </style>
+
+<script>
+  import {
+    Chart,
+    LineController,
+    LineElement,
+    PointElement,
+    LinearScale,
+    CategoryScale,
+    Filler,
+    Tooltip,
+  } from "chart.js";
+
+  Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip);
+
+  type Pt = { elo: number; eloDelta: number; won: boolean; rounds: number; myAcc: number };
+
+  const cssVar = (n: string) => getComputedStyle(document.body).getPropertyValue(n).trim();
+  const winColor = cssVar("--win");
+  const lossColor = cssVar("--loss");
+  const accent = cssVar("--accent");
+
+  const highLowPlugin = {
+    id: "highLow",
+    afterDatasetsDraw(chart: any, _args: any, opts: any) {
+      const { ctx } = chart;
+      const meta = chart.getDatasetMeta(0);
+      const vals = chart.data.datasets[0].data as number[];
+      const draw = (idx: number, label: string, dy: number) => {
+        const pt = meta.data[idx];
+        if (!pt) return;
+        ctx.save();
+        ctx.font = '600 10px "JetBrains Mono", monospace';
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(`${label} ${vals[idx]}`, pt.x, pt.y + dy);
+        ctx.restore();
+      };
+      if (opts.highIdx >= 0) draw(opts.highIdx, "HIGH", -12);
+      if (opts.lowIdx >= 0) draw(opts.lowIdx, "LOW", 20);
+    },
+  };
+
+  Chart.register(highLowPlugin);
+
+  function ensureTooltipEl(container: HTMLElement) {
+    let el = container.querySelector<HTMLDivElement>(".elo-tooltip");
+    if (!el) {
+      el = document.createElement("div");
+      el.className = "elo-tooltip";
+      container.appendChild(el);
+    }
+    return el;
+  }
+
+  function makeExternalTooltip(points: Pt[]) {
+    return (context: any) => {
+      const { chart, tooltip } = context;
+      const container = chart.canvas.parentNode as HTMLElement;
+      const el = ensureTooltipEl(container);
+      if (tooltip.opacity === 0) {
+        el.style.opacity = "0";
+        return;
+      }
+      const idx = tooltip.dataPoints[0].dataIndex as number;
+      const g = points[idx];
+      const sign = g.eloDelta > 0 ? "+" : "";
+      const color = g.won ? winColor : lossColor;
+      el.innerHTML =
+        `<div class="etl">Partie #${idx + 1}</div>` +
+        `<div class="ett" style="color:${color}">${g.won ? "Victoire" : "Défaite"} ${sign}${g.eloDelta}</div>` +
+        `<div class="etl">ELO <b>${g.elo}</b></div>` +
+        `<div class="etl">Rounds <b>${g.rounds}</b> · Préc. <b>${g.myAcc}%</b></div>`;
+      const w = container.clientWidth;
+      const x = tooltip.caretX;
+      const y = tooltip.caretY;
+      el.style.left = (x < w / 2 ? x + 14 : x - el.offsetWidth - 14) + "px";
+      el.style.top = Math.max(8, y - 70) + "px";
+      el.style.opacity = "1";
+    };
+  }
+
+  const charts: { el: HTMLElement; chart: any }[] = [];
+
+  document.querySelectorAll<HTMLElement>(".elo-chart").forEach((el) => {
+    const dataEl = el.querySelector<HTMLScriptElement>(".elo-data");
+    const canvas = el.querySelector<HTMLCanvasElement>("canvas");
+    if (!dataEl || !canvas || !dataEl.textContent) return;
+    const data = JSON.parse(dataEl.textContent) as Pt[];
+    if (!data.length) return;
+    const highIdx = Number(el.dataset.highIdx);
+    const lowIdx = Number(el.dataset.lowIdx);
+    const elos = data.map((d) => d.elo);
+    const minE = Math.min(...elos) - 15;
+    const maxE = Math.max(...elos) + 15;
+
+    const chart = new Chart(canvas.getContext("2d")!, {
+      type: "line",
+      data: {
+        labels: data.map((_, i) => String(i + 1)),
+        datasets: [
+          {
+            data: elos,
+            borderColor: "rgba(255,255,255,0.4)",
+            borderWidth: 1.5,
+            tension: 0,
+            fill: true,
+            backgroundColor: (c: any) => {
+              const area = c.chart.chartArea;
+              if (!area) return "transparent";
+              const g = c.chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
+              g.addColorStop(0, `color-mix(in oklch, ${accent} 22%, transparent)`);
+              g.addColorStop(1, `color-mix(in oklch, ${accent} 0%, transparent)`);
+              return g;
+            },
+            pointRadius: (c: any) => (c.dataIndex === highIdx || c.dataIndex === lowIdx ? 5 : 3.5),
+            pointHoverRadius: 6,
+            pointBackgroundColor: (c: any) => (data[c.dataIndex].won ? winColor : lossColor),
+            pointBorderColor: (c: any) => (c.dataIndex === highIdx || c.dataIndex === lowIdx ? "white" : "transparent"),
+            pointBorderWidth: 2,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: "index" },
+        scales: {
+          x: { display: false },
+          y: {
+            min: minE,
+            max: maxE,
+            grid: { color: "rgba(255,255,255,0.05)" },
+            border: { display: false },
+            ticks: {
+              color: "rgba(255,255,255,0.35)",
+              font: { family: "JetBrains Mono, monospace", size: 10 },
+              maxTicksLimit: 5,
+              padding: 6,
+            },
+          },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false, external: makeExternalTooltip(data) },
+          // @ts-expect-error custom plugin options
+          highLow: { highIdx, lowIdx },
+        },
+      },
+    });
+
+    charts.push({ el, chart });
+  });
+
+  // Inactive view starts at display:none → canvas has 0 size. Re-fit on period toggle.
+  document.querySelectorAll<HTMLButtonElement>(".period-bar .btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      requestAnimationFrame(() => charts.forEach(({ chart }) => chart.resize()));
+    });
+  });
+</script>

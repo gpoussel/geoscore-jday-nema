@@ -27,10 +27,11 @@ Session IDs follow `week.num` format (`1.5` = week 1, session 5).
 
 ## Architecture
 
-Fully static Astro, **no React, no client framework**. A previous version had `@astrojs/react` — it was removed; don't add client frameworks back without explicit reason.
+Fully static Astro, **no React, no client framework**. A previous version had `@astrojs/react` — it was removed; don't add client frameworks back without explicit reason. Chart.js is loaded as a vanilla lib via Astro `<script>` (bundled, tree-shaken), not a framework.
 
-- **Dual-period render, not runtime state.** `src/pages/index.astro` computes both `week1` and `all` view datasets at build time and emits two `<div data-view="…">` trees with identical block structure. `PeriodToggle.astro` flips `body.period-week1` / `body.period-all` via inline script; `is:global` CSS rules in `index.astro` hide the inactive view. No hydration.
-- **Tooltips are pure CSS or tiny inline scripts.** ELO chart tooltip = `:hover` on pre-rendered SVG `<g class="point">` groups (no JS). World map tooltip = small inline script in `BlockPays.astro` reading `data-*` attributes off country rects.
+- **Dual-period render, not runtime state.** `src/pages/index.astro` computes both `week1` and `all` view datasets at build time and emits two `<div data-view="…">` trees with identical block structure. `PeriodToggle.astro` flips `body.period-week1` / `body.period-all` via inline script; `is:global` CSS rules in `index.astro` hide the inactive view. No hydration. The hidden view starts at `display:none` so charts init with 0 size — `BlockElo.astro` re-`resize()`s its Chart.js instances on period-button clicks.
+- **Charts.** ELO line chart (`BlockElo.astro`) uses Chart.js with a canvas, JSON data embedded via `<script type="application/json" is:inline>`, and an external HTML tooltip (`.elo-tooltip`) for full theming. A small custom plugin draws `HIGH`/`LOW` labels on peak/trough points. Donut + margin bars stay hand-SVG/CSS.
+- **World map tooltip** = small inline script in `BlockPays.astro` reading `data-*` attributes off country rects. Keep tiny indicators zero-JS; prefer Chart.js for new data-driven charts.
 - **Reusable primitives live in `src/components/ui/`** (`Kpi`, `Card`, `CardHead`, `BlockHead`, `Social`, `TeamMember`, `RankBadge`). Blocks in `src/components/` compose these primitives.
 
 ## Styling conventions
