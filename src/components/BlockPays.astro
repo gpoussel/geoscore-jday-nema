@@ -28,6 +28,9 @@ const colorFor = (code: string) => {
 
 const topByAcc    = [...seenEntries].sort((a, b) => b[1].acc - a[1].acc).slice(0, 10);
 const flopByAcc   = [...seenEntries].sort((a, b) => a[1].acc - b[1].acc).slice(0, 10);
+const trustedEntries = seenEntries.filter(([, s]) => s.seen > 5);
+const topByAccTrusted  = [...trustedEntries].sort((a, b) => b[1].acc - a[1].acc).slice(0, 10);
+const flopByAccTrusted = [...trustedEntries].sort((a, b) => a[1].acc - b[1].acc).slice(0, 10);
 const topByScore  = [...seenEntries].sort((a, b) => b[1].score - a[1].score).slice(0, 10);
 const flopByScore = [...seenEntries].sort((a, b) => a[1].score - b[1].score).slice(0, 10);
 const topBySeen   = [...seenEntries].sort((a, b) => b[1].seen - a[1].seen).slice(0, 40);
@@ -49,6 +52,10 @@ const nameOf = countryName;
         <button class="btn active" data-metric="precision">Précision</button>
         <button class="btn" data-metric="occurrence">Occurrence</button>
       </div>
+      <label class="filter-chk" data-filter-chk>
+        <input type="checkbox" />
+        <span>≥ 6 fois seulement</span>
+      </label>
     </div>
   </BlockHead>
   <Card class="card-map">
@@ -132,8 +139,19 @@ const nameOf = countryName;
             <span data-metric="score">Top 10<span class="tf-sub">meilleurs</span></span>
             <span data-metric="occurrence">Top 40</span>
           </div>
-          <ol class="tf-list" data-metric="precision">
+          <ol class="tf-list" data-metric="precision" data-filter="all">
             {topByAcc.map(([code, s], i) => (
+              <li>
+                <span class="tf-rank">{i + 1}</span>
+                <Flag code={code} class="tf-flag" />
+                <span class="tf-name">{nameOf(code)}</span>
+                <span class="tf-app">×{s.seen}</span>
+                <span class="tf-val tf-win">{s.acc.toFixed(0)}%</span>
+              </li>
+            ))}
+          </ol>
+          <ol class="tf-list" data-metric="precision" data-filter="trusted">
+            {topByAccTrusted.map(([code, s], i) => (
               <li>
                 <span class="tf-rank">{i + 1}</span>
                 <Flag code={code} class="tf-flag" />
@@ -171,8 +189,19 @@ const nameOf = countryName;
       <Card class="card-flop">
         <div class="topflop">
           <div class="tf-title">Flop 10<span class="tf-sub">pires</span></div>
-          <ol class="tf-list" data-metric="precision">
+          <ol class="tf-list" data-metric="precision" data-filter="all">
             {flopByAcc.map(([code, s], i) => (
+              <li>
+                <span class="tf-rank">{i + 1}</span>
+                <Flag code={code} class="tf-flag" />
+                <span class="tf-name">{nameOf(code)}</span>
+                <span class="tf-app">×{s.seen}</span>
+                <span class="tf-val tf-loss">{s.acc.toFixed(0)}%</span>
+              </li>
+            ))}
+          </ol>
+          <ol class="tf-list" data-metric="precision" data-filter="trusted">
+            {flopByAccTrusted.map(([code, s], i) => (
               <li>
                 <span class="tf-rank">{i + 1}</span>
                 <Flag code={code} class="tf-flag" />
@@ -273,6 +302,15 @@ const nameOf = countryName;
     btn.addEventListener("click", () => applyMetric(btn.dataset.metric as Metric));
   });
 
+  document.querySelectorAll<HTMLInputElement>("[data-filter-chk] input").forEach((input) => {
+    input.addEventListener("change", () => {
+      document.body.classList.toggle("precision-trusted", input.checked);
+      document.querySelectorAll<HTMLInputElement>("[data-filter-chk] input").forEach((other) => {
+        other.checked = input.checked;
+      });
+    });
+  });
+
   document.querySelectorAll<SVGRectElement>(".worldmap .country").forEach((rect) => {
     const wrap = rect.closest(".worldmap-wrap");
     const tip = wrap?.querySelector<HTMLDivElement>(".wm-tooltip");
@@ -315,6 +353,10 @@ const nameOf = countryName;
     column-gap: 12px;
     row-gap: 6px;
   }
+
+  body:not(.precision-trusted) .tf-list[data-metric="precision"][data-filter="trusted"] { display: none; }
+  body.precision-trusted       .tf-list[data-metric="precision"][data-filter="all"]     { display: none; }
+  body:not(.metric-precision) [data-filter-chk] { display: none; }
 </style>
 
 <style>
@@ -349,6 +391,35 @@ const nameOf = countryName;
   }
   .metric-bar .btn:hover { color: var(--fg-0); }
   .metric-bar .btn.active { background: var(--fg-0); color: var(--bg-0); }
+
+  .filter-chk {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--sans); font-size: 12px;
+    letter-spacing: 0.04em; color: var(--fg-2);
+    cursor: pointer;
+    user-select: none;
+  }
+  .filter-chk input {
+    appearance: none;
+    width: 14px; height: 14px;
+    border: 1px solid var(--border); border-radius: 3px;
+    background: var(--bg-2);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.15s;
+  }
+  .filter-chk input:checked {
+    background: var(--fg-0); border-color: var(--fg-0);
+  }
+  .filter-chk input:checked::after {
+    content: ""; position: absolute;
+    left: 3px; top: 0px;
+    width: 4px; height: 8px;
+    border: solid var(--bg-0);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .filter-chk:hover { color: var(--fg-0); }
 
   .worldmap-wrap { position: relative; }
   .worldmap { display: block; }
