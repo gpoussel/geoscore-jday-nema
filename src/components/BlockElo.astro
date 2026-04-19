@@ -52,18 +52,16 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
       <CardHead eyebrow="Bilan" />
       <div class="donut-block">
         <div class="donut-wrap">
+          <div class="donut-tip donut-tip-win"><span class="dot win"></span> Victoires <b>{wins}</b></div>
+          <div class="donut-tip donut-tip-loss"><span class="dot loss"></span> Défaites <b>{losses}</b></div>
           <svg viewBox="0 0 200 200" width="180" height="180">
-            <circle cx="100" cy="100" r={R} fill="none" stroke="var(--loss)" stroke-width="22" />
-            <circle cx="100" cy="100" r={R} fill="none" stroke="var(--win)" stroke-width="22" stroke-dasharray={`${(winPct / 100) * C} ${C}`} transform="rotate(-90 100 100)" />
+            <circle class="arc arc-loss" cx="100" cy="100" r={R} fill="none" stroke="var(--loss)" stroke-width="22" />
+            <circle class="arc arc-win" cx="100" cy="100" r={R} fill="none" stroke="var(--win)" stroke-width="22" stroke-dasharray={`${(winPct / 100) * C} ${C}`} transform="rotate(-90 100 100)" />
             <text x="100" y="96" text-anchor="middle" font-family="var(--serif)" font-size="36" fill="white" font-style="italic">
               {Math.round(winPct)}<tspan font-size="20">%</tspan>
             </text>
             <text x="100" y="115" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="rgba(255,255,255,0.5)" letter-spacing="2">WIN-RATE</text>
           </svg>
-        </div>
-        <div class="donut-legend">
-          <div class="dl-row"><span class="dot win"></span> Victoires <b>{wins}</b></div>
-          <div class="dl-row"><span class="dot loss"></span> Défaites <b>{losses}</b></div>
         </div>
       </div>
     </Card>
@@ -123,14 +121,31 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
   }
 
   .donut-block { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-  .donut-wrap { display: grid; place-items: center; }
-  .donut-legend { width: 100%; display: flex; flex-direction: column; gap: 10px; }
-  .dl-row {
-    display: flex; align-items: center; gap: 10px;
+  .donut-wrap { position: relative; display: grid; place-items: center; }
+  .donut-wrap .arc { cursor: default; transition: stroke-width 0.12s; }
+  .donut-wrap:hover .arc-win:not(:hover),
+  .donut-wrap:hover .arc-loss:not(:hover) { opacity: 0.55; }
+  .donut-wrap .arc:hover { stroke-width: 26; }
+  .donut-tip {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex; align-items: center; gap: 8px;
     font-family: var(--mono); font-size: 12px; color: var(--fg-1);
-    padding: 6px 10px; background: var(--bg-2); border-radius: 6px;
+    padding: 6px 12px;
+    background: var(--bg-1);
+    border: 1px solid var(--border-hi);
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s;
+    z-index: 2;
   }
-  .dl-row b { margin-left: auto; font-weight: 500; font-size: 13px; color: var(--fg-0); }
+  .donut-tip b { color: var(--fg-0); font-weight: 500; font-size: 13px; }
+  .donut-wrap:has(.arc-win:hover) .donut-tip-win { opacity: 1; }
+  .donut-wrap:has(.arc-loss:hover) .donut-tip-loss { opacity: 1; }
   .dot { width: 10px; height: 10px; border-radius: 50%; }
   .dot.win { background: var(--win); }
   .dot.loss { background: var(--loss); }
