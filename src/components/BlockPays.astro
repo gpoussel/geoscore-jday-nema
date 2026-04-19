@@ -266,8 +266,14 @@ const nameOf = countryName;
 <script>
   type Metric = "score" | "precision" | "occurrence";
 
-  const LO = { score: -2500, precision: 55 };
-  const HI = { score: 2500, precision: 95 };
+  const LO = { score: -1500, precision: 55 };
+  const HI = { score: 1500, precision: 95 };
+
+  const scoreToT = (val: number) => {
+    const max = HI.score;
+    const mag = Math.min(1, Math.abs(val) / max);
+    return 0.5 + 0.5 * Math.sign(val) * Math.sqrt(mag);
+  };
 
   const colorForT = (t: number) => {
     t = Math.max(0, Math.min(1, t));
@@ -302,11 +308,11 @@ const nameOf = countryName;
         let t: number;
         if (metric === "occurrence") {
           t = maxSeen > 1 ? (seen - 1) / (maxSeen - 1) : 0.5;
+        } else if (metric === "score") {
+          t = scoreToT(Number(rect.dataset.score));
         } else {
-          const val = metric === "score" ? Number(rect.dataset.score) : Number(rect.dataset.acc);
-          const lo = LO[metric];
-          const hi = HI[metric];
-          t = (val - lo) / (hi - lo);
+          const val = Number(rect.dataset.acc);
+          t = (val - LO.precision) / (HI.precision - LO.precision);
         }
         rect.setAttribute("fill", color(t));
       });
@@ -328,7 +334,7 @@ const nameOf = countryName;
       const hi = wrap.querySelector<HTMLElement>("[data-tick-hi]");
       if (lo && mid && hi) {
         if (metric === "score") {
-          lo.textContent = "−2.5k"; mid.textContent = "0"; hi.textContent = "+2.5k";
+          lo.textContent = "−1.5k"; mid.textContent = "0"; hi.textContent = "+1.5k";
         } else if (metric === "occurrence") {
           lo.textContent = "1"; mid.textContent = String(Math.round((maxSeen + 1) / 2)); hi.textContent = maxSeenLabel.slice(1);
         } else {
