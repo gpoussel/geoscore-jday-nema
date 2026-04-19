@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-19T17:43:47",
+  "generatedAt": "2026-04-19T17:47:04",
   "games": [
     {
       "id": "0001",
@@ -891,8 +891,8 @@
     },
     {
       "id": "0038",
-      "session": "15.3",
-      "gameNum": 11,
+      "session": "15.4",
+      "gameNum": 1,
       "rounds": 10,
       "won": true,
       "margin": "crush",
@@ -915,8 +915,8 @@
     },
     {
       "id": "0039",
-      "session": "15.3",
-      "gameNum": 12,
+      "session": "15.4",
+      "gameNum": 2,
       "rounds": 13,
       "won": true,
       "margin": "tight",
@@ -939,8 +939,8 @@
     },
     {
       "id": "0040",
-      "session": "15.3",
-      "gameNum": 13,
+      "session": "15.4",
+      "gameNum": 3,
       "rounds": 3,
       "won": false,
       "margin": "crush",
@@ -963,8 +963,8 @@
     },
     {
       "id": "0041",
-      "session": "15.3",
-      "gameNum": 14,
+      "session": "15.4",
+      "gameNum": 4,
       "rounds": 6,
       "won": false,
       "margin": "crush",
@@ -987,8 +987,8 @@
     },
     {
       "id": "0042",
-      "session": "15.3",
-      "gameNum": 15,
+      "session": "15.4",
+      "gameNum": 5,
       "rounds": 10,
       "won": true,
       "margin": "crush",
@@ -1011,8 +1011,8 @@
     },
     {
       "id": "0043",
-      "session": "15.3",
-      "gameNum": 16,
+      "session": "15.4",
+      "gameNum": 6,
       "rounds": 8,
       "won": false,
       "margin": "crush",
@@ -1035,8 +1035,8 @@
     },
     {
       "id": "0044",
-      "session": "15.3",
-      "gameNum": 17,
+      "session": "15.4",
+      "gameNum": 7,
       "rounds": 10,
       "won": true,
       "margin": "clean",
@@ -1059,8 +1059,8 @@
     },
     {
       "id": "0045",
-      "session": "15.3",
-      "gameNum": 18,
+      "session": "15.4",
+      "gameNum": 8,
       "rounds": 6,
       "won": true,
       "margin": "crush",
@@ -1083,8 +1083,8 @@
     },
     {
       "id": "0046",
-      "session": "15.3",
-      "gameNum": 19,
+      "session": "15.4",
+      "gameNum": 9,
       "rounds": 11,
       "won": false,
       "margin": "clean",
@@ -1107,8 +1107,8 @@
     },
     {
       "id": "0047",
-      "session": "15.3",
-      "gameNum": 20,
+      "session": "15.4",
+      "gameNum": 10,
       "rounds": 12,
       "won": true,
       "margin": "clean",
@@ -1131,8 +1131,8 @@
     },
     {
       "id": "0048",
-      "session": "15.3",
-      "gameNum": 21,
+      "session": "15.4",
+      "gameNum": 11,
       "rounds": 19,
       "won": false,
       "margin": "clean",
@@ -15270,10 +15270,10 @@
       "date": "2026-04-07",
       "time": "23h",
       "eloStart": 1162,
-      "eloEnd": 1152,
-      "games": 21,
-      "wins": 10,
-      "losses": 11,
+      "eloEnd": 1118,
+      "games": 10,
+      "wins": 4,
+      "losses": 6,
       "vods": [
         {
           "platform": "twitch",
@@ -15289,6 +15289,35 @@
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2742232942?t=4h55m23s"
+        }
+      ]
+    },
+    {
+      "id": "15.4",
+      "week": 15,
+      "num": 4,
+      "date": "2026-04-08",
+      "time": "20h",
+      "eloStart": 1118,
+      "eloEnd": 1152,
+      "games": 11,
+      "wins": 6,
+      "losses": 5,
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2743116970"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=i6RpW1Mtze4"
+        },
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2743120394"
         }
       ]
     },
