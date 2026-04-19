@@ -14,6 +14,8 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
+import pycountry
+
 from countries import is_valid as is_valid_country
 
 STARTING_HP = 6000
@@ -105,6 +107,26 @@ def fmt_mult(m: float) -> str:
     return f"{int(m)}x" if m == int(m) else f"{m}x"
 
 
+def country_label(code: str) -> str:
+    """Return 'Human name (code)' for display; falls back to the code alone."""
+    code = code.strip().lower()
+    if code == "uk":
+        return f"United Kingdom ({code})"
+    if ":" in code:
+        cc, sub = code.split(":", 1)
+        country_obj = pycountry.countries.get(alpha_2=cc.upper())
+        sub_obj = pycountry.subdivisions.get(code=f"{cc.upper()}-{sub.upper()}")
+        parts = [o.name for o in (country_obj, sub_obj) if o]
+        base = " / ".join(parts) if parts else code
+        return f"{base} ({code})"
+    obj = pycountry.countries.get(alpha_2=code.upper())
+    return f"{obj.name if obj else code} ({code})"
+
+
+def known_countries_from_rows(rows: list[dict]) -> set[str]:
+    return {r["country"].strip().lower() for r in rows if r.get("country")}
+
+
 def ask_int(prompt: str, allow_abort: bool = False) -> int | None:
     while True:
         try:
@@ -130,7 +152,7 @@ def ask_str(prompt: str, default: str = "") -> str:
     return raw or default
 
 
-def play_rounds() -> list[Round] | None:
+def play_rounds(known_countries: set[str]) -> list[Round] | None:
     rounds: list[Round] = []
     while True:
         history = compute_state(rounds)
@@ -184,6 +206,16 @@ def play_rounds() -> list[Round] | None:
         if not is_valid_country(country):
             print(c(f"  Code pays inconnu: {country!r} (ex: fr, uk, us:fl)", C.RED))
             continue
+        if country not in known_countries:
+            label = country_label(country)
+            try:
+                confirm = input(c(f"  Premier {label}. Confirmer ? [O/n] ", C.BYELLOW)).strip().lower()
+            except EOFError:
+                return None
+            if confirm in ("n", "no", "non"):
+                print(c("  Annule, retape le round.", C.DIM))
+                continue
+            known_countries.add(country)
 
         rounds.append(Round(country=country, my_score=my_s, opp_score=opp_s))
         s = compute_state(rounds)[-1]
@@ -204,7 +236,7 @@ def play_rounds() -> list[Round] | None:
         )
 
 
-def play_game(session: str, game_id: str, default_my_elo: int | None = None) -> list[dict] | None:
+def play_game(session: str, game_id: str, known_countries: set[str], default_my_elo: int | None = None) -> list[dict] | None:
     print(c("\n--- Nouvelle partie ---", C.BOLD, C.BCYAN))
     if default_my_elo is not None:
         raw = ask_str(f"Mon ELO [{c(default_my_elo, C.CYAN)}] {c('(q=annuler)', C.DIM)}: ")
@@ -226,7 +258,7 @@ def play_game(session: str, game_id: str, default_my_elo: int | None = None) -> 
     if opp_elo is None:
         return None
 
-    rounds = play_rounds()
+    rounds = play_rounds(known_countries)
     if not rounds:
         print(c("Partie abandonnee (non sauvegardee).", C.YELLOW))
         return None
@@ -426,8 +458,9 @@ def main() -> None:
     total = 0
     next_elo: int | None = sess_elo
     next_id = next_game_id(all_rows)
+    known = known_countries_from_rows(all_rows)
     while True:
-        rows = play_game(session, game_id=f"{next_id:04d}", default_my_elo=next_elo)
+        rows = play_game(session, game_id=f"{next_id:04d}", known_countries=known, default_my_elo=next_elo)
         if rows:
             save_rows(rows)
             total += 1
