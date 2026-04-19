@@ -146,9 +146,8 @@ const nameOf = countryName;
         <div class="wm-tooltip" hidden>
           <div class="wmt-header">
             <span class="wmt-flag fi"></span>
-            <div class="wmt-code"></div>
+            <div class="wmt-name"></div>
           </div>
-          <div class="wmt-name"></div>
           <div class="wmt-rows">
             <div><span>Apparitions</span><b data-field="seen"></b></div>
             <div><span>Duo</span><b class="duo" data-field="acc"></b></div>
@@ -375,7 +374,6 @@ const nameOf = countryName;
       tip.hidden = false;
       const flagEl = tip.querySelector<HTMLElement>(".wmt-flag")!;
       flagEl.className = `wmt-flag fi fi-${d.code!.toLowerCase()}`;
-      tip.querySelector(".wmt-code")!.textContent = d.code!;
       tip.querySelector(".wmt-name")!.textContent = d.name!;
       tip.querySelector('[data-field="seen"]')!.textContent = d.seen!;
       tip.querySelector('[data-field="acc"]')!.textContent = `${d.acc}%`;
@@ -605,8 +603,7 @@ const nameOf = countryName;
   }
   .wmt-header { display: flex; align-items: center; gap: 12px; }
   .wmt-flag { width: 32px; height: 24px; border-radius: 3px; flex-shrink: 0; }
-  .wmt-code { font-family: var(--serif); font-style: italic; font-size: 32px; line-height: 1; color: var(--fg-0); }
-  .wmt-name { color: var(--fg-1); margin-bottom: 10px; margin-top: 2px; }
+  .wmt-name { font-family: var(--serif); font-style: italic; font-size: 22px; line-height: 1.1; color: var(--fg-0); margin-bottom: 10px; }
   .wmt-rows { display: flex; flex-direction: column; gap: 4px; }
   .wmt-rows > div { display: flex; justify-content: space-between; gap: 12px; }
   .wmt-rows span { color: var(--fg-2); }
