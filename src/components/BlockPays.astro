@@ -28,7 +28,7 @@ const colorFor = (code: string) => {
 
 const topByAcc  = [...seenEntries].sort((a, b) => b[1].acc - a[1].acc).slice(0, 5);
 const flopByAcc = [...seenEntries].sort((a, b) => a[1].acc - b[1].acc).slice(0, 5);
-const topBySeen = [...seenEntries].sort((a, b) => b[1].seen - a[1].seen).slice(0, 15);
+const topBySeen = [...seenEntries].sort((a, b) => b[1].seen - a[1].seen).slice(0, 12);
 
 const nameOf = countryName;
 ---
@@ -123,7 +123,7 @@ const nameOf = countryName;
           <div class="tf-title">
             <span data-metric="precision">Top 5<span class="tf-sub">meilleurs</span></span>
             <span data-metric="score">Top 5<span class="tf-sub">meilleurs</span></span>
-            <span data-metric="occurrence">Top 15</span>
+            <span data-metric="occurrence">Top 12</span>
           </div>
           <ol class="tf-list" data-metric="precision">
             {topByAcc.map(([code, s], i) => (
