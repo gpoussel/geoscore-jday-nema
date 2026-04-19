@@ -11,12 +11,13 @@ const { title, emphasis } = Astro.props;
     {title}
     {emphasis && <> <em>&amp; {emphasis}</em></>}
   </h2>
+  <slot />
 </div>
 
 <style>
   .block-head {
     display: flex;
-    align-items: flex-start;
+    align-items: flex-end;
     gap: 20px;
     margin-bottom: var(--gap);
   }

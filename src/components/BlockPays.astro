@@ -8,6 +8,10 @@ import type { CountryStat } from "../types";
 interface Props { countryStats: Record<string, CountryStat>; }
 const { countryStats } = Astro.props;
 
+type Entry = [string, CountryStat];
+const seenEntries: Entry[] = Object.entries(countryStats).filter(([, s]) => s.seen >= 2);
+const maxSeen = seenEntries.reduce((m, [, s]) => Math.max(m, s.seen), 1);
+
 const colorFor = (code: string) => {
   const s = countryStats[code];
   if (!s || s.seen < 2) return "var(--map-unseen)";
@@ -20,21 +24,31 @@ const colorFor = (code: string) => {
   return `color-mix(in oklch, var(--map-mid) ${(1 - k) * 100}%, var(--win) ${k * 100}%)`;
 };
 
-const seenEntries = Object.entries(countryStats).filter(([, s]) => s.seen >= 2);
-const topList = [...seenEntries].sort((a, b) => b[1].acc - a[1].acc).slice(0, 5);
-const flopList = [...seenEntries].sort((a, b) => a[1].acc - b[1].acc).slice(0, 5);
-const beteNoireEntry = [...seenEntries].sort((a, b) => a[1].gap - b[1].gap)[0];
-const beteNoire = beteNoireEntry
-  ? { code: beteNoireEntry[0], stat: beteNoireEntry[1], name: WORLD.find((c) => c.c === beteNoireEntry[0])?.n }
-  : null;
+const topByAcc  = [...seenEntries].sort((a, b) => b[1].acc - a[1].acc).slice(0, 5);
+const flopByAcc = [...seenEntries].sort((a, b) => a[1].acc - b[1].acc).slice(0, 5);
+const topBySeen = [...seenEntries].sort((a, b) => b[1].seen - a[1].seen).slice(0, 5);
+
+const nameOf = (code: string) => WORLD.find((c) => c.c === code)?.n || code;
 ---
 
 <section class="block">
-  <BlockHead title="Pays" emphasis="terrain" />
+  <BlockHead title="Pays" emphasis="terrain">
+    <div class="metric-bar">
+      <span class="label">Classer par</span>
+      <div class="toggle">
+        <button class="btn" data-metric="score">Score</button>
+        <button class="btn active" data-metric="precision">Précision</button>
+        <button class="btn" data-metric="occurrence">Occurrence</button>
+      </div>
+    </div>
+  </BlockHead>
   <div class="grid">
     <Card class="card-map">
       <CardHead eyebrow="Carte" />
-      <div class="worldmap-wrap">
+      <div
+        class="worldmap-wrap"
+        data-max-seen={maxSeen}
+      >
         <svg viewBox="0 0 1000 500" width="100%" class="worldmap">
           <defs>
             <pattern id="wmgrid" width="20" height="20" patternUnits="userSpaceOnUse">
@@ -69,7 +83,7 @@ const beteNoire = beteNoireEntry
         </svg>
 
         <div class="wm-legend">
-          <span class="wml-label">Précision moyenne</span>
+          <span class="wml-label" data-metric-label>Précision moyenne</span>
           <div class="wml-scale">
             <span style="background: var(--loss)"></span>
             <span style="background: color-mix(in oklch, var(--loss) 50%, var(--map-mid))"></span>
@@ -77,7 +91,11 @@ const beteNoire = beteNoireEntry
             <span style="background: color-mix(in oklch, var(--map-mid) 50%, var(--win))"></span>
             <span style="background: var(--win)"></span>
           </div>
-          <div class="wml-ticks"><span>55%</span><span>75%</span><span>95%</span></div>
+          <div class="wml-ticks">
+            <span data-tick-lo>55%</span>
+            <span data-tick-mid>75%</span>
+            <span data-tick-hi>95%</span>
+          </div>
           <div class="wml-note">Pays vus &lt; 2× non colorés</div>
         </div>
 
@@ -98,19 +116,38 @@ const beteNoire = beteNoireEntry
       <Card class="card-top">
         <div class="topflop">
           <div class="tf-title">Top 5<span class="tf-sub">meilleurs</span></div>
-          <ol class="tf-list">
-            {topList.map(([code, s], i) => {
-              const country = WORLD.find((c) => c.c === code);
-              return (
-                <li>
-                  <span class="tf-rank">{i + 1}</span>
-                  <span class="tf-flag">{code}</span>
-                  <span class="tf-name">{country?.n || code}</span>
-                  <span class="tf-app">×{s.seen}</span>
-                  <span class="tf-acc tf-win">{s.acc.toFixed(0)}%</span>
-                </li>
-              );
-            })}
+          <ol class="tf-list" data-metric="precision">
+            {topByAcc.map(([code, s], i) => (
+              <li>
+                <span class="tf-rank">{i + 1}</span>
+                <span class="tf-flag">{code}</span>
+                <span class="tf-name">{nameOf(code)}</span>
+                <span class="tf-app">×{s.seen}</span>
+                <span class="tf-val tf-win">{s.acc.toFixed(0)}%</span>
+              </li>
+            ))}
+          </ol>
+          <ol class="tf-list" data-metric="score">
+            {topByAcc.map(([code, s], i) => (
+              <li>
+                <span class="tf-rank">{i + 1}</span>
+                <span class="tf-flag">{code}</span>
+                <span class="tf-name">{nameOf(code)}</span>
+                <span class="tf-app">×{s.seen}</span>
+                <span class="tf-val tf-win">{Math.round(s.acc * 50)}</span>
+              </li>
+            ))}
+          </ol>
+          <ol class="tf-list" data-metric="occurrence">
+            {topBySeen.map(([code, s], i) => (
+              <li>
+                <span class="tf-rank">{i + 1}</span>
+                <span class="tf-flag">{code}</span>
+                <span class="tf-name">{nameOf(code)}</span>
+                <span class="tf-app">{s.acc.toFixed(0)}%</span>
+                <span class="tf-val tf-win">×{s.seen}</span>
+              </li>
+            ))}
           </ol>
         </div>
       </Card>
@@ -118,48 +155,109 @@ const beteNoire = beteNoireEntry
       <Card class="card-flop">
         <div class="topflop">
           <div class="tf-title">Flop 5<span class="tf-sub">pires</span></div>
-          <ol class="tf-list">
-            {flopList.map(([code, s], i) => {
-              const country = WORLD.find((c) => c.c === code);
-              return (
-                <li>
-                  <span class="tf-rank">{i + 1}</span>
-                  <span class="tf-flag">{code}</span>
-                  <span class="tf-name">{country?.n || code}</span>
-                  <span class="tf-app">×{s.seen}</span>
-                  <span class="tf-acc tf-loss">{s.acc.toFixed(0)}%</span>
-                </li>
-              );
-            })}
+          <ol class="tf-list" data-metric="precision">
+            {flopByAcc.map(([code, s], i) => (
+              <li>
+                <span class="tf-rank">{i + 1}</span>
+                <span class="tf-flag">{code}</span>
+                <span class="tf-name">{nameOf(code)}</span>
+                <span class="tf-app">×{s.seen}</span>
+                <span class="tf-val tf-loss">{s.acc.toFixed(0)}%</span>
+              </li>
+            ))}
+          </ol>
+          <ol class="tf-list" data-metric="score">
+            {flopByAcc.map(([code, s], i) => (
+              <li>
+                <span class="tf-rank">{i + 1}</span>
+                <span class="tf-flag">{code}</span>
+                <span class="tf-name">{nameOf(code)}</span>
+                <span class="tf-app">×{s.seen}</span>
+                <span class="tf-val tf-loss">{Math.round(s.acc * 50)}</span>
+              </li>
+            ))}
           </ol>
         </div>
       </Card>
-
-      {beteNoire && (
-        <Card variant="warn" class="card-bn">
-          <div class="bete-noire">
-            <div class="bn-eyebrow">Bête noire</div>
-            <div class="bn-country">
-              <div class="bn-code">{beteNoire.code}</div>
-              <div class="bn-name">{beteNoire.name}</div>
-            </div>
-            <div class="bn-gap">
-              <div class="bn-gap-val">{beteNoire.stat.gap.toFixed(1)}</div>
-              <div class="bn-gap-lbl">écart moyen<br />vs adversaire</div>
-            </div>
-            <div class="bn-detail">
-              <div><span>Duo</span><b>{beteNoire.stat.acc.toFixed(1)}%</b></div>
-              <div><span>Adversaire</span><b>{beteNoire.stat.advAcc.toFixed(1)}%</b></div>
-              <div><span>Apparitions</span><b>{beteNoire.stat.seen}</b></div>
-            </div>
-          </div>
-        </Card>
-      )}
     </div>
   </div>
 </section>
 
 <script>
+  type Metric = "score" | "precision" | "occurrence";
+
+  const LO = { score: 2750, precision: 55 };
+  const HI = { score: 4750, precision: 95 };
+
+  const colorForT = (t: number) => {
+    t = Math.max(0, Math.min(1, t));
+    if (t < 0.5) {
+      const k = t * 2;
+      return `color-mix(in oklch, var(--loss) ${(1 - k) * 100}%, var(--map-mid) ${k * 100}%)`;
+    }
+    const k = (t - 0.5) * 2;
+    return `color-mix(in oklch, var(--map-mid) ${(1 - k) * 100}%, var(--win) ${k * 100}%)`;
+  };
+
+  const recolor = (metric: Metric) => {
+    document.querySelectorAll<HTMLElement>(".worldmap-wrap").forEach((wrap) => {
+      const maxSeen = Number(wrap.dataset.maxSeen) || 1;
+      wrap.querySelectorAll<SVGRectElement>(".country").forEach((rect) => {
+        const seen = Number(rect.dataset.seen);
+        if (!seen || seen < 2) {
+          rect.setAttribute("fill", "var(--map-unseen)");
+          return;
+        }
+        let t: number;
+        if (metric === "occurrence") {
+          t = maxSeen > 1 ? (seen - 2) / (maxSeen - 2) : 0.5;
+        } else {
+          const val = metric === "score" ? Number(rect.dataset.acc) * 50 : Number(rect.dataset.acc);
+          const lo = LO[metric];
+          const hi = HI[metric];
+          t = (val - lo) / (hi - lo);
+        }
+        rect.setAttribute("fill", colorForT(t));
+      });
+
+      const maxSeenLabel = `×${maxSeen}`;
+      wrap.querySelectorAll<HTMLElement>("[data-metric-label]").forEach((el) => {
+        el.textContent =
+          metric === "score" ? "Score moyen" :
+          metric === "occurrence" ? "Apparitions" :
+          "Précision moyenne";
+      });
+      const lo = wrap.querySelector<HTMLElement>("[data-tick-lo]");
+      const mid = wrap.querySelector<HTMLElement>("[data-tick-mid]");
+      const hi = wrap.querySelector<HTMLElement>("[data-tick-hi]");
+      if (lo && mid && hi) {
+        if (metric === "score") {
+          lo.textContent = "2750"; mid.textContent = "3750"; hi.textContent = "4750";
+        } else if (metric === "occurrence") {
+          lo.textContent = "2"; mid.textContent = String(Math.round((maxSeen + 2) / 2)); hi.textContent = maxSeenLabel.slice(1);
+        } else {
+          lo.textContent = "55%"; mid.textContent = "75%"; hi.textContent = "95%";
+        }
+      }
+    });
+  };
+
+  const applyMetric = (metric: Metric) => {
+    document.body.classList.remove("metric-score", "metric-precision", "metric-occurrence");
+    document.body.classList.add(`metric-${metric}`);
+    document.querySelectorAll<HTMLButtonElement>(".metric-bar .btn").forEach((b) => {
+      b.classList.toggle("active", b.dataset.metric === metric);
+    });
+    recolor(metric);
+  };
+
+  document.body.classList.add("metric-precision");
+  recolor("precision");
+
+  document.querySelectorAll<HTMLButtonElement>(".metric-bar .btn").forEach((btn) => {
+    btn.addEventListener("click", () => applyMetric(btn.dataset.metric as Metric));
+  });
+
   document.querySelectorAll<SVGRectElement>(".worldmap .country").forEach((rect) => {
     const wrap = rect.closest(".worldmap-wrap");
     const tip = wrap?.querySelector<HTMLDivElement>(".wm-tooltip");
@@ -186,6 +284,13 @@ const beteNoire = beteNoireEntry
   });
 </script>
 
+<style is:global>
+  body.metric-precision  .tf-list[data-metric]:not([data-metric="precision"]) { display: none; }
+  body.metric-score      .tf-list[data-metric]:not([data-metric="score"])     { display: none; }
+  body.metric-occurrence .tf-list[data-metric]:not([data-metric="occurrence"]) { display: none; }
+  body.metric-occurrence .card-flop { display: none; }
+</style>
+
 <style>
   .block { margin-top: calc(var(--gap) * 2.5); }
   .grid {
@@ -195,9 +300,33 @@ const beteNoire = beteNoireEntry
   }
   .side { display: flex; flex-direction: column; gap: var(--gap); }
 
+  .metric-bar {
+    display: flex; align-items: center; gap: 12px;
+    padding-bottom: 6px;
+  }
+  .metric-bar .label {
+    font-family: var(--sans); font-size: 12px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-2);
+  }
+  .metric-bar .toggle {
+    display: flex; gap: 4px; padding: 3px;
+    background: var(--bg-2); border: 1px solid var(--border);
+    border-radius: 99px;
+  }
+  .metric-bar .btn {
+    background: transparent; border: none; color: var(--fg-2);
+    padding: 6px 14px;
+    font-family: var(--sans); font-size: 13px;
+    letter-spacing: 0.02em; text-transform: uppercase;
+    cursor: pointer; border-radius: 99px;
+    transition: all 0.15s;
+  }
+  .metric-bar .btn:hover { color: var(--fg-0); }
+  .metric-bar .btn.active { background: var(--fg-0); color: var(--bg-0); }
+
   .worldmap-wrap { position: relative; }
   .worldmap { display: block; }
-  .country { transition: stroke 0.15s; }
+  .country { transition: stroke 0.15s, fill 0.2s; }
 
   .wm-legend {
     position: absolute; left: 0; bottom: 0;
@@ -264,47 +393,9 @@ const beteNoire = beteNoireEntry
   }
   .tf-name { color: var(--fg-1); font-family: var(--sans); font-size: 12px; }
   .tf-app { color: var(--fg-3); font-size: 10px; }
-  .tf-acc { font-weight: 600; font-size: 13px; }
+  .tf-val { font-weight: 600; font-size: 13px; }
   .tf-win { color: var(--win); }
   .tf-loss { color: var(--loss); }
-
-  .bete-noire { display: flex; flex-direction: column; gap: 12px; }
-  .bn-eyebrow {
-    font-family: var(--sans); font-size: 12px;
-    letter-spacing: 0.06em; text-transform: uppercase; color: var(--loss);
-  }
-  .bn-country { display: flex; align-items: center; gap: 12px; }
-  .bn-code {
-    font-family: var(--serif); font-style: italic;
-    font-size: 44px; color: var(--fg-0); line-height: 0.9;
-    letter-spacing: -0.02em;
-  }
-  .bn-name { font-family: var(--sans); font-size: 14px; color: var(--fg-1); }
-  .bn-gap {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 0; border-top: 1px solid var(--border);
-  }
-  .bn-gap-val {
-    font-family: var(--serif); font-style: italic;
-    font-size: 52px; line-height: 0.9; color: var(--loss);
-    letter-spacing: -0.03em;
-  }
-  .bn-gap-lbl {
-    font-family: var(--sans); font-size: 12px;
-    letter-spacing: 0.04em; color: var(--fg-2);
-    text-transform: uppercase; line-height: 1.3;
-  }
-  .bn-detail {
-    display: grid; grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
-    padding-top: 12px; border-top: 1px solid var(--border);
-  }
-  .bn-detail > div { display: flex; flex-direction: column; gap: 2px; }
-  .bn-detail span {
-    font-family: var(--sans); font-size: 11px;
-    letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-2);
-  }
-  .bn-detail b { font-family: var(--mono); font-size: 14px; color: var(--fg-0); font-weight: 500; }
 
   @media (max-width: 1024px) {
     .grid { grid-template-columns: 1fr; }
