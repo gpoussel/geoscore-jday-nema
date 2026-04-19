@@ -4,18 +4,40 @@ import CardHead from "./ui/CardHead.astro";
 import BlockHead from "./ui/BlockHead.astro";
 import type { Game, Session } from "../types";
 
-interface Props { games: Game[]; sessions: Session[]; }
-const { games, sessions } = Astro.props;
+interface Props { games: Game[]; sessions: Session[]; aggregateBySession?: boolean; }
+const { games, sessions, aggregateBySession = false } = Astro.props;
 
 const fmtDate = (iso: string) => { const [, m, d] = iso.split("-"); return `${d}/${m}`; };
-const boundaries = sessions
-  .map((s) => {
-    const idx = games.findIndex((g) => g.session === s.id);
-    return idx < 0 ? null : { idx, date: fmtDate(s.date), time: s.time };
-  })
-  .filter((b): b is { idx: number; date: string; time: string } => b !== null);
 
-const precData = games.map((g) => ({ myAcc: g.myAcc, advAcc: g.advAcc }));
+type PrecPoint =
+  | { kind: "game"; myAcc: number; advAcc: number; gameNum: number }
+  | { kind: "session"; myAcc: number; advAcc: number; label: string; games: number };
+
+const precData: PrecPoint[] = aggregateBySession
+  ? sessions
+      .map((s) => {
+        const sg = games.filter((g) => g.session === s.id);
+        if (!sg.length) return null;
+        return {
+          kind: "session" as const,
+          myAcc: sg.reduce((acc, g) => acc + g.myAcc, 0) / sg.length,
+          advAcc: sg.reduce((acc, g) => acc + g.advAcc, 0) / sg.length,
+          label: `${fmtDate(s.date)} · ${s.time}`,
+          games: sg.length,
+        };
+      })
+      .filter((p): p is Extract<PrecPoint, { kind: "session" }> => p !== null)
+  : games.map((g, i) => ({ kind: "game" as const, myAcc: g.myAcc, advAcc: g.advAcc, gameNum: i + 1 }));
+
+const boundaries = aggregateBySession
+  ? []
+  : sessions
+      .map((s) => {
+        const idx = games.findIndex((g) => g.session === s.id);
+        return idx < 0 ? null : { idx, date: fmtDate(s.date), time: s.time };
+      })
+      .filter((b): b is { idx: number; date: string; time: string } => b !== null);
+
 const avgMe = games.length ? games.reduce((s, g) => s + g.myAcc, 0) / games.length : 0;
 const avgAdv = games.length ? games.reduce((s, g) => s + g.advAcc, 0) / games.length : 0;
 
@@ -182,7 +204,9 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
 
   Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip);
 
-  type Pt = { myAcc: number; advAcc: number };
+  type Pt =
+    | { kind: "game"; myAcc: number; advAcc: number; gameNum: number }
+    | { kind: "session"; myAcc: number; advAcc: number; label: string; games: number };
 
   const cssVar = (n: string) => getComputedStyle(document.body).getPropertyValue(n).trim();
   const winColor = cssVar("--win");
@@ -209,8 +233,11 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
       }
       const idx = tooltip.dataPoints[0].dataIndex as number;
       const g = points[idx];
+      const header = g.kind === "session"
+        ? `${g.label} · ${g.games} ${g.games > 1 ? "parties" : "partie"}`
+        : `Partie #${g.gameNum}`;
       el.innerHTML =
-        `<div class="pth">Partie #${idx + 1}</div>` +
+        `<div class="pth">${header}</div>` +
         `<div class="ptl"><span class="sw sw-win"></span> Duo <b>${g.myAcc.toFixed(1).replace(".", ",")}%</b></div>` +
         `<div class="ptl"><span class="sw sw-loss"></span> Adv. <b>${g.advAcc.toFixed(1).replace(".", ",")}%</b></div>`;
       const w = container.clientWidth;

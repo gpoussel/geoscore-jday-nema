@@ -135,7 +135,7 @@ const generatedAt = new Date(stats.generatedAt).toLocaleDateString("fr-FR");
         <div data-view={key} class="view">
           <KpiRow {...v.kpis} />
           <BlockElo games={v.games} sessions={v.sessions} />
-          <BlockPrecision games={v.games} sessions={v.sessions} />
+          <BlockPrecision games={v.games} sessions={v.sessions} aggregateBySession={key === "all"} />
           <BlockPays countryStats={v.countryStats} />
           <BlockRecords games={v.games} rounds={v.rounds} />
           <BlockSessions sessions={v.sessions} players={players} />
