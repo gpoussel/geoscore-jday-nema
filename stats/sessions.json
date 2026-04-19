@@ -1,4 +1,54 @@
 {
+  "15.1": {
+    "duoRank": "Master 2",
+    "date": "2026-04-07",
+    "time": "13h",
+    "vods": [
+      { "platform": "twitch", "player": "jday", "url": "https://www.twitch.tv/videos/2742082924" },
+      { "platform": "youtube", "player": "jday", "url": "https://www.youtube.com/watch?v=ESCCXNTzBVs" },
+      { "platform": "twitch", "player": "nema", "url": "https://www.twitch.tv/videos/2742010098?t=3h52m16s" }
+    ]
+  },
+  "15.2": {
+    "duoRank": "Master 2",
+    "date": "2026-04-07",
+    "time": "18h",
+    "vods": [
+      { "platform": "twitch", "player": "jday", "url": "https://www.twitch.tv/videos/2742230423?t=0h0m1s" },
+      { "platform": "youtube", "player": "jday", "url": "https://www.youtube.com/watch?v=G46_l2HGEMs&t=660s" },
+      { "platform": "twitch", "player": "nema", "url": "https://www.twitch.tv/videos/2742010098?t=3h52m16s" }
+    ]
+  },
+  "15.3": {
+    "duoRank": "Master 2",
+    "date": "2026-04-07",
+    "time": "23h",
+    "vods": [
+      { "platform": "twitch", "player": "jday", "url": "https://www.twitch.tv/videos/2742230423?t=5h3m12s" },
+      { "platform": "youtube", "player": "jday", "url": "https://www.youtube.com/watch?v=G46_l2HGEMs&t=18280s" },
+      { "platform": "twitch", "player": "nema", "url": "https://www.twitch.tv/videos/2742232942?t=4h55m23s" }
+    ]
+  },
+  "15.4": {
+    "duoRank": "Master 2",
+    "date": "2026-04-08",
+    "time": "20h",
+    "vods": [
+      { "platform": "twitch", "player": "jday", "url": "https://www.twitch.tv/videos/2743116970" },
+      { "platform": "youtube", "player": "jday", "url": "https://www.youtube.com/watch?v=i6RpW1Mtze4" },
+      { "platform": "twitch", "player": "nema", "url": "https://www.twitch.tv/videos/2743120394" }
+    ]
+  },
+  "15.5": {
+    "duoRank": "Master 2",
+    "date": "2026-04-10",
+    "time": "13h",
+    "vods": [
+      { "platform": "twitch", "player": "jday", "url": "https://www.twitch.tv/videos/2744475590" },
+      { "platform": "youtube", "player": "jday", "url": "https://www.youtube.com/watch?v=0S70mlSh-SI" },
+      { "platform": "twitch", "player": "nema", "url": "https://www.twitch.tv/videos/2744402921?t=3h41m41s" }
+    ]
+  },
   "16.1": {
     "duoRank": "Master 1",
     "date": "2026-04-13",
