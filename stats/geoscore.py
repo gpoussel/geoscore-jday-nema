@@ -54,7 +54,7 @@ def c(text: object, *codes: str) -> str:
 
 
 COLUMNS = [
-    "session", "game_id", "game_started_at",
+    "session", "game_id",
     "my_elo_before", "opp_elo", "elo_delta", "my_elo_after", "won",
     "total_rounds", "final_my_hp", "final_opp_hp",
     "round_num", "country", "my_score", "opp_score",
@@ -227,7 +227,6 @@ def play_game(session: str, default_my_elo: int | None = None) -> list[dict] | N
         return None
 
     game_id = datetime.now().strftime("%Y%m%d-%H%M%S")
-    started_at = datetime.now().isoformat(timespec="seconds")
 
     rounds = play_rounds()
     if not rounds:
@@ -258,7 +257,6 @@ def play_game(session: str, default_my_elo: int | None = None) -> list[dict] | N
         rows.append({
             "session": session,
             "game_id": game_id,
-            "game_started_at": started_at,
             "my_elo_before": my_elo,
             "opp_elo": opp_elo,
             "elo_delta": delta,

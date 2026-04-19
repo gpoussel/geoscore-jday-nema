@@ -84,7 +84,10 @@ def aggregate_games(rows: list[dict]) -> tuple[list[dict], list[dict]]:
             if s >= 5000:
                 perfects += 1
 
-        started_at = head["game_started_at"]
+        # game_id format: YYYYMMDD-HHMMSS — the CSV no longer stores a
+        # separate timestamp, so reconstruct ISO forms from the id itself.
+        d, t = gid.split("-", 1)
+        started_at = f"{d[:4]}-{d[4:6]}-{d[6:8]}T{t[:2]}:{t[2:4]}:{t[4:6]}"
         date = started_at[:10]
 
         games.append({
