@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-19T12:41:51",
+  "generatedAt": "2026-04-19T13:59:07",
   "duoRank": "Master 1",
   "games": [
     {
@@ -2681,7 +2681,7 @@
     {
       "gameId": "20260418-214016",
       "roundNum": 11,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4791,
       "oppScore": 4664,
       "winner": "me",
@@ -2991,7 +2991,7 @@
     {
       "gameId": "20260418-220921",
       "roundNum": 5,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4946,
       "oppScore": 4999,
       "winner": "opp",
@@ -3111,7 +3111,7 @@
     {
       "gameId": "20260418-221534",
       "roundNum": 7,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4994,
       "oppScore": 4994,
       "winner": "tie",
@@ -3271,7 +3271,7 @@
     {
       "gameId": "20260418-222531",
       "roundNum": 2,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4987,
       "oppScore": 4996,
       "winner": "opp",
@@ -4261,7 +4261,7 @@
     {
       "gameId": "20260418-231014",
       "roundNum": 1,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4884,
       "oppScore": 4626,
       "winner": "me",
@@ -4661,7 +4661,7 @@
     {
       "gameId": "20260418-232800",
       "roundNum": 2,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4956,
       "oppScore": 4975,
       "winner": "opp",
@@ -4711,7 +4711,7 @@
     {
       "gameId": "20260418-232800",
       "roundNum": 7,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4939,
       "oppScore": 4555,
       "winner": "me",
@@ -4961,7 +4961,7 @@
     {
       "gameId": "20260418-233821",
       "roundNum": 7,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4229,
       "oppScore": 4997,
       "winner": "opp",
@@ -5151,7 +5151,7 @@
     {
       "gameId": "20260418-234813",
       "roundNum": 3,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4997,
       "oppScore": 4635,
       "winner": "me",
@@ -5301,7 +5301,7 @@
     {
       "gameId": "20260418-235147",
       "roundNum": 10,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4756,
       "oppScore": 4929,
       "winner": "opp",
@@ -5351,7 +5351,7 @@
     {
       "gameId": "20260419-000039",
       "roundNum": 4,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4789,
       "oppScore": 4849,
       "winner": "opp",
@@ -5751,7 +5751,7 @@
     {
       "gameId": "20260419-001722",
       "roundNum": 7,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4994,
       "oppScore": 4993,
       "winner": "me",
@@ -6141,7 +6141,7 @@
     {
       "gameId": "20260419-003335",
       "roundNum": 8,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4959,
       "oppScore": 4930,
       "winner": "me",
@@ -6211,7 +6211,7 @@
     {
       "gameId": "20260419-003335",
       "roundNum": 15,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4998,
       "oppScore": 5000,
       "winner": "opp",
@@ -6321,7 +6321,7 @@
     {
       "gameId": "20260419-004202",
       "roundNum": 10,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4997,
       "oppScore": 4850,
       "winner": "me",
@@ -7131,7 +7131,7 @@
     {
       "gameId": "20260419-080714",
       "roundNum": 6,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4707,
       "oppScore": 4981,
       "winner": "opp",
@@ -7161,7 +7161,7 @@
     {
       "gameId": "20260419-081128",
       "roundNum": 2,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4907,
       "oppScore": 4997,
       "winner": "opp",
@@ -7301,7 +7301,7 @@
     {
       "gameId": "20260419-081128",
       "roundNum": 16,
-      "country": "UK",
+      "country": "GB",
       "myScore": 5000,
       "oppScore": 5000,
       "winner": "tie",
@@ -7391,7 +7391,7 @@
     {
       "gameId": "20260419-081936",
       "roundNum": 5,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4756,
       "oppScore": 4949,
       "winner": "opp",
@@ -7711,7 +7711,7 @@
     {
       "gameId": "20260419-083113",
       "roundNum": 2,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4967,
       "oppScore": 4986,
       "winner": "opp",
@@ -7791,7 +7791,7 @@
     {
       "gameId": "20260419-083113",
       "roundNum": 10,
-      "country": "UK",
+      "country": "GB",
       "myScore": 5000,
       "oppScore": 5000,
       "winner": "tie",
@@ -8471,7 +8471,7 @@
     {
       "gameId": "20260419-085830",
       "roundNum": 2,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4994,
       "oppScore": 4945,
       "winner": "me",
@@ -9411,7 +9411,7 @@
     {
       "gameId": "20260419-092655",
       "roundNum": 2,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4960,
       "oppScore": 4959,
       "winner": "me",
@@ -9541,7 +9541,7 @@
     {
       "gameId": "20260419-093013",
       "roundNum": 6,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4999,
       "oppScore": 4960,
       "winner": "me",
@@ -9631,7 +9631,7 @@
     {
       "gameId": "20260419-093013",
       "roundNum": 15,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4872,
       "oppScore": 4965,
       "winner": "opp",
@@ -10121,7 +10121,7 @@
     {
       "gameId": "20260419-095032",
       "roundNum": 4,
-      "country": "UK",
+      "country": "GB",
       "myScore": 4905,
       "oppScore": 4979,
       "winner": "opp",
