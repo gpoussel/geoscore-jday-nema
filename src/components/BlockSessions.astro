@@ -23,13 +23,7 @@ const formatDate = (raw: string) => {
         <div class="sc">
           <div class="head">
             <span class="date">{formatDate(s.date)}</span>
-            <span class="week">S{s.week}</span>
-          </div>
-          <div class="ranks">
-            <div class="rank">
-              <span class="name">Rang duo</span>
-              <span class="val">{s.duoRank}</span>
-            </div>
+            <span class="week">S{s.week}.{s.num}</span>
           </div>
           <div class="elo">
             <div class="elo-row">
@@ -127,14 +121,8 @@ const formatDate = (raw: string) => {
     padding: 3px 8px; background: var(--bg-2); border-radius: 99px;
   }
 
-  .ranks { display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--bg-2); border-radius: 6px; }
-  .rank { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; }
-  .rank .name { color: var(--fg-2); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
-  .rank .val { color: var(--fg-0); margin-left: auto; font-size: 11px; letter-spacing: 0.06em; font-weight: 600; }
-
   .elo {
     display: flex; justify-content: space-between; align-items: baseline;
-    padding-top: 10px; border-top: 1px solid var(--border);
   }
   .elo-row { display: flex; flex-direction: column; gap: 2px; }
   .elo-row span {

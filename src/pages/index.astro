@@ -20,7 +20,7 @@ type View = {
   rounds: Round[];
   sessions: Stats["sessions"];
   countryStats: Record<string, CountryStat>;
-  kpis: { games: number; winRate: number; eloNet: number; avgAcc: number; recordDamage: number };
+  kpis: { games: number; winRate: number; eloNet: number; avgAcc: number };
 };
 
 const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
@@ -46,10 +46,6 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
   const wins = games.filter((g) => g.won).length;
   const eloNet = games.reduce((s, g) => s + g.eloDelta, 0);
   const avgAcc = games.length ? games.reduce((s, g) => s + g.myAcc, 0) / games.length : 0;
-  const recordDamage = rounds.reduce(
-    (m, r) => (r.winner === "me" ? Math.max(m, r.damage) : m),
-    0,
-  );
 
   return {
     games,
@@ -61,7 +57,6 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
       winRate: Math.round((wins / Math.max(1, games.length)) * 100),
       eloNet,
       avgAcc,
-      recordDamage,
     },
   };
 };
