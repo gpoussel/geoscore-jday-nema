@@ -76,10 +76,14 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
   };
 };
 
-const views: Record<"week1" | "all", View> = {
-  week1: buildView(
-    enrichedGames.filter((g) => g.week === 1),
-    stats.sessions.filter((s) => s.week === 1),
+const latestWeek = enrichedGames.length
+  ? Math.max(...enrichedGames.map((g) => g.week))
+  : 0;
+
+const views: Record<"current" | "all", View> = {
+  current: buildView(
+    enrichedGames.filter((g) => g.week === latestWeek),
+    stats.sessions.filter((s) => s.week === latestWeek),
   ),
   all: buildView(enrichedGames, stats.sessions),
 };
@@ -100,14 +104,14 @@ const generatedAt = new Date(stats.generatedAt).toLocaleDateString("fr-FR");
       rel="stylesheet"
     />
   </head>
-  <body class="period-week1">
+  <body class="period-current">
     <div class="app">
       <header class="header">
         <TeamCard players={players} duoRank={stats.duoRank} />
-        <PeriodToggle />
+        <PeriodToggle week={latestWeek} />
       </header>
 
-      {(["week1", "all"] as const).map((p) => {
+      {(["current", "all"] as const).map((p) => {
         const v = views[p];
         return (
           <div data-view={p} class="view">
@@ -124,7 +128,7 @@ const generatedAt = new Date(stats.generatedAt).toLocaleDateString("fr-FR");
       <footer class="footer">
         <span>JDAY × NÉMA · DUO STATS</span>
         <span data-footer-period>
-          <span class="fp-week1">SEMAINE 1 · {views.week1.games.length} PARTIES</span>
+          <span class="fp-current">SEMAINE {latestWeek} · {views.current.games.length} PARTIES</span>
           <span class="fp-all">GLOBAL · {views.all.games.length} PARTIES</span>
         </span>
         <span>MAJ {generatedAt}</span>
@@ -134,8 +138,8 @@ const generatedAt = new Date(stats.generatedAt).toLocaleDateString("fr-FR");
 </html>
 
 <style is:global>
-  body.period-week1 [data-view="all"] { display: none; }
-  body.period-all [data-view="week1"] { display: none; }
-  body.period-week1 [data-footer-period] .fp-all { display: none; }
-  body.period-all [data-footer-period] .fp-week1 { display: none; }
+  body.period-current [data-view="all"] { display: none; }
+  body.period-all [data-view="current"] { display: none; }
+  body.period-current [data-footer-period] .fp-all { display: none; }
+  body.period-all [data-footer-period] .fp-current { display: none; }
 </style>

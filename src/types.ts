@@ -73,7 +73,7 @@ export type Stats = {
   sessions: Session[];
 };
 
-export type Period = "week1" | "all";
+export type Period = "current" | "all";
 
 export type CountryStat = {
   seen: number;
