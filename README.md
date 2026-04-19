@@ -73,6 +73,6 @@ There is no test suite. `astro check` (run as part of `build`) must stay at 0 er
 
 Astro 6 · TypeScript · Chart.js 4 · d3-geo · topojson-client · world-atlas · flag-icons · i18n-iso-countries · Python 3.10+ with PEP 723 inline deps (`pycountry`) · `uv` for Python execution · `pnpm` for Node.
 
-## Credits
+## License
 
-Stats and streams by JDay & Néma. Dashboard by Guillaume Poussel.
+Released under the [MIT License](LICENSE).
