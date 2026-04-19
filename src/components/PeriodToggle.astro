@@ -1,12 +1,20 @@
 ---
-interface Props { week: number; }
-const { week } = Astro.props;
+interface Props {
+  weeks: number[];
+  activeWeek: number;
+}
+const { weeks, activeWeek } = Astro.props;
 ---
 
 <div class="period-bar">
   <span class="label">Période</span>
   <div class="toggle">
-    <button class="btn active" data-period="current">Semaine {week}</button>
+    {weeks.map((w) => (
+      <button
+        class:list={["btn", { active: w === activeWeek }]}
+        data-period={`w${w}`}
+      >Semaine {w}</button>
+    ))}
     <button class="btn" data-period="all">Tout</button>
   </div>
 </div>
@@ -16,8 +24,7 @@ const { week } = Astro.props;
   buttons.forEach((btn) => {
     btn.addEventListener("click", () => {
       const p = btn.dataset.period!;
-      document.body.classList.remove("period-current", "period-all");
-      document.body.classList.add(`period-${p}`);
+      document.body.dataset.period = p;
       buttons.forEach((b) => b.classList.toggle("active", b === btn));
     });
   });

@@ -76,17 +76,34 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
   };
 };
 
-const latestWeek = enrichedGames.length
-  ? Math.max(...enrichedGames.map((g) => g.week))
-  : 0;
+const weeks = [...new Set(enrichedGames.map((g) => g.week))].sort((a, b) => a - b);
+const latestWeek = weeks.length ? weeks[weeks.length - 1] : 0;
 
-const views: Record<"current" | "all", View> = {
-  current: buildView(
-    enrichedGames.filter((g) => g.week === latestWeek),
-    stats.sessions.filter((s) => s.week === latestWeek),
-  ),
-  all: buildView(enrichedGames, stats.sessions),
-};
+type ViewKey = string; // "w15", "w16", …, "all"
+const periods: { key: ViewKey; label: string; view: View }[] = [
+  ...weeks.map((w) => ({
+    key: `w${w}`,
+    label: `SEMAINE ${w}`,
+    view: buildView(
+      enrichedGames.filter((g) => g.week === w),
+      stats.sessions.filter((s) => s.week === w),
+    ),
+  })),
+  {
+    key: "all",
+    label: "GLOBAL",
+    view: buildView(enrichedGames, stats.sessions),
+  },
+];
+const activePeriod = `w${latestWeek}`;
+
+const hideCss = periods
+  .map(
+    (p) =>
+      `body[data-period="${p.key}"] [data-view]:not([data-view="${p.key}"]) { display: none; }\n` +
+      `body[data-period="${p.key}"] [data-footer-period] [data-fp]:not([data-fp="${p.key}"]) { display: none; }`,
+  )
+  .join("\n");
 
 const generatedAt = new Date(stats.generatedAt).toLocaleDateString("fr-FR");
 ---
@@ -104,32 +121,30 @@ const generatedAt = new Date(stats.generatedAt).toLocaleDateString("fr-FR");
       rel="stylesheet"
     />
   </head>
-  <body class="period-current">
+  <body data-period={activePeriod}>
     <div class="app">
       <header class="header">
         <TeamCard players={players} duoRank={stats.duoRank} />
-        <PeriodToggle week={latestWeek} />
+        <PeriodToggle weeks={weeks} activeWeek={latestWeek} />
       </header>
 
-      {(["current", "all"] as const).map((p) => {
-        const v = views[p];
-        return (
-          <div data-view={p} class="view">
-            <KpiRow {...v.kpis} />
-            <BlockElo games={v.games} sessions={v.sessions} />
-            <BlockPrecision games={v.games} sessions={v.sessions} />
-            <BlockPays countryStats={v.countryStats} />
-            <BlockRecords games={v.games} rounds={v.rounds} />
-            <BlockSessions sessions={v.sessions} players={players} />
-          </div>
-        );
-      })}
+      {periods.map(({ key, view: v }) => (
+        <div data-view={key} class="view">
+          <KpiRow {...v.kpis} />
+          <BlockElo games={v.games} sessions={v.sessions} />
+          <BlockPrecision games={v.games} sessions={v.sessions} />
+          <BlockPays countryStats={v.countryStats} />
+          <BlockRecords games={v.games} rounds={v.rounds} />
+          <BlockSessions sessions={v.sessions} players={players} />
+        </div>
+      ))}
 
       <footer class="footer">
         <span>JDAY × NÉMA · DUO STATS</span>
         <span data-footer-period>
-          <span class="fp-current">SEMAINE {latestWeek} · {views.current.games.length} PARTIES</span>
-          <span class="fp-all">GLOBAL · {views.all.games.length} PARTIES</span>
+          {periods.map(({ key, label, view: v }) => (
+            <span data-fp={key}>{label} · {v.games.length} PARTIES</span>
+          ))}
         </span>
         <span class="foot-right">
           <span>MAJ {generatedAt}</span>
@@ -150,9 +165,4 @@ const generatedAt = new Date(stats.generatedAt).toLocaleDateString("fr-FR");
   </body>
 </html>
 
-<style is:global>
-  body.period-current [data-view="all"] { display: none; }
-  body.period-all [data-view="current"] { display: none; }
-  body.period-current [data-footer-period] .fp-all { display: none; }
-  body.period-all [data-footer-period] .fp-current { display: none; }
-</style>
+<style is:global set:html={hideCss}></style>
