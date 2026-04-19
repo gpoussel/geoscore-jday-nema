@@ -3,9 +3,34 @@ import Card from "./ui/Card.astro";
 import CardHead from "./ui/CardHead.astro";
 import BlockHead from "./ui/BlockHead.astro";
 import Flag from "./ui/Flag.astro";
-import { WORLD } from "../data/world";
 import { countryName } from "../lib/country";
 import type { CountryStat } from "../types";
+import { geoNaturalEarth1, geoPath } from "d3-geo";
+import { feature } from "topojson-client";
+import type { Topology } from "topojson-specification";
+import type { Feature, GeoJsonProperties, Geometry } from "geojson";
+import worldData from "world-atlas/countries-110m.json";
+import countriesLib from "i18n-iso-countries";
+
+const topology = worldData as unknown as Topology;
+const features = (
+  feature(topology, topology.objects.countries as any) as unknown as {
+    features: Feature<Geometry, GeoJsonProperties>[];
+  }
+).features;
+
+const MAP_W = 1000;
+const MAP_H = 500;
+const projection = geoNaturalEarth1().fitExtent(
+  [[10, 10], [MAP_W - 10, MAP_H - 10]],
+  { type: "Sphere" } as any,
+);
+const toPath = geoPath(projection);
+
+const featureCode = (f: Feature<Geometry, GeoJsonProperties>): string => {
+  const id = f.id != null ? String(f.id).padStart(3, "0") : "";
+  return id ? countriesLib.numericToAlpha2(id) ?? "" : "";
+};
 
 interface Props { countryStats: Record<string, CountryStat>; }
 const { countryStats } = Astro.props;
@@ -60,34 +85,34 @@ const nameOf = countryName;
         class="worldmap-wrap"
         data-max-seen={maxSeen}
       >
-        <svg viewBox="0 0 1000 500" width="100%" class="worldmap">
+        <svg viewBox={`0 0 ${MAP_W} ${MAP_H}`} width="100%" class="worldmap">
           <defs>
             <pattern id="wmgrid" width="20" height="20" patternUnits="userSpaceOnUse">
               <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.025)" stroke-width="0.5" />
             </pattern>
           </defs>
-          <rect x="150" y="90" width="720" height="310" fill="url(#wmgrid)" rx="4" />
-          {WORLD.map((country) => {
-            const s = countryStats[country.c];
+          <rect x="0" y="0" width={MAP_W} height={MAP_H} fill="url(#wmgrid)" />
+          {features.map((f) => {
+            const code = featureCode(f);
+            const d = toPath(f);
+            if (!d) return null;
+            const s = code ? countryStats[code] : undefined;
             const seen = s?.seen ?? 0;
             return (
-              <rect
+              <path
                 class="country"
-                data-code={country.c}
-                data-name={country.n}
-                data-seen={s?.seen ?? 0}
+                data-code={code}
+                data-name={countryName(code) || (f.properties?.name as string | undefined) || code}
+                data-seen={seen}
                 data-acc={s?.acc?.toFixed(1) ?? ""}
                 data-adv={s?.advAcc?.toFixed(1) ?? ""}
                 data-gap={s?.gap?.toFixed(1) ?? ""}
                 data-score={s?.score?.toFixed(0) ?? ""}
-                x={country.x}
-                y={country.y}
-                width={country.w}
-                height={country.h}
-                rx="1.5"
-                fill={colorFor(country.c)}
-                stroke="rgba(255,255,255,0.1)"
+                d={d}
+                fill={colorFor(code)}
+                stroke="rgba(255,255,255,0.12)"
                 stroke-width="0.5"
+                stroke-linejoin="round"
                 style={`cursor: ${seen >= 1 ? "pointer" : "default"}`}
               />
             );
@@ -252,7 +277,7 @@ const nameOf = countryName;
   const recolor = (metric: Metric) => {
     document.querySelectorAll<HTMLElement>(".worldmap-wrap").forEach((wrap) => {
       const maxSeen = Number(wrap.dataset.maxSeen) || 1;
-      wrap.querySelectorAll<SVGRectElement>(".country").forEach((rect) => {
+      wrap.querySelectorAll<SVGElement>(".country").forEach((rect) => {
         const seen = Number(rect.dataset.seen);
         if (!seen || seen < 1) {
           rect.setAttribute("fill", "var(--map-unseen)");
@@ -317,7 +342,7 @@ const nameOf = countryName;
     });
   });
 
-  document.querySelectorAll<SVGRectElement>(".worldmap .country").forEach((rect) => {
+  document.querySelectorAll<SVGElement>(".worldmap .country").forEach((rect) => {
     const wrap = rect.closest(".worldmap-wrap");
     const tip = wrap?.querySelector<HTMLDivElement>(".wm-tooltip");
     if (!tip) return;
