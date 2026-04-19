@@ -13,6 +13,8 @@
     "@astrojs/check": "^0.9.8",
     "astro": "^6.1.8",
     "chart.js": "^4.5.1",
+    "flag-icons": "^7.5.0",
+    "i18n-iso-countries": "^7.14.0",
     "typescript": "^6.0.3"
   }
 }

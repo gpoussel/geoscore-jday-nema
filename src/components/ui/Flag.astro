@@ -1,0 +1,13 @@
+---
+interface Props { code: string; class?: string; square?: boolean; }
+const { code, class: cls = "", square = false } = Astro.props;
+const c = code.toLowerCase();
+---
+<span class:list={["fi", `fi-${c}`, square && "fis", cls]} role="img" aria-label={code} />
+
+<style>
+  .fi {
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25) inset;
+  }
+</style>

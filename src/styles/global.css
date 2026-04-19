@@ -4,6 +4,8 @@
    Component styles live in their .astro files.
    ============================================ */
 
+@import "flag-icons/css/flag-icons.min.css";
+
 :root {
   /* GeoGuessr-inspired palette */
   --ds-color-brand-50: #7950e5;

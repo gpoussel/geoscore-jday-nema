@@ -2,7 +2,9 @@
 import Card from "./ui/Card.astro";
 import CardHead from "./ui/CardHead.astro";
 import BlockHead from "./ui/BlockHead.astro";
+import Flag from "./ui/Flag.astro";
 import { WORLD } from "../data/world";
+import { countryName } from "../lib/country";
 import type { CountryStat } from "../types";
 
 interface Props { countryStats: Record<string, CountryStat>; }
@@ -28,7 +30,7 @@ const topByAcc  = [...seenEntries].sort((a, b) => b[1].acc - a[1].acc).slice(0, 
 const flopByAcc = [...seenEntries].sort((a, b) => a[1].acc - b[1].acc).slice(0, 5);
 const topBySeen = [...seenEntries].sort((a, b) => b[1].seen - a[1].seen).slice(0, 5);
 
-const nameOf = (code: string) => WORLD.find((c) => c.c === code)?.n || code;
+const nameOf = countryName;
 ---
 
 <section class="block">
@@ -100,7 +102,10 @@ const nameOf = (code: string) => WORLD.find((c) => c.c === code)?.n || code;
         </div>
 
         <div class="wm-tooltip" hidden>
-          <div class="wmt-code"></div>
+          <div class="wmt-header">
+            <span class="wmt-flag fi"></span>
+            <div class="wmt-code"></div>
+          </div>
           <div class="wmt-name"></div>
           <div class="wmt-rows">
             <div><span>Apparitions</span><b data-field="seen"></b></div>
@@ -120,7 +125,7 @@ const nameOf = (code: string) => WORLD.find((c) => c.c === code)?.n || code;
             {topByAcc.map(([code, s], i) => (
               <li>
                 <span class="tf-rank">{i + 1}</span>
-                <span class="tf-flag">{code}</span>
+                <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
                 <span class="tf-app">×{s.seen}</span>
                 <span class="tf-val tf-win">{s.acc.toFixed(0)}%</span>
@@ -131,7 +136,7 @@ const nameOf = (code: string) => WORLD.find((c) => c.c === code)?.n || code;
             {topByAcc.map(([code, s], i) => (
               <li>
                 <span class="tf-rank">{i + 1}</span>
-                <span class="tf-flag">{code}</span>
+                <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
                 <span class="tf-app">×{s.seen}</span>
                 <span class="tf-val tf-win">{Math.round(s.acc * 50)}</span>
@@ -142,7 +147,7 @@ const nameOf = (code: string) => WORLD.find((c) => c.c === code)?.n || code;
             {topBySeen.map(([code, s], i) => (
               <li>
                 <span class="tf-rank">{i + 1}</span>
-                <span class="tf-flag">{code}</span>
+                <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
                 <span class="tf-app">{s.acc.toFixed(0)}%</span>
                 <span class="tf-val tf-win">×{s.seen}</span>
@@ -159,7 +164,7 @@ const nameOf = (code: string) => WORLD.find((c) => c.c === code)?.n || code;
             {flopByAcc.map(([code, s], i) => (
               <li>
                 <span class="tf-rank">{i + 1}</span>
-                <span class="tf-flag">{code}</span>
+                <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
                 <span class="tf-app">×{s.seen}</span>
                 <span class="tf-val tf-loss">{s.acc.toFixed(0)}%</span>
@@ -170,7 +175,7 @@ const nameOf = (code: string) => WORLD.find((c) => c.c === code)?.n || code;
             {flopByAcc.map(([code, s], i) => (
               <li>
                 <span class="tf-rank">{i + 1}</span>
-                <span class="tf-flag">{code}</span>
+                <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
                 <span class="tf-app">×{s.seen}</span>
                 <span class="tf-val tf-loss">{Math.round(s.acc * 50)}</span>
@@ -266,6 +271,8 @@ const nameOf = (code: string) => WORLD.find((c) => c.c === code)?.n || code;
       const d = rect.dataset;
       if (!d.seen || Number(d.seen) < 2) return;
       tip.hidden = false;
+      const flagEl = tip.querySelector<HTMLElement>(".wmt-flag")!;
+      flagEl.className = `wmt-flag fi fi-${d.code!.toLowerCase()}`;
       tip.querySelector(".wmt-code")!.textContent = d.code!;
       tip.querySelector(".wmt-name")!.textContent = d.name!;
       tip.querySelector('[data-field="seen"]')!.textContent = d.seen!;
@@ -354,6 +361,8 @@ const nameOf = (code: string) => WORLD.find((c) => c.c === code)?.n || code;
     min-width: 200px;
     z-index: 2;
   }
+  .wmt-header { display: flex; align-items: center; gap: 12px; }
+  .wmt-flag { width: 32px; height: 24px; border-radius: 3px; flex-shrink: 0; }
   .wmt-code { font-family: var(--serif); font-style: italic; font-size: 32px; line-height: 1; color: var(--fg-0); }
   .wmt-name { color: var(--fg-1); margin-bottom: 10px; margin-top: 2px; }
   .wmt-rows { display: flex; flex-direction: column; gap: 4px; }
@@ -378,18 +387,17 @@ const nameOf = (code: string) => WORLD.find((c) => c.c === code)?.n || code;
   .tf-list { list-style: none; display: flex; flex-direction: column; gap: 6px; padding: 0; margin: 0; }
   .tf-list li {
     display: grid;
-    grid-template-columns: 18px 34px 1fr auto auto;
+    grid-template-columns: 18px 24px 1fr auto auto;
     gap: 10px; align-items: center;
     padding: 8px 10px;
     background: var(--bg-2); border-radius: 6px;
     font-family: var(--mono); font-size: 12px;
   }
   .tf-rank { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--fg-2); }
-  .tf-flag {
-    font-family: var(--mono); font-weight: 600;
-    letter-spacing: 0.08em; color: var(--fg-0);
-    background: var(--bg-0); padding: 3px 6px; border-radius: 3px;
-    text-align: center; font-size: 10px;
+  .tf-list :global(.tf-flag) {
+    width: 24px; height: 18px;
+    border-radius: 2px;
+    line-height: 1;
   }
   .tf-name { color: var(--fg-1); font-family: var(--sans); font-size: 12px; }
   .tf-app { color: var(--fg-3); font-size: 10px; }

@@ -1,5 +1,7 @@
 ---
 import BlockHead from "./ui/BlockHead.astro";
+import Flag from "./ui/Flag.astro";
+import { countryName } from "../lib/country";
 import type { Game, Round } from "../types";
 
 interface Props { games: Game[]; rounds: Round[]; }
@@ -33,6 +35,7 @@ const tiles: {
   label: string;
   value: string | number;
   unit?: string;
+  country?: string;
   meta: string;
   tone: Tone;
   icon: string;
@@ -41,7 +44,8 @@ const tiles: {
     label: "Coup parfait",
     value: bestHit.damage ? bestHit.damage.toLocaleString("fr-FR") : "—",
     unit: "HP",
-    meta: `${bestHit.country || "—"} · mult. ×${bestHit.usedMult ? fmtMult(bestHit.usedMult) : "—"}`,
+    country: bestHit.country || undefined,
+    meta: `mult. ×${bestHit.usedMult ? fmtMult(bestHit.usedMult) : "—"}`,
     tone: "win",
     icon: "⚡",
   },
@@ -49,7 +53,8 @@ const tiles: {
     label: "Belle saucisse",
     value: worstHit.damage ? `-${worstHit.damage.toLocaleString("fr-FR")}` : "—",
     unit: "HP",
-    meta: `${worstHit.country || "—"} · adv. ×${worstHit.usedMult ? fmtMult(worstHit.usedMult) : "—"}`,
+    country: worstHit.country || undefined,
+    meta: `adv. ×${worstHit.usedMult ? fmtMult(worstHit.usedMult) : "—"}`,
     tone: "loss",
     icon: "🌭",
   },
@@ -91,7 +96,15 @@ const tiles: {
           <span class="val">{t.value}</span>
           {t.unit && <span class="unit">{t.unit}</span>}
         </div>
-        <div class="meta">{t.meta}</div>
+        <div class="meta">
+          {t.country && (
+            <span class="meta-country">
+              <Flag code={t.country} class="meta-flag" />
+              <span>{countryName(t.country)}</span>
+            </span>
+          )}
+          {t.country && " · "}{t.meta}
+        </div>
       </div>
     ))}
   </div>
@@ -155,7 +168,10 @@ const tiles: {
     color: var(--fg-2);
     position: relative; z-index: 1;
     letter-spacing: 0.02em;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 4px;
   }
+  .meta-country { display: inline-flex; align-items: center; gap: 6px; color: var(--fg-1); }
+  .meta :global(.meta-flag) { width: 16px; height: 12px; border-radius: 2px; }
 
   @media (max-width: 1024px) {
     .grid { grid-template-columns: repeat(2, 1fr); }
