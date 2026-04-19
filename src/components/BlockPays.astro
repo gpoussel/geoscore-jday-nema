@@ -26,11 +26,11 @@ const colorFor = (code: string) => {
   return `color-mix(in oklch, var(--map-mid) ${(1 - k) * 100}%, var(--win) ${k * 100}%)`;
 };
 
-const topByAcc    = [...seenEntries].sort((a, b) => b[1].acc - a[1].acc).slice(0, 5);
-const flopByAcc   = [...seenEntries].sort((a, b) => a[1].acc - b[1].acc).slice(0, 5);
-const topByScore  = [...seenEntries].sort((a, b) => b[1].score - a[1].score).slice(0, 5);
-const flopByScore = [...seenEntries].sort((a, b) => a[1].score - b[1].score).slice(0, 5);
-const topBySeen   = [...seenEntries].sort((a, b) => b[1].seen - a[1].seen).slice(0, 12);
+const topByAcc    = [...seenEntries].sort((a, b) => b[1].acc - a[1].acc).slice(0, 10);
+const flopByAcc   = [...seenEntries].sort((a, b) => a[1].acc - b[1].acc).slice(0, 10);
+const topByScore  = [...seenEntries].sort((a, b) => b[1].score - a[1].score).slice(0, 10);
+const flopByScore = [...seenEntries].sort((a, b) => a[1].score - b[1].score).slice(0, 10);
+const topBySeen   = [...seenEntries].sort((a, b) => b[1].seen - a[1].seen).slice(0, 40);
 
 const fmtBalance = (n: number) => {
   const r = Math.round(n);
@@ -51,8 +51,7 @@ const nameOf = countryName;
       </div>
     </div>
   </BlockHead>
-  <div class="grid">
-    <Card class="card-map">
+  <Card class="card-map">
       <CardHead eyebrow="Carte" />
       <div
         class="worldmap-wrap"
@@ -123,15 +122,15 @@ const nameOf = countryName;
           </div>
         </div>
       </div>
-    </Card>
+  </Card>
 
-    <div class="side">
-      <Card class="card-top">
+  <div class="tf-row">
+    <Card class="card-top">
         <div class="topflop">
           <div class="tf-title">
-            <span data-metric="precision">Top 5<span class="tf-sub">meilleurs</span></span>
-            <span data-metric="score">Top 5<span class="tf-sub">meilleurs</span></span>
-            <span data-metric="occurrence">Top 12</span>
+            <span data-metric="precision">Top 10<span class="tf-sub">meilleurs</span></span>
+            <span data-metric="score">Top 10<span class="tf-sub">meilleurs</span></span>
+            <span data-metric="occurrence">Top 40</span>
           </div>
           <ol class="tf-list" data-metric="precision">
             {topByAcc.map(([code, s], i) => (
@@ -171,7 +170,7 @@ const nameOf = countryName;
 
       <Card class="card-flop">
         <div class="topflop">
-          <div class="tf-title">Flop 5<span class="tf-sub">pires</span></div>
+          <div class="tf-title">Flop 10<span class="tf-sub">pires</span></div>
           <ol class="tf-list" data-metric="precision">
             {flopByAcc.map(([code, s], i) => (
               <li>
@@ -195,8 +194,7 @@ const nameOf = countryName;
             ))}
           </ol>
         </div>
-      </Card>
-    </div>
+    </Card>
   </div>
 </section>
 
@@ -308,16 +306,25 @@ const nameOf = countryName;
   body.metric-score      .topflop [data-metric]:not([data-metric="score"])     { display: none; }
   body.metric-occurrence .topflop [data-metric]:not([data-metric="occurrence"]) { display: none; }
   body.metric-occurrence .card-flop { display: none; }
+  body.metric-occurrence .tf-row { grid-template-columns: 1fr; }
+  body.metric-occurrence .tf-list[data-metric="occurrence"] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(20, auto);
+    grid-auto-flow: column;
+    column-gap: 12px;
+    row-gap: 6px;
+  }
 </style>
 
 <style>
   .block { margin-top: calc(var(--gap) * 2.5); }
-  .grid {
+  .block :global(.card-map) { margin-bottom: var(--gap); }
+  .tf-row {
     display: grid;
-    grid-template-columns: 2.2fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: var(--gap);
   }
-  .side { display: flex; flex-direction: column; gap: var(--gap); }
 
   .metric-bar {
     display: flex; align-items: center; gap: 12px;
@@ -419,6 +426,6 @@ const nameOf = countryName;
   .tf-loss { color: var(--loss); }
 
   @media (max-width: 1024px) {
-    .grid { grid-template-columns: 1fr; }
+    .tf-row { grid-template-columns: 1fr; }
   }
 </style>
