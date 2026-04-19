@@ -27,21 +27,21 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
   const gids = new Set(games.map((g) => g.id));
   const rounds = stats.rounds.filter((r) => gids.has(r.gameId));
 
-  const agg: Record<string, { seen: number; mySum: number; advSum: number; scoreSum: number }> = {};
+  const agg: Record<string, { seen: number; mySum: number; advSum: number; balSum: number }> = {};
   for (const r of rounds) {
     const k = r.country;
-    if (!agg[k]) agg[k] = { seen: 0, mySum: 0, advSum: 0, scoreSum: 0 };
+    if (!agg[k]) agg[k] = { seen: 0, mySum: 0, advSum: 0, balSum: 0 };
     agg[k].seen++;
     agg[k].mySum += (r.myScore / 5000) * 100;
     agg[k].advSum += (r.oppScore / 5000) * 100;
-    agg[k].scoreSum += r.myScore * r.usedMult;
+    agg[k].balSum += (r.myScore - r.oppScore) * r.usedMult;
   }
   const countryStats: Record<string, CountryStat> = {};
   for (const k in agg) {
     const a = agg[k];
     const acc = a.mySum / a.seen;
     const advAcc = a.advSum / a.seen;
-    const score = a.scoreSum / a.seen;
+    const score = a.balSum / a.seen;
     countryStats[k] = { seen: a.seen, acc, advAcc, gap: acc - advAcc, score };
   }
 

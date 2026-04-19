@@ -32,7 +32,10 @@ const topByScore  = [...seenEntries].sort((a, b) => b[1].score - a[1].score).sli
 const flopByScore = [...seenEntries].sort((a, b) => a[1].score - b[1].score).slice(0, 5);
 const topBySeen   = [...seenEntries].sort((a, b) => b[1].seen - a[1].seen).slice(0, 12);
 
-const fmtScore = (n: number) => Math.round(n).toLocaleString("fr-FR");
+const fmtBalance = (n: number) => {
+  const r = Math.round(n);
+  return `${r >= 0 ? "+" : "−"}${Math.abs(r).toLocaleString("fr-FR")}`;
+};
 
 const nameOf = countryName;
 ---
@@ -148,7 +151,7 @@ const nameOf = countryName;
                 <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
                 <span class="tf-app">×{s.seen}</span>
-                <span class="tf-val tf-win">{fmtScore(s.score)}</span>
+                <span class="tf-val tf-win">{fmtBalance(s.score)}</span>
               </li>
             ))}
           </ol>
@@ -187,7 +190,7 @@ const nameOf = countryName;
                 <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
                 <span class="tf-app">×{s.seen}</span>
-                <span class="tf-val tf-loss">{fmtScore(s.score)}</span>
+                <span class="tf-val tf-loss">{fmtBalance(s.score)}</span>
               </li>
             ))}
           </ol>
@@ -200,8 +203,8 @@ const nameOf = countryName;
 <script>
   type Metric = "score" | "precision" | "occurrence";
 
-  const LO = { score: 5000, precision: 55 };
-  const HI = { score: 15000, precision: 95 };
+  const LO = { score: -2500, precision: 55 };
+  const HI = { score: 2500, precision: 95 };
 
   const colorForT = (t: number) => {
     t = Math.max(0, Math.min(1, t));
@@ -237,7 +240,7 @@ const nameOf = countryName;
       const maxSeenLabel = `×${maxSeen}`;
       wrap.querySelectorAll<HTMLElement>("[data-metric-label]").forEach((el) => {
         el.textContent =
-          metric === "score" ? "Score moyen" :
+          metric === "score" ? "Balance moyenne" :
           metric === "occurrence" ? "Apparitions" :
           "Précision moyenne";
       });
@@ -246,7 +249,7 @@ const nameOf = countryName;
       const hi = wrap.querySelector<HTMLElement>("[data-tick-hi]");
       if (lo && mid && hi) {
         if (metric === "score") {
-          lo.textContent = "5k"; mid.textContent = "10k"; hi.textContent = "15k";
+          lo.textContent = "−2.5k"; mid.textContent = "0"; hi.textContent = "+2.5k";
         } else if (metric === "occurrence") {
           lo.textContent = "2"; mid.textContent = String(Math.round((maxSeen + 2) / 2)); hi.textContent = maxSeenLabel.slice(1);
         } else {
