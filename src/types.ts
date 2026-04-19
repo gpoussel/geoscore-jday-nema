@@ -2,6 +2,7 @@ export type Player = {
   name: string;
   twitch: string | null;
   youtube: string | null;
+  geoguessr: string | null;
   avatar: string | null;
 };
 
@@ -57,9 +58,10 @@ export type Session = {
   vods: Vod[];
 };
 
+export type Players = Record<string, Player>;
+
 export type Stats = {
   generatedAt: string;
-  players: Record<string, Player>;
   duoRank: string;
   games: Game[];
   rounds: Round[];

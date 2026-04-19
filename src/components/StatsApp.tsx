@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { CountryStat, Period, Stats } from "../types";
+import type { CountryStat, Period, Players, Stats } from "../types";
 import Header from "./Header";
 import BlockElo from "./BlockElo";
 import BlockPrecision from "./BlockPrecision";
@@ -7,7 +7,7 @@ import BlockPays from "./BlockPays";
 import BlockRecords from "./BlockRecords";
 import BlockSessions from "./BlockSessions";
 
-export default function StatsApp({ data }: { data: Stats }) {
+export default function StatsApp({ data, players }: { data: Stats; players: Players }) {
   const [period, setPeriod] = useState<Period>("week1");
 
   const games = useMemo(
@@ -74,7 +74,7 @@ export default function StatsApp({ data }: { data: Stats }) {
       <Header
         period={period}
         setPeriod={setPeriod}
-        players={data.players}
+        players={players}
         duoRank={data.duoRank}
         stats={headerStats}
       />
@@ -82,7 +82,7 @@ export default function StatsApp({ data }: { data: Stats }) {
       <BlockPrecision games={games} />
       <BlockPays countryStats={countryStats} />
       <BlockRecords games={games} rounds={filteredRounds} />
-      <BlockSessions sessions={sessions} players={data.players} />
+      <BlockSessions sessions={sessions} players={players} />
 
       <footer className="footer">
         <span>JDAY × NÉMA · DUO STATS</span>

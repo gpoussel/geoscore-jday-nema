@@ -1,19 +1,5 @@
 {
-  "generatedAt": "2026-04-19T10:56:36",
-  "players": {
-    "jday": {
-      "name": "JDay",
-      "twitch": "jday",
-      "youtube": "@jday",
-      "avatar": null
-    },
-    "nema": {
-      "name": "Néma",
-      "twitch": "nema",
-      "youtube": "@nema",
-      "avatar": null
-    }
-  },
+  "generatedAt": "2026-04-19T11:22:03",
   "duoRank": "Master 1",
   "games": [
     {

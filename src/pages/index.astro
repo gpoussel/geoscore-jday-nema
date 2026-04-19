@@ -2,9 +2,11 @@
 import "../styles/global.css";
 import StatsApp from "../components/StatsApp";
 import statsData from "../data/stats.json";
-import type { Stats } from "../types";
+import playersData from "../data/players.json";
+import type { Players, Stats } from "../types";
 
-const data = statsData as Stats;
+const stats = statsData as Stats;
+const players = playersData as Players;
 ---
 
 <!doctype html>
@@ -22,7 +24,7 @@ const data = statsData as Stats;
   </head>
   <body>
     <div id="root">
-      <StatsApp data={data} client:load />
+      <StatsApp data={stats} players={players} client:load />
     </div>
   </body>
 </html>
