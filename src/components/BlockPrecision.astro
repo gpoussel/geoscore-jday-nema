@@ -2,10 +2,18 @@
 import Card from "./ui/Card.astro";
 import CardHead from "./ui/CardHead.astro";
 import BlockHead from "./ui/BlockHead.astro";
-import type { Game } from "../types";
+import type { Game, Session } from "../types";
 
-interface Props { games: Game[]; }
-const { games } = Astro.props;
+interface Props { games: Game[]; sessions: Session[]; }
+const { games, sessions } = Astro.props;
+
+const fmtDate = (iso: string) => { const [, m, d] = iso.split("-"); return `${d}/${m}`; };
+const boundaries = sessions
+  .map((s) => {
+    const idx = games.findIndex((g) => g.session === s.id);
+    return idx < 0 ? null : { idx, date: fmtDate(s.date), time: s.time };
+  })
+  .filter((b): b is { idx: number; date: string; time: string } => b !== null);
 
 const precData = games.map((g) => ({ myAcc: g.myAcc, advAcc: g.advAcc }));
 const avgMe = games.length ? games.reduce((s, g) => s + g.myAcc, 0) / games.length : 0;
@@ -30,6 +38,7 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
         <div class="prec-canvas">
           <canvas></canvas>
           <script type="application/json" class="prec-data" is:inline set:html={JSON.stringify(precData)} />
+          <script type="application/json" class="session-boundaries" is:inline set:html={JSON.stringify(boundaries)} />
         </div>
         <div class="prec-legend">
           <span><i class="sw sw-win"></i> Duo · moy. {avgMe.toFixed(1)}%</span>
@@ -217,13 +226,42 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
 
   document.querySelectorAll<HTMLElement>(".prec-canvas").forEach((el) => {
     const dataEl = el.querySelector<HTMLScriptElement>(".prec-data");
+    const boundariesEl = el.querySelector<HTMLScriptElement>(".session-boundaries");
     const canvas = el.querySelector<HTMLCanvasElement>("canvas");
     if (!dataEl || !canvas || !dataEl.textContent) return;
     const data = JSON.parse(dataEl.textContent) as Pt[];
     if (!data.length) return;
+    const boundaries = boundariesEl?.textContent
+      ? (JSON.parse(boundariesEl.textContent) as { idx: number; date: string; time: string }[])
+      : [];
+
+    const sessionMarkersPlugin = {
+      id: "sessionMarkers",
+      beforeDatasetsDraw(chart: any) {
+        if (!boundaries.length) return;
+        const { ctx, chartArea, scales } = chart;
+        ctx.save();
+        ctx.setLineDash([3, 3]);
+        ctx.strokeStyle = "rgba(255,255,255,0.12)";
+        ctx.lineWidth = 1;
+        ctx.fillStyle = "rgba(255,255,255,0.55)";
+        ctx.font = '500 9px "JetBrains Mono", monospace';
+        ctx.textAlign = "left";
+        for (const b of boundaries) {
+          const x = scales.x.getPixelForValue(b.idx);
+          ctx.beginPath();
+          ctx.moveTo(x, chartArea.top);
+          ctx.lineTo(x, chartArea.bottom);
+          ctx.stroke();
+          ctx.fillText(`${b.date} · ${b.time}`, x + 4, chartArea.top - 4);
+        }
+        ctx.restore();
+      },
+    };
 
     const chart = new Chart(canvas.getContext("2d")!, {
       type: "line",
+      plugins: [sessionMarkersPlugin],
       data: {
         labels: data.map((_, i) => String(i + 1)),
         datasets: [
@@ -257,6 +295,7 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        layout: { padding: { top: 16 } },
         interaction: { intersect: false, mode: "index" },
         scales: {
           x: { display: false },

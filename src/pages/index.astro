@@ -97,8 +97,8 @@ const generatedAt = new Date(stats.generatedAt).toLocaleDateString("fr-FR");
         return (
           <div data-view={p} class="view">
             <KpiRow {...v.kpis} />
-            <BlockElo games={v.games} />
-            <BlockPrecision games={v.games} />
+            <BlockElo games={v.games} sessions={v.sessions} />
+            <BlockPrecision games={v.games} sessions={v.sessions} />
             <BlockPays countryStats={v.countryStats} />
             <BlockRecords games={v.games} rounds={v.rounds} />
             <BlockSessions sessions={v.sessions} players={players} />

@@ -2,10 +2,18 @@
 import Card from "./ui/Card.astro";
 import CardHead from "./ui/CardHead.astro";
 import BlockHead from "./ui/BlockHead.astro";
-import type { Game } from "../types";
+import type { Game, Session } from "../types";
 
-interface Props { games: Game[]; }
-const { games } = Astro.props;
+interface Props { games: Game[]; sessions: Session[]; }
+const { games, sessions } = Astro.props;
+
+const fmtDate = (iso: string) => { const [, m, d] = iso.split("-"); return `${d}/${m}`; };
+const boundaries = sessions
+  .map((s) => {
+    const idx = games.findIndex((g) => g.session === s.id);
+    return idx < 0 ? null : { idx, date: fmtDate(s.date), time: s.time };
+  })
+  .filter((b): b is { idx: number; date: string; time: string } => b !== null);
 
 const elos = games.map((g) => g.elo);
 const highIdx = games.length ? elos.indexOf(Math.max(...elos)) : -1;
@@ -45,6 +53,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
       <div class="elo-chart" data-high-idx={highIdx} data-low-idx={lowIdx}>
         <canvas></canvas>
         <script type="application/json" class="elo-data" is:inline set:html={JSON.stringify(eloData)} />
+        <script type="application/json" class="session-boundaries" is:inline set:html={JSON.stringify(boundaries)} />
       </div>
     </Card>
 
@@ -261,10 +270,14 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
 
   document.querySelectorAll<HTMLElement>(".elo-chart").forEach((el) => {
     const dataEl = el.querySelector<HTMLScriptElement>(".elo-data");
+    const boundariesEl = el.querySelector<HTMLScriptElement>(".session-boundaries");
     const canvas = el.querySelector<HTMLCanvasElement>("canvas");
     if (!dataEl || !canvas || !dataEl.textContent) return;
     const data = JSON.parse(dataEl.textContent) as Pt[];
     if (!data.length) return;
+    const boundaries = boundariesEl?.textContent
+      ? (JSON.parse(boundariesEl.textContent) as { idx: number; date: string; time: string }[])
+      : [];
     const highIdx = Number(el.dataset.highIdx);
     const lowIdx = Number(el.dataset.lowIdx);
     const elos = data.map((d) => d.elo);
@@ -276,8 +289,33 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
     const minE = Math.floor((lo - step / 2) / step) * step;
     const maxE = Math.ceil((hi + step / 2) / step) * step;
 
+    const sessionMarkersPlugin = {
+      id: "sessionMarkers",
+      beforeDatasetsDraw(chart: any) {
+        if (!boundaries.length) return;
+        const { ctx, chartArea, scales } = chart;
+        ctx.save();
+        ctx.setLineDash([3, 3]);
+        ctx.strokeStyle = "rgba(255,255,255,0.12)";
+        ctx.lineWidth = 1;
+        ctx.fillStyle = "rgba(255,255,255,0.55)";
+        ctx.font = '500 9px "JetBrains Mono", monospace';
+        ctx.textAlign = "left";
+        for (const b of boundaries) {
+          const x = scales.x.getPixelForValue(b.idx);
+          ctx.beginPath();
+          ctx.moveTo(x, chartArea.top);
+          ctx.lineTo(x, chartArea.bottom);
+          ctx.stroke();
+          ctx.fillText(`${b.date} · ${b.time}`, x + 4, chartArea.top - 4);
+        }
+        ctx.restore();
+      },
+    };
+
     const chart = new Chart(canvas.getContext("2d")!, {
       type: "line",
+      plugins: [sessionMarkersPlugin],
       data: {
         labels: data.map((_, i) => String(i + 1)),
         datasets: [
@@ -306,6 +344,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        layout: { padding: { top: 16 } },
         interaction: { intersect: false, mode: "index" },
         scales: {
           x: { display: false },
