@@ -40,10 +40,16 @@ def margin_bucket(final_my_hp: int, final_opp_hp: int, won: bool) -> str:
 
 
 def score_bucket(score: int) -> int:
-    """Map a 0–5000 round score to one of 5 buckets."""
-    if score >= 5000:
+    """Map a 0–5000 round score to one of 5 buckets: <2500, 2500–3500, 3500–4000, 4000–4500, ≥4500."""
+    if score >= 4500:
         return 4
-    return max(0, min(4, score // 1000))
+    if score >= 4000:
+        return 3
+    if score >= 3500:
+        return 2
+    if score >= 2500:
+        return 1
+    return 0
 
 
 def load_json(path: Path, default):
