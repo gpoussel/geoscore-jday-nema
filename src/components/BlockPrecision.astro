@@ -7,12 +7,7 @@ import type { Game } from "../types";
 interface Props { games: Game[]; }
 const { games } = Astro.props;
 
-const W = 720, H = 220, PAD = 32;
-const x = (i: number) => PAD + (i / Math.max(1, games.length - 1)) * (W - PAD * 2);
-const y = (v: number) => H - PAD - ((v - 50) / 50) * (H - PAD * 2);
-
-const meLine = games.map((g, i) => (i === 0 ? "M" : "L") + x(i) + "," + y(g.myAcc)).join(" ");
-const advLine = games.map((g, i) => (i === 0 ? "M" : "L") + x(i) + "," + y(g.advAcc)).join(" ");
+const precData = games.map((g) => ({ myAcc: g.myAcc, advAcc: g.advAcc }));
 const avgMe = games.length ? games.reduce((s, g) => s + g.myAcc, 0) / games.length : 0;
 const avgAdv = games.length ? games.reduce((s, g) => s + g.advAcc, 0) / games.length : 0;
 
@@ -34,23 +29,10 @@ const dotCount = Math.min(perfects, 24);
     <Card class="card-prec">
       <CardHead eyebrow="Duo vs Adversaires" />
       <div class="prec-chart">
-        <svg viewBox={`0 0 ${W} ${H}`} width="100%">
-          {[50, 60, 70, 80, 90, 100].map((v) => (
-            <>
-              <line x1={PAD} y1={y(v)} x2={W - PAD} y2={y(v)} stroke="rgba(255,255,255,0.04)" />
-              <text x={8} y={y(v) + 3} font-size="9" fill="rgba(255,255,255,0.3)" font-family="var(--mono)">{v}%</text>
-            </>
-          ))}
-          {games.length > 0 && (
-            <>
-              <path d={advLine} stroke="var(--loss)" stroke-width="2" fill="none" stroke-opacity="0.75" stroke-dasharray="4 3" />
-              <path d={meLine} stroke="var(--win)" stroke-width="2.5" fill="none" />
-              {games.map((g, i) => (
-                <circle cx={x(i)} cy={y(g.myAcc)} r="2.5" fill="var(--win)" />
-              ))}
-            </>
-          )}
-        </svg>
+        <div class="prec-canvas">
+          <canvas></canvas>
+          <script type="application/json" class="prec-data" is:inline set:html={JSON.stringify(precData)} />
+        </div>
         <div class="prec-legend">
           <span><i class="sw sw-win"></i> Duo · moy. {avgMe.toFixed(1)}%</span>
           <span><i class="sw sw-loss"></i> Adversaires · moy. {avgAdv.toFixed(1)}%</span>
@@ -104,9 +86,35 @@ const dotCount = Math.min(perfects, 24);
     grid-template-columns: 2fr 1fr 1fr;
     gap: var(--gap);
   }
+  .grid :global(.card-prec) { display: flex; flex-direction: column; }
 
+  .prec-chart { display: flex; flex-direction: column; gap: 12px; height: 100%; }
+  .prec-canvas { position: relative; flex: 1 1 0; min-height: 220px; }
+  .prec-canvas canvas { display: block; }
+  .prec-canvas :global(.prec-tooltip) {
+    position: absolute;
+    pointer-events: none;
+    background: var(--bg-1);
+    border: 1px solid var(--border-hi);
+    border-radius: 8px;
+    padding: 10px 12px;
+    min-width: 150px;
+    opacity: 0;
+    transition: opacity 0.12s;
+    z-index: 2;
+  }
+  .prec-canvas :global(.prec-tooltip .ptl) {
+    font-family: var(--mono); font-size: 10px; color: var(--fg-2);
+    line-height: 1.5;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .prec-canvas :global(.prec-tooltip .ptl b) { color: var(--fg-0); font-weight: 500; margin-left: auto; }
+  .prec-canvas :global(.prec-tooltip .pth) {
+    font-family: var(--mono); font-size: 10px; color: var(--fg-2);
+    letter-spacing: 0.04em; margin-bottom: 4px;
+  }
   .prec-legend {
-    display: flex; gap: 24px; margin-top: 12px;
+    display: flex; gap: 24px;
     font-family: var(--sans); font-size: 13px; color: var(--fg-1);
   }
   .prec-legend span { display: flex; align-items: center; gap: 8px; }
@@ -157,3 +165,134 @@ const dotCount = Math.min(perfects, 24);
     .grid { grid-template-columns: 1fr; }
   }
 </style>
+
+<script>
+  import {
+    Chart,
+    LineController,
+    LineElement,
+    PointElement,
+    LinearScale,
+    CategoryScale,
+    Tooltip,
+  } from "chart.js";
+
+  Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip);
+
+  type Pt = { myAcc: number; advAcc: number };
+
+  const cssVar = (n: string) => getComputedStyle(document.body).getPropertyValue(n).trim();
+  const winColor = cssVar("--win");
+  const lossColor = cssVar("--loss");
+
+  function ensureTooltipEl(container: HTMLElement) {
+    let el = container.querySelector<HTMLDivElement>(".prec-tooltip");
+    if (!el) {
+      el = document.createElement("div");
+      el.className = "prec-tooltip";
+      container.appendChild(el);
+    }
+    return el;
+  }
+
+  function makeExternalTooltip(points: Pt[]) {
+    return (context: any) => {
+      const { chart, tooltip } = context;
+      const container = chart.canvas.parentNode as HTMLElement;
+      const el = ensureTooltipEl(container);
+      if (tooltip.opacity === 0) {
+        el.style.opacity = "0";
+        return;
+      }
+      const idx = tooltip.dataPoints[0].dataIndex as number;
+      const g = points[idx];
+      el.innerHTML =
+        `<div class="pth">Partie #${idx + 1}</div>` +
+        `<div class="ptl"><span class="sw sw-win"></span> Duo <b>${g.myAcc.toFixed(1)}%</b></div>` +
+        `<div class="ptl"><span class="sw sw-loss"></span> Adv. <b>${g.advAcc.toFixed(1)}%</b></div>`;
+      const w = container.clientWidth;
+      const x = tooltip.caretX;
+      const y = tooltip.caretY;
+      el.style.left = (x < w / 2 ? x + 14 : x - el.offsetWidth - 14) + "px";
+      el.style.top = Math.max(8, y - 50) + "px";
+      el.style.opacity = "1";
+    };
+  }
+
+  const charts: { chart: any }[] = [];
+
+  document.querySelectorAll<HTMLElement>(".prec-canvas").forEach((el) => {
+    const dataEl = el.querySelector<HTMLScriptElement>(".prec-data");
+    const canvas = el.querySelector<HTMLCanvasElement>("canvas");
+    if (!dataEl || !canvas || !dataEl.textContent) return;
+    const data = JSON.parse(dataEl.textContent) as Pt[];
+    if (!data.length) return;
+
+    const chart = new Chart(canvas.getContext("2d")!, {
+      type: "line",
+      data: {
+        labels: data.map((_, i) => String(i + 1)),
+        datasets: [
+          {
+            label: "Duo",
+            data: data.map((d) => d.myAcc),
+            borderColor: winColor,
+            borderWidth: 2.5,
+            tension: 0,
+            pointRadius: 2.5,
+            pointHoverRadius: 5,
+            pointBackgroundColor: winColor,
+            pointBorderColor: "transparent",
+            fill: false,
+          },
+          {
+            label: "Adv.",
+            data: data.map((d) => d.advAcc),
+            borderColor: lossColor,
+            borderWidth: 2,
+            borderDash: [4, 3],
+            tension: 0,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointBackgroundColor: lossColor,
+            pointBorderColor: "transparent",
+            fill: false,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: "index" },
+        scales: {
+          x: { display: false },
+          y: {
+            min: 50,
+            max: 100,
+            grid: { color: "rgba(255,255,255,0.04)" },
+            border: { display: false },
+            ticks: {
+              color: "rgba(255,255,255,0.3)",
+              font: { family: "JetBrains Mono, monospace", size: 9 },
+              stepSize: 10,
+              padding: 6,
+              callback: (v) => `${v}%`,
+            },
+          },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false, external: makeExternalTooltip(data) },
+        },
+      },
+    });
+
+    charts.push({ chart });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>(".period-bar .btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      requestAnimationFrame(() => charts.forEach(({ chart }) => chart.resize()));
+    });
+  });
+</script>
