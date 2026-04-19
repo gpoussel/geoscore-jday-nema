@@ -67,11 +67,11 @@ There is no test suite. `astro check` (run as part of `build`) must stay at 0 er
 - Period toggle (current week ↔ global) is a **build-time dual render**: both views are emitted into the HTML and `PeriodToggle.astro` flips a `body.period-*` class — no hydration, no runtime state.
 - World map uses `d3-geo` + `topojson-client` + `world-atlas` (all compile-time only, so the shipped JS stays tiny). Pan/zoom is a short inline script on the SVG.
 - Colors are OKLCH with three hues: purple (`285`) base, teal (`172`) wins, orange (`50`) losses. All interpolation goes through `color-mix(in oklch, …)`.
-- Precision is log-scaled: per round, `max(0, (1 + ln(score/5000)) × 100)`. The curve is flat at 0 below ~1800 pts and steep near the top, so a 2500-pt round reads as ~31% and a 4500-pt round as ~90% — not the misleading 50 / 90% a linear scale would give:
+- Precision is log-scaled: per round, `max(0, log2(score/2500) × 100)`. Anything under 2500 pts reads as 0%, which throws out the trivial range and keeps the full 0–100 amplitude on what actually matters — from 2500 (random hemisphere) to 5000 (bullseye):
 
-  | Score | 0–1500 | 2000 | 2500 | 3000 | 3500 | 4000 | 4500 | 5000 |
-  |------:|-------:|-----:|-----:|-----:|-----:|-----:|-----:|-----:|
-  |  Préc.|     0% | 8%   | 31%  | 49%  | 64%  | 78%  | 90%  | 100% |
+  | Score | 0–2500 | 3000 | 3500 | 4000 | 4500 | 5000 |
+  |------:|-------:|-----:|-----:|-----:|-----:|-----:|
+  |  Préc.|     0% | 26%  | 49%  | 68%  | 85%  | 100% |
 
 ## Tech stack
 

@@ -17,7 +17,7 @@ const stats = statsData as Stats;
 const { duoRank, players } = playersData as PlayersFile;
 
 const logPrecision = (s: number) =>
-  Math.max(0, (1 + Math.log(Math.max(1, s) / 5000)) * 100);
+  Math.max(0, Math.log2(Math.max(1, s) / 2500) * 100);
 
 const roundsByGame: Record<string, Round[]> = {};
 for (const r of stats.rounds) (roundsByGame[r.gameId] ??= []).push(r);
