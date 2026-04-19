@@ -22,7 +22,7 @@ const avgAdv = games.length ? games.reduce((s, g) => s + g.advAcc, 0) / games.le
 const buckets = [0, 0, 0, 0, 0];
 games.forEach((g) => g.roundBuckets.forEach((v, i) => { buckets[i] += v; }));
 const total = buckets.reduce((a, b) => a + b, 0);
-const labels = ["0–2,5k", "2,5–3,5k", "3,5–4k", "4–4,5k", "4,5–5k"];
+const labels = ["0–3,5k", "3,5–4,2k", "4,2–4,5k", "4,5–4,8k", "4,8–5k"];
 const maxBucket = Math.max(1, ...buckets);
 
 const perfects = games.reduce((s, g) => s + g.perfects, 0);
