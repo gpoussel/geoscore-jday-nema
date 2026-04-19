@@ -6,3 +6,4 @@ __pycache__/
 .playwright-mcp/
 *.png
 !public/favicon.png
+!public/og.png

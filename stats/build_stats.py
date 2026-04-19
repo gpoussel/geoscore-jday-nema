@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import csv
 import json
+import shutil
+import subprocess
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -22,7 +24,9 @@ from countries import is_valid as is_valid_country
 ROOT = Path(__file__).resolve().parent
 CSV_FILE = ROOT / "games.csv"
 SESSIONS_FILE = ROOT / "sessions.json"
-OUT_FILE = ROOT.parent / "src" / "data" / "stats.json"
+WEB_ROOT = ROOT.parent
+OUT_FILE = WEB_ROOT / "src" / "data" / "stats.json"
+OG_SCRIPT = WEB_ROOT / "scripts" / "build-og.mjs"
 
 STARTING_HP = 6000
 
@@ -204,6 +208,39 @@ def main() -> None:
     OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     OUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"Wrote {OUT_FILE} · {len(games)} games, {len(rounds)} rounds, {len(sessions)} sessions")
+
+    regenerate_og_image()
+
+
+def regenerate_og_image() -> None:
+    """Re-render public/og.png from the freshly-written stats.json.
+
+    Soft-fails if Node or @resvg/resvg-js aren't installed — the JSON is the
+    canonical artifact, the OG image is just a derived asset."""
+    if not OG_SCRIPT.exists():
+        return
+    node = shutil.which("node")
+    if not node:
+        print("⚠ node not found on PATH — skipped OG image regen")
+        return
+    try:
+        result = subprocess.run(
+            [node, str(OG_SCRIPT)],
+            cwd=WEB_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError as exc:
+        print(f"⚠ OG image regen failed: {exc}")
+        return
+    if result.returncode != 0:
+        print(f"⚠ OG image regen exited {result.returncode}")
+        if result.stderr.strip():
+            print(result.stderr.strip())
+        return
+    for line in result.stdout.strip().splitlines():
+        print(line)
 
 
 if __name__ == "__main__":
