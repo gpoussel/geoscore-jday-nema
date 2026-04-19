@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import csv
 import math
+import os
+import sys
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
@@ -18,6 +20,38 @@ STARTING_HP = 6000
 STARTING_MULT = 1.0
 MULT_STEP = 0.5
 CSV_FILE = Path(__file__).resolve().parent / "games.csv"
+
+
+class C:
+    RESET = "\x1b[0m"
+    BOLD = "\x1b[1m"
+    DIM = "\x1b[2m"
+    RED = "\x1b[31m"
+    GREEN = "\x1b[32m"
+    YELLOW = "\x1b[33m"
+    CYAN = "\x1b[36m"
+    BRED = "\x1b[91m"
+    BGREEN = "\x1b[92m"
+    BYELLOW = "\x1b[93m"
+    BCYAN = "\x1b[96m"
+
+
+def enable_ansi() -> None:
+    if sys.platform == "win32":
+        os.system("")
+
+
+def hp_color(hp: int) -> str:
+    if hp >= 4000:
+        return C.BGREEN
+    if hp >= 2000:
+        return C.BYELLOW
+    return C.BRED
+
+
+def c(text: object, *codes: str) -> str:
+    return f"{''.join(codes)}{text}{C.RESET}"
+
 
 COLUMNS = [
     "session", "game_id", "game_started_at",
@@ -78,14 +112,14 @@ def ask_int(prompt: str, allow_abort: bool = False) -> int | None:
         except EOFError:
             return None
         if not raw:
-            print("  Valeur requise.")
+            print(c("  Valeur requise.", C.RED))
             continue
         if allow_abort and raw.lower() in ("q", "quit"):
             return None
         try:
             return int(raw)
         except ValueError:
-            print("  Nombre invalide.")
+            print(c("  Nombre invalide.", C.RED))
 
 
 def ask_str(prompt: str, default: str = "") -> str:
@@ -114,8 +148,10 @@ def play_rounds() -> list[Round] | None:
 
         round_num = len(rounds) + 1
         prompt = (
-            f"R{round_num} [{my_hp}-{opp_hp}] "
-            f"{fmt_mult(my_mult)}/{fmt_mult(opp_mult)}> "
+            f"{c(f'R{round_num}', C.BOLD, C.BCYAN)} "
+            f"[{c(my_hp, hp_color(my_hp))}-{c(opp_hp, hp_color(opp_hp))}] "
+            f"{c(fmt_mult(my_mult), C.YELLOW)}/{c(fmt_mult(opp_mult), C.YELLOW)}"
+            f"{c('> ', C.BCYAN)}"
         )
         try:
             raw = input(prompt).strip()
@@ -129,41 +165,49 @@ def play_rounds() -> list[Round] | None:
         if cmd in ("u", "undo"):
             if rounds:
                 last = rounds.pop()
-                print(f"  Annule: {last.my_score}-{last.opp_score} {last.country}")
+                print(c(f"  Annule: {last.my_score}-{last.opp_score} {last.country}", C.YELLOW))
             else:
-                print("  (rien a annuler)")
+                print(c("  (rien a annuler)", C.DIM))
             continue
 
         parts = raw.split()
         if len(parts) != 3:
-            print("  Format: mon_score adv_score pays  (ex: 4850 4200 fr)")
+            print(c("  Format: mon_score adv_score pays  (ex: 4850 4200 fr)", C.RED))
             continue
         try:
             my_s = int(parts[0])
             opp_s = int(parts[1])
         except ValueError:
-            print("  Scores invalides")
+            print(c("  Scores invalides", C.RED))
             continue
         country = parts[2].lower()
         if not is_valid_country(country):
-            print(f"  Code pays inconnu: {country!r} (ex: fr, uk, us:fl)")
+            print(c(f"  Code pays inconnu: {country!r} (ex: fr, uk, us:fl)", C.RED))
             continue
 
         rounds.append(Round(country=country, my_score=my_s, opp_score=opp_s))
         s = compute_state(rounds)[-1]
-        sym = {"me": "W", "opp": "L", "tie": "="}[s["winner"]]
-        sign = "+" if s["winner"] == "me" else ("-" if s["winner"] == "opp" else "")
+        if s["winner"] == "me":
+            sym_c = c("W", C.BOLD, C.BGREEN)
+            dmg_c = c(f"+{s['damage']}", C.BGREEN)
+        elif s["winner"] == "opp":
+            sym_c = c("L", C.BOLD, C.BRED)
+            dmg_c = c(f"-{s['damage']}", C.BRED)
+        else:
+            sym_c = c("=", C.BOLD, C.BYELLOW)
+            dmg_c = c(f"{s['damage']}", C.BYELLOW)
+        next_info = f"(next {fmt_mult(s['my_mult'])}/{fmt_mult(s['opp_mult'])})"
         print(
-            f"  {sym} {sign}{s['damage']} @ {fmt_mult(s['used_mult'])}"
-            f" -> {s['my_hp']}-{s['opp_hp']}"
-            f" (next {fmt_mult(s['my_mult'])}/{fmt_mult(s['opp_mult'])})"
+            f"  {sym_c} {dmg_c} @ {c(fmt_mult(s['used_mult']), C.YELLOW)}"
+            f" -> {c(s['my_hp'], hp_color(s['my_hp']))}-{c(s['opp_hp'], hp_color(s['opp_hp']))}"
+            f" {c(next_info, C.DIM)}"
         )
 
 
 def play_game(session: str, default_my_elo: int | None = None) -> list[dict] | None:
-    print("\n--- Nouvelle partie ---")
+    print(c("\n--- Nouvelle partie ---", C.BOLD, C.BCYAN))
     if default_my_elo is not None:
-        raw = ask_str(f"Mon ELO [{default_my_elo}] (q=annuler): ")
+        raw = ask_str(f"Mon ELO [{c(default_my_elo, C.CYAN)}] {c('(q=annuler)', C.DIM)}: ")
         if raw.lower() in ("q", "quit"):
             return None
         if not raw:
@@ -172,10 +216,10 @@ def play_game(session: str, default_my_elo: int | None = None) -> list[dict] | N
             try:
                 my_elo = int(raw)
             except ValueError:
-                print("  Nombre invalide, annulation.")
+                print(c("  Nombre invalide, annulation.", C.RED))
                 return None
     else:
-        my_elo = ask_int("Mon ELO (q=annuler): ", allow_abort=True)
+        my_elo = ask_int(f"Mon ELO {c('(q=annuler)', C.DIM)}: ", allow_abort=True)
         if my_elo is None:
             return None
     opp_elo = ask_int("ELO adversaire: ")
@@ -187,16 +231,22 @@ def play_game(session: str, default_my_elo: int | None = None) -> list[dict] | N
 
     rounds = play_rounds()
     if not rounds:
-        print("Partie abandonnee (non sauvegardee).")
+        print(c("Partie abandonnee (non sauvegardee).", C.YELLOW))
         return None
 
     history = compute_state(rounds)
     final_my = history[-1]["my_hp"]
     final_opp = history[-1]["opp_hp"]
     won = final_my > 0
+    if won:
+        verdict = c("VICTOIRE", C.BOLD, C.BGREEN)
+    else:
+        verdict = c("DEFAITE", C.BOLD, C.BRED)
     print(
-        f"\n=== {'VICTOIRE' if won else 'DEFAITE'} "
-        f"en {len(rounds)}R ({final_my}-{final_opp}) ==="
+        f"\n{c('===', C.BOLD)} {verdict} "
+        f"en {c(f'{len(rounds)}R', C.BOLD)} "
+        f"({c(final_my, hp_color(final_my))}-{c(final_opp, hp_color(final_opp))}) "
+        f"{c('===', C.BOLD)}"
     )
 
     delta = ask_int("Delta ELO (ex: +25, -18): ")
@@ -259,7 +309,8 @@ def append_rows(rows: list[dict]) -> None:
 
 
 def main() -> None:
-    print(f"GeoScore -- fichier: {CSV_FILE}")
+    enable_ansi()
+    print(f"{c('GeoScore', C.BOLD, C.BCYAN)} {c('-- fichier:', C.DIM)} {c(CSV_FILE, C.CYAN)}")
     iso_week = date.today().isocalendar().week
     prev, n_games, prev_elo = last_session()
     if prev:
@@ -268,23 +319,23 @@ def main() -> None:
             default_week, default_num = int(w_str), int(n_str)
         except ValueError:
             default_week, default_num = iso_week, 1
-        print(f"Derniere session: {prev} ({n_games} partie(s))")
+        print(c(f"Derniere session: {prev} ({n_games} partie(s))", C.DIM))
     else:
         default_week, default_num = iso_week, 1
 
-    week_raw = ask_str(f"Semaine [{default_week}]: ")
+    week_raw = ask_str(f"Semaine [{c(default_week, C.CYAN)}]: ")
     try:
         week = int(week_raw) if week_raw else default_week
     except ValueError:
         week = default_week
-    num_raw = ask_str(f"Session [{default_num}]: ")
+    num_raw = ask_str(f"Session [{c(default_num, C.CYAN)}]: ")
     try:
         num = int(num_raw) if num_raw else default_num
     except ValueError:
         num = default_num
     session = f"{week}.{num}"
-    print(f"Session: {session}")
-    print("Commandes pendant la saisie: u=undo, q=abandonner la partie\n")
+    print(f"Session: {c(session, C.BOLD, C.BCYAN)}")
+    print(c("Commandes pendant la saisie: u=undo, q=abandonner la partie\n", C.DIM))
 
     total = 0
     next_elo: int | None = prev_elo if session == prev else None
@@ -294,18 +345,18 @@ def main() -> None:
             append_rows(rows)
             total += 1
             next_elo = rows[-1]["my_elo_after"]
-            print(f"Sauvegarde. {total} partie(s) cette session.\n")
+            print(c(f"Sauvegarde. {total} partie(s) cette session.\n", C.GREEN))
         try:
-            again = input("[Entree]=nouvelle partie, q=quitter> ").strip().lower()
+            again = input(f"{c('[Entree]', C.BCYAN)}=nouvelle partie, {c('q', C.YELLOW)}=quitter> ").strip().lower()
         except EOFError:
             break
         if again in ("n", "no", "q", "quit"):
             break
-    print(f"\nFin. {total} partie(s) enregistree(s) dans la session '{session}'.")
+    print(c(f"\nFin. {total} partie(s) enregistree(s) dans la session '{session}'.", C.BOLD))
 
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\nInterrompu.")
+        print(c("\nInterrompu.", C.YELLOW))
