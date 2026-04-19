@@ -84,3 +84,12 @@ body::before {
   font-family: var(--sans); font-size: 11px;
   letter-spacing: 0.04em; color: var(--fg-3);
 }
+.footer .foot-right {
+  display: inline-flex; align-items: center; gap: 12px;
+}
+.footer .gh {
+  display: inline-flex; align-items: center;
+  color: var(--fg-3);
+  transition: color 0.15s;
+}
+.footer .gh:hover { color: var(--fg-0); }
