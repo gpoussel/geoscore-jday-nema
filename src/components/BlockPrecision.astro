@@ -32,7 +32,7 @@ const dotCount = Math.min(perfects, 24);
   <BlockHead title="Précision" emphasis="tir" />
   <div class="grid">
     <Card class="card-prec">
-      <CardHead eyebrow="Duo vs Adversaires" meta="Précision par partie" />
+      <CardHead eyebrow="Duo vs Adversaires" />
       <div class="prec-chart">
         <svg viewBox={`0 0 ${W} ${H}`} width="100%">
           {[50, 60, 70, 80, 90, 100].map((v) => (
@@ -59,7 +59,7 @@ const dotCount = Math.min(perfects, 24);
     </Card>
 
     <Card class="card-histo">
-      <CardHead eyebrow="Distribution" meta="Score par round" />
+      <CardHead eyebrow="Distribution" />
       <div class="histo">
         <div class="histo-bars">
           {buckets.map((v, i) => {

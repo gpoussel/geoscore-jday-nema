@@ -1,15 +1,13 @@
 ---
 interface Props {
   eyebrow?: string;
-  meta?: string;
   tone?: "loss";
 }
-const { eyebrow, meta, tone } = Astro.props;
+const { eyebrow, tone } = Astro.props;
 ---
 
 <div class="card-head">
   {eyebrow && <span class:list={["eyebrow", tone && `tone-${tone}`]}>{eyebrow}</span>}
-  {meta && <span class="meta">{meta}</span>}
   <slot />
 </div>
 
@@ -28,10 +26,4 @@ const { eyebrow, meta, tone } = Astro.props;
     color: var(--fg-1);
   }
   .tone-loss { color: var(--loss); }
-  .meta {
-    font-family: var(--sans);
-    font-size: 12px;
-    letter-spacing: 0.04em;
-    color: var(--fg-3);
-  }
 </style>
