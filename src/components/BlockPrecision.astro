@@ -18,9 +18,7 @@ const labels = ["0–1k", "1–2k", "2–3k", "3–4k", "4–5k"];
 const maxBucket = Math.max(1, ...buckets);
 
 const perfects = games.reduce((s, g) => s + g.perfects, 0);
-const totalRounds = games.reduce((s, g) => s + g.rounds, 0);
-const rate = totalRounds ? (perfects / totalRounds) * 100 : 0;
-const dotCount = Math.min(perfects, 24);
+const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
 ---
 
 <section class="block">
@@ -47,32 +45,25 @@ const dotCount = Math.min(perfects, 24);
           {buckets.map((v, i) => {
             const pct = (v / maxBucket) * 100;
             const tone = i < 2 ? "loss" : i < 3 ? "neutral" : "win";
+            const isTop = i === 4 && perfects > 0;
             return (
               <div class="histo-col">
                 <div class="histo-val">{v}</div>
                 <div class="histo-bar-wrap">
-                  <div class:list={["histo-bar", `tone-${tone}`]} style={`height: ${pct}%`}></div>
+                  <div class:list={["histo-bar", `tone-${tone}`]} style={`height: ${pct}%`}>
+                    {isTop && (
+                      <div class="histo-perfect" style={`height: ${perfectShare}%`} title={`${perfects} rounds parfaits (5000 pts)`}>
+                        <span class="hp-star">★</span>
+                        <span class="hp-num">{perfects}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div class="histo-label">{labels[i]}</div>
                 <div class="histo-pct">{total ? Math.round((v / total) * 100) : 0}%</div>
               </div>
             );
           })}
-        </div>
-      </div>
-    </Card>
-
-    <Card class="card-perfect">
-      <div class="perfects">
-        <div class="perfects-lbl">Rounds parfaits</div>
-        <div class="perfects-value">
-          <span class="pv-num">{perfects}</span>
-          <span class="pv-star">★</span>
-        </div>
-        <div class="perfects-sub"><b>5000 pts</b> · {rate.toFixed(1)}% des rounds</div>
-        <div class="perfects-dots">
-          {Array.from({ length: dotCount }).map(() => <span class="pdot"></span>)}
-          {perfects > 24 && <span class="pdot-more">+{perfects - 24}</span>}
         </div>
       </div>
     </Card>
@@ -83,7 +74,7 @@ const dotCount = Math.min(perfects, 24);
   .block { margin-top: calc(var(--gap) * 2.5); }
   .grid {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr;
     gap: var(--gap);
   }
   .grid :global(.card-prec) { display: flex; flex-direction: column; }
@@ -130,36 +121,25 @@ const dotCount = Math.min(perfects, 24);
   .histo-col { display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; }
   .histo-val { font-family: var(--sans); font-size: 13px; color: var(--fg-1); }
   .histo-bar-wrap { width: 100%; height: 150px; display: flex; align-items: flex-end; }
-  .histo-bar { width: 100%; border-radius: 3px 3px 0 0; min-height: 3px; }
+  .histo-bar {
+    width: 100%; border-radius: 3px 3px 0 0; min-height: 3px;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
   .tone-win { background: linear-gradient(180deg, var(--win), oklch(0.64 0.12 195)); }
   .tone-loss { background: linear-gradient(180deg, var(--loss), oklch(0.58 0.15 50)); }
   .tone-neutral { background: var(--map-mid); }
+  .histo-perfect {
+    width: 100%;
+    min-height: 22px;
+    background: linear-gradient(180deg, oklch(0.92 0.17 95), oklch(0.78 0.18 65));
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    color: oklch(0.18 0.03 50);
+  }
+  .hp-star { font-size: 11px; line-height: 1; }
+  .hp-num { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.02em; }
   .histo-label { font-family: var(--sans); font-size: 12px; color: var(--fg-2); letter-spacing: 0.02em; }
   .histo-pct { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--fg-0); }
-
-  .perfects { display: flex; flex-direction: column; gap: 10px; height: 100%; justify-content: center; }
-  .perfects-lbl {
-    font-family: var(--sans); font-size: 12px; letter-spacing: 0.06em;
-    text-transform: uppercase; color: var(--fg-2);
-  }
-  .perfects-value {
-    font-family: var(--serif); font-style: italic;
-    font-size: 104px; line-height: 0.9; color: var(--win);
-    display: flex; align-items: baseline; gap: 12px;
-    letter-spacing: -0.04em;
-  }
-  .pv-star { font-size: 36px; color: var(--win); }
-  .perfects-sub { font-family: var(--sans); font-size: 13px; color: var(--fg-1); }
-  .perfects-sub b { color: var(--fg-0); }
-  .perfects-dots {
-    display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;
-    padding-top: 12px; border-top: 1px solid var(--border);
-  }
-  .pdot { width: 8px; height: 8px; background: var(--win); border-radius: 2px; }
-  .pdot-more {
-    font-family: var(--sans); font-size: 12px; color: var(--fg-2);
-    padding: 0 4px;
-  }
 
   @media (max-width: 1024px) {
     .grid { grid-template-columns: 1fr; }
