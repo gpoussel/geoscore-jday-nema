@@ -1,6 +1,7 @@
 ---
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const RANK_ICONS: Record<string, string> = {
-  "Master 1": "/ranks/master1.webp",
+  "Master 1": `${base}/ranks/master1.webp`,
 };
 
 interface Props {
