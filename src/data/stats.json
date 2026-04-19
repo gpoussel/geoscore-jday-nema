@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-04-19T14:25:18",
-  "duoRank": "Master 1",
+  "generatedAt": "2026-04-19T14:54:44",
+  "duoRank": "—",
   "games": [
     {
       "id": "20260418-211114",
@@ -2051,6 +2051,56 @@
       "finalMyMult": 6.0,
       "finalOppMult": 4.5,
       "week": 16
+    },
+    {
+      "id": "20260419-144613",
+      "session": "15.1",
+      "startedAt": "2026-04-19T14:46:13",
+      "date": "2026-04-19",
+      "rounds": 9,
+      "won": true,
+      "margin": "clean",
+      "elo": 1060,
+      "eloBefore": 1044,
+      "eloDelta": 16,
+      "roundBuckets": [
+        0,
+        0,
+        0,
+        1,
+        8
+      ],
+      "perfects": 0,
+      "finalMyHp": 2474,
+      "finalOppHp": 0,
+      "finalMyMult": 2.5,
+      "finalOppMult": 4.0,
+      "week": 15
+    },
+    {
+      "id": "20260419-144906",
+      "session": "15.1",
+      "startedAt": "2026-04-19T14:49:06",
+      "date": "2026-04-19",
+      "rounds": 11,
+      "won": false,
+      "margin": "tight",
+      "elo": 1047,
+      "eloBefore": 1060,
+      "eloDelta": -13,
+      "roundBuckets": [
+        0,
+        0,
+        0,
+        2,
+        9
+      ],
+      "perfects": 1,
+      "finalMyHp": 0,
+      "finalOppHp": 795,
+      "finalMyMult": 3.5,
+      "finalOppMult": 4.0,
+      "week": 15
     }
   ],
   "rounds": [
@@ -10093,6 +10143,206 @@
       "winner": "opp",
       "damage": 2964,
       "usedMult": 4.0
+    },
+    {
+      "gameId": "20260419-144613",
+      "roundNum": 1,
+      "country": "US",
+      "myScore": 4998,
+      "oppScore": 4999,
+      "winner": "opp",
+      "damage": 1,
+      "usedMult": 1.0
+    },
+    {
+      "gameId": "20260419-144613",
+      "roundNum": 2,
+      "country": "MX",
+      "myScore": 4952,
+      "oppScore": 3423,
+      "winner": "me",
+      "damage": 1529,
+      "usedMult": 1.0
+    },
+    {
+      "gameId": "20260419-144613",
+      "roundNum": 3,
+      "country": "IN",
+      "myScore": 4523,
+      "oppScore": 4942,
+      "winner": "opp",
+      "damage": 629,
+      "usedMult": 1.5
+    },
+    {
+      "gameId": "20260419-144613",
+      "roundNum": 4,
+      "country": "AR",
+      "myScore": 4409,
+      "oppScore": 5000,
+      "winner": "opp",
+      "damage": 1182,
+      "usedMult": 2.0
+    },
+    {
+      "gameId": "20260419-144613",
+      "roundNum": 5,
+      "country": "LU",
+      "myScore": 4862,
+      "oppScore": 4998,
+      "winner": "opp",
+      "damage": 340,
+      "usedMult": 2.5
+    },
+    {
+      "gameId": "20260419-144613",
+      "roundNum": 6,
+      "country": "KE",
+      "myScore": 4938,
+      "oppScore": 3616,
+      "winner": "me",
+      "damage": 1983,
+      "usedMult": 1.5
+    },
+    {
+      "gameId": "20260419-144613",
+      "roundNum": 7,
+      "country": "EE",
+      "myScore": 4991,
+      "oppScore": 4994,
+      "winner": "opp",
+      "damage": 9,
+      "usedMult": 3.0
+    },
+    {
+      "gameId": "20260419-144613",
+      "roundNum": 8,
+      "country": "IN",
+      "myScore": 3867,
+      "oppScore": 4257,
+      "winner": "opp",
+      "damage": 1365,
+      "usedMult": 3.5
+    },
+    {
+      "gameId": "20260419-144613",
+      "roundNum": 9,
+      "country": "CA",
+      "myScore": 4991,
+      "oppScore": 2307,
+      "winner": "me",
+      "damage": 5368,
+      "usedMult": 2.0
+    },
+    {
+      "gameId": "20260419-144906",
+      "roundNum": 1,
+      "country": "ID",
+      "myScore": 4340,
+      "oppScore": 3657,
+      "winner": "me",
+      "damage": 683,
+      "usedMult": 1.0
+    },
+    {
+      "gameId": "20260419-144906",
+      "roundNum": 2,
+      "country": "GB",
+      "myScore": 3636,
+      "oppScore": 4998,
+      "winner": "opp",
+      "damage": 1362,
+      "usedMult": 1.0
+    },
+    {
+      "gameId": "20260419-144906",
+      "roundNum": 3,
+      "country": "GB",
+      "myScore": 4651,
+      "oppScore": 4929,
+      "winner": "opp",
+      "damage": 417,
+      "usedMult": 1.5
+    },
+    {
+      "gameId": "20260419-144906",
+      "roundNum": 4,
+      "country": "ES",
+      "myScore": 5000,
+      "oppScore": 4930,
+      "winner": "me",
+      "damage": 105,
+      "usedMult": 1.5
+    },
+    {
+      "gameId": "20260419-144906",
+      "roundNum": 5,
+      "country": "MX",
+      "myScore": 4998,
+      "oppScore": 4646,
+      "winner": "me",
+      "damage": 704,
+      "usedMult": 2.0
+    },
+    {
+      "gameId": "20260419-144906",
+      "roundNum": 6,
+      "country": "US",
+      "myScore": 4780,
+      "oppScore": 4897,
+      "winner": "opp",
+      "damage": 234,
+      "usedMult": 2.0
+    },
+    {
+      "gameId": "20260419-144906",
+      "roundNum": 7,
+      "country": "NO",
+      "myScore": 4910,
+      "oppScore": 4979,
+      "winner": "opp",
+      "damage": 173,
+      "usedMult": 2.5
+    },
+    {
+      "gameId": "20260419-144906",
+      "roundNum": 8,
+      "country": "BD",
+      "myScore": 4867,
+      "oppScore": 4696,
+      "winner": "me",
+      "damage": 428,
+      "usedMult": 2.5
+    },
+    {
+      "gameId": "20260419-144906",
+      "roundNum": 9,
+      "country": "US",
+      "myScore": 3914,
+      "oppScore": 4759,
+      "winner": "opp",
+      "damage": 2535,
+      "usedMult": 3.0
+    },
+    {
+      "gameId": "20260419-144906",
+      "roundNum": 10,
+      "country": "VN",
+      "myScore": 4458,
+      "oppScore": 3363,
+      "winner": "me",
+      "damage": 3285,
+      "usedMult": 3.0
+    },
+    {
+      "gameId": "20260419-144906",
+      "roundNum": 11,
+      "country": "ZA",
+      "myScore": 4056,
+      "oppScore": 4997,
+      "winner": "opp",
+      "damage": 3294,
+      "usedMult": 3.5
     }
   ],
   "sessions": [
@@ -10220,6 +10470,20 @@
           "url": "https://www.twitch.tv/videos/2751133232"
         }
       ]
+    },
+    {
+      "id": "15.1",
+      "week": 15,
+      "num": 1,
+      "date": "2026-04-19",
+      "time": "",
+      "duoRank": "—",
+      "eloStart": 1044,
+      "eloEnd": 1047,
+      "games": 2,
+      "wins": 1,
+      "losses": 1,
+      "vods": []
     }
   ]
 }
