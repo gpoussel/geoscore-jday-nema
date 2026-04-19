@@ -144,11 +144,11 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
           <div class="dl-row"><span class="dot loss"></span> Défaites <b>{losses}</b></div>
           <div class="dl-split">
             <div>
-              <div class="dl-lbl">Parties courtes</div>
+              <div class="dl-lbl">WR courtes (≤7)</div>
               <div class="dl-val"><b>{shortWR}%</b> <span>({shortGames.length})</span></div>
             </div>
             <div>
-              <div class="dl-lbl">Parties longues</div>
+              <div class="dl-lbl">WR longues (&gt;7)</div>
               <div class="dl-val"><b>{longWR}%</b> <span>({longGames.length})</span></div>
             </div>
           </div>
