@@ -1,7 +1,8 @@
 ---
+import { normalizeCode } from "../../lib/country";
 interface Props { code: string; class?: string; square?: boolean; }
 const { code, class: cls = "", square = false } = Astro.props;
-const c = code.toLowerCase();
+const c = normalizeCode(code).toLowerCase();
 ---
 <span class:list={["fi", `fi-${c}`, square && "fis", cls]} role="img" aria-label={code} />
 

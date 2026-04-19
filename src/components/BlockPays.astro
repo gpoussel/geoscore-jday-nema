@@ -28,7 +28,7 @@ const colorFor = (code: string) => {
 
 const topByAcc  = [...seenEntries].sort((a, b) => b[1].acc - a[1].acc).slice(0, 5);
 const flopByAcc = [...seenEntries].sort((a, b) => a[1].acc - b[1].acc).slice(0, 5);
-const topBySeen = [...seenEntries].sort((a, b) => b[1].seen - a[1].seen).slice(0, 5);
+const topBySeen = [...seenEntries].sort((a, b) => b[1].seen - a[1].seen).slice(0, 15);
 
 const nameOf = countryName;
 ---
@@ -120,7 +120,11 @@ const nameOf = countryName;
     <div class="side">
       <Card class="card-top">
         <div class="topflop">
-          <div class="tf-title">Top 5<span class="tf-sub">meilleurs</span></div>
+          <div class="tf-title">
+            <span data-metric="precision">Top 5<span class="tf-sub">meilleurs</span></span>
+            <span data-metric="score">Top 5<span class="tf-sub">meilleurs</span></span>
+            <span data-metric="occurrence">Top 15</span>
+          </div>
           <ol class="tf-list" data-metric="precision">
             {topByAcc.map(([code, s], i) => (
               <li>
@@ -292,9 +296,9 @@ const nameOf = countryName;
 </script>
 
 <style is:global>
-  body.metric-precision  .tf-list[data-metric]:not([data-metric="precision"]) { display: none; }
-  body.metric-score      .tf-list[data-metric]:not([data-metric="score"])     { display: none; }
-  body.metric-occurrence .tf-list[data-metric]:not([data-metric="occurrence"]) { display: none; }
+  body.metric-precision  .topflop [data-metric]:not([data-metric="precision"]) { display: none; }
+  body.metric-score      .topflop [data-metric]:not([data-metric="score"])     { display: none; }
+  body.metric-occurrence .topflop [data-metric]:not([data-metric="occurrence"]) { display: none; }
   body.metric-occurrence .card-flop { display: none; }
 </style>
 
@@ -383,6 +387,7 @@ const nameOf = countryName;
     font-family: var(--sans); font-style: normal;
     font-size: 12px; letter-spacing: 0.06em;
     text-transform: uppercase; color: var(--fg-2);
+    margin-left: 10px;
   }
   .tf-list { list-style: none; display: flex; flex-direction: column; gap: 6px; padding: 0; margin: 0; }
   .tf-list li {
