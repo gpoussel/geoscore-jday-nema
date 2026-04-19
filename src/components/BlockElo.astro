@@ -256,8 +256,13 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
     const highIdx = Number(el.dataset.highIdx);
     const lowIdx = Number(el.dataset.lowIdx);
     const elos = data.map((d) => d.elo);
-    const minE = Math.min(...elos) - 15;
-    const maxE = Math.max(...elos) + 15;
+    const lo = Math.min(...elos);
+    const hi = Math.max(...elos);
+    const rawStep = (hi - lo) / 4 || 1;
+    const niceSteps = [5, 10, 20, 25, 50, 100, 200, 250, 500];
+    const step = niceSteps.find((s) => s >= rawStep) ?? 1000;
+    const minE = Math.floor((lo - step / 2) / step) * step;
+    const maxE = Math.ceil((hi + step / 2) / step) * step;
 
     const chart = new Chart(canvas.getContext("2d")!, {
       type: "line",
@@ -300,7 +305,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
             ticks: {
               color: "rgba(255,255,255,0.35)",
               font: { family: "JetBrains Mono, monospace", size: 10 },
-              maxTicksLimit: 5,
+              stepSize: step,
               padding: 6,
             },
           },
