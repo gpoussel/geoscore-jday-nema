@@ -5,6 +5,7 @@ import playersData from "../data/players.json";
 import type { CountryStat, Game, Players, Round, Stats } from "../types";
 import TeamCard from "../components/TeamCard.astro";
 import PeriodToggle from "../components/PeriodToggle.astro";
+import StickyHeader from "../components/StickyHeader.astro";
 import KpiRow from "../components/KpiRow.astro";
 import BlockElo from "../components/BlockElo.astro";
 import BlockPrecision from "../components/BlockPrecision.astro";
@@ -122,6 +123,7 @@ const generatedAt = new Date(stats.generatedAt).toLocaleDateString("fr-FR");
     />
   </head>
   <body data-period={activePeriod}>
+    <StickyHeader weeks={weeks} activeWeek={latestWeek} periods={periods} />
     <div class="app">
       <header class="header">
         <TeamCard players={players} duoRank={stats.duoRank} />

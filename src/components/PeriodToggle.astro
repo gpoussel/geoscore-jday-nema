@@ -25,7 +25,7 @@ const { weeks, activeWeek } = Astro.props;
     btn.addEventListener("click", () => {
       const p = btn.dataset.period!;
       document.body.dataset.period = p;
-      buttons.forEach((b) => b.classList.toggle("active", b === btn));
+      buttons.forEach((b) => b.classList.toggle("active", b.dataset.period === p));
     });
   });
 </script>
