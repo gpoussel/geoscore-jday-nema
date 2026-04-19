@@ -1,0 +1,209 @@
+#!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["pycountry"]
+# ///
+"""Aggregate games.csv + sessions.json into stats.json consumed by the Astro
+static site. Players are a separate, hand-maintained source file under
+../src/data/players.json — not generated here.
+
+Usage: uv run build_stats.py  (PEP 723 inline deps — do not prepend `python`)
+"""
+from __future__ import annotations
+
+import csv
+import json
+from collections import defaultdict
+from datetime import datetime
+from pathlib import Path
+
+from countries import is_valid as is_valid_country
+
+ROOT = Path(__file__).resolve().parent
+CSV_FILE = ROOT / "games.csv"
+SESSIONS_FILE = ROOT / "sessions.json"
+OUT_FILE = ROOT.parent / "src" / "data" / "stats.json"
+
+STARTING_HP = 6000
+
+
+def margin_bucket(final_my_hp: int, final_opp_hp: int, won: bool) -> str:
+    """Classify a game margin from the winner's remaining HP.
+
+    High remaining HP = dominant win; low = tight."""
+    winner_hp = final_my_hp if won else final_opp_hp
+    if winner_hp >= 4000:
+        return "crush"
+    if winner_hp >= 2000:
+        return "clean"
+    return "tight"
+
+
+def score_bucket(score: int) -> int:
+    """Map a 0–5000 round score to one of 5 buckets."""
+    if score >= 5000:
+        return 4
+    return max(0, min(4, score // 1000))
+
+
+def load_json(path: Path, default):
+    if not path.exists():
+        return default
+    with path.open(encoding="utf-8") as f:
+        return json.load(f)
+
+
+def aggregate_games(rows: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Group CSV rows by game_id. Returns (games, rounds)."""
+    by_game: dict[str, list[dict]] = defaultdict(list)
+    order: list[str] = []
+    for r in rows:
+        gid = r["game_id"]
+        if gid not in by_game:
+            order.append(gid)
+        by_game[gid].append(r)
+
+    games: list[dict] = []
+    rounds: list[dict] = []
+    for gid in order:
+        game_rows = sorted(by_game[gid], key=lambda x: int(x["round_num"]))
+        head = game_rows[0]
+        last = game_rows[-1]
+
+        total_rounds = int(head["total_rounds"])
+        final_my_hp = int(head["final_my_hp"])
+        final_opp_hp = int(head["final_opp_hp"])
+        won = head["won"].strip().lower() == "true"
+
+        my_scores = [int(r["my_score"]) for r in game_rows]
+
+        buckets = [0, 0, 0, 0, 0]
+        perfects = 0
+        for s in my_scores:
+            buckets[score_bucket(s)] += 1
+            if s >= 5000:
+                perfects += 1
+
+        started_at = head["game_started_at"]
+        date = started_at[:10]
+
+        games.append({
+            "id": gid,
+            "session": head["session"],
+            "startedAt": started_at,
+            "date": date,
+            "rounds": total_rounds,
+            "won": won,
+            "margin": margin_bucket(final_my_hp, final_opp_hp, won),
+            "elo": int(head["my_elo_after"]),
+            "eloBefore": int(head["my_elo_before"]),
+            "eloDelta": int(head["elo_delta"]),
+            "roundBuckets": buckets,
+            "perfects": perfects,
+            "finalMyHp": final_my_hp,
+            "finalOppHp": final_opp_hp,
+            "finalMyMult": float(last["my_mult_after"]),
+            "finalOppMult": float(last["opp_mult_after"]),
+        })
+
+        for r in game_rows:
+            raw = r["country"].strip().split(":", 1)[0].lower()
+            # GeoGuessr uses 'uk' for the UK; emit ISO 'GB' so downstream code
+            # can treat the JSON as pure ISO 3166-1 alpha-2.
+            code = "GB" if raw == "uk" else raw.upper()
+            rounds.append({
+                "gameId": gid,
+                "roundNum": int(r["round_num"]),
+                "country": code,
+                "myScore": int(r["my_score"]),
+                "oppScore": int(r["opp_score"]),
+                "winner": r["winner"],
+                "damage": int(r["damage"]),
+                "usedMult": float(r["used_mult"]),
+            })
+    return games, rounds
+
+
+def parse_session_id(sid: str) -> tuple[int, int]:
+    """Parse a session id like '16.5' (ISO week 16, session 5) into (week, num)."""
+    w, n = sid.split(".", 1)
+    return int(w), int(n)
+
+
+def build_sessions(games: list[dict], sessions_meta: dict) -> list[dict]:
+    """Aggregate games by session id, enrich with metadata."""
+    by_session: dict[str, list[dict]] = defaultdict(list)
+    order: list[str] = []
+    for g in games:
+        if g["session"] not in by_session:
+            order.append(g["session"])
+        by_session[g["session"]].append(g)
+
+    out: list[dict] = []
+    for sid in order:
+        sgames = by_session[sid]
+        meta = sessions_meta.get(sid, {})
+        week, num = parse_session_id(sid)
+        wins = sum(1 for g in sgames if g["won"])
+        losses = len(sgames) - wins
+        out.append({
+            "id": sid,
+            "week": week,
+            "num": num,
+            "date": meta.get("date", sgames[0]["date"]),
+            "time": meta.get("time", ""),
+            "duoRank": meta.get("duoRank", "—"),
+            "eloStart": sgames[0]["eloBefore"],
+            "eloEnd": sgames[-1]["elo"],
+            "games": len(sgames),
+            "wins": wins,
+            "losses": losses,
+            "vods": meta.get("vods", []),
+        })
+    return out
+
+
+def main() -> None:
+    if not CSV_FILE.exists():
+        raise SystemExit(f"Missing {CSV_FILE}")
+
+    with CSV_FILE.open(encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+
+    unknown = defaultdict(list)
+    for r in rows:
+        code = r["country"].strip().lower()
+        if not is_valid_country(code):
+            unknown[code].append(f"{r['game_id']} r{r['round_num']}")
+    if unknown:
+        print(f"⚠ {sum(len(v) for v in unknown.values())} round(s) with unknown country code:")
+        for code, rounds in sorted(unknown.items()):
+            print(f"  {code!r}: {len(rounds)}× ({', '.join(rounds[:3])}{'…' if len(rounds) > 3 else ''})")
+
+    sessions_meta = load_json(SESSIONS_FILE, {})
+
+    games, rounds = aggregate_games(rows)
+
+    for g in games:
+        g["week"], _ = parse_session_id(g["session"])
+
+    sessions = build_sessions(games, sessions_meta)
+
+    # Duo rank = rank of most recent session (last in chronological order).
+    duo_rank = sessions[-1]["duoRank"] if sessions else "—"
+
+    payload = {
+        "generatedAt": datetime.now().isoformat(timespec="seconds"),
+        "duoRank": duo_rank,
+        "games": games,
+        "rounds": rounds,
+        "sessions": sessions,
+    }
+
+    OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    OUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"Wrote {OUT_FILE} · {len(games)} games, {len(rounds)} rounds, {len(sessions)} sessions")
+
+
+if __name__ == "__main__":
+    main()

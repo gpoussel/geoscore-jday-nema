@@ -1,0 +1,47 @@
+{
+  "16.1": {
+    "duoRank": "Master 1",
+    "date": "2026-04-13",
+    "time": "13h",
+    "vods": [
+      { "platform": "twitch", "player": "nema", "url": "https://www.twitch.tv/videos/2746931545?t=4h18m29s" },
+      { "platform": "twitch", "player": "jday", "url": "https://www.twitch.tv/videos/2747004024" }
+    ]
+  },
+  "16.2": {
+    "duoRank": "Master 1",
+    "date": "2026-04-14",
+    "time": "16h",
+    "vods": [
+      { "platform": "twitch", "player": "nema", "url": "https://www.twitch.tv/videos/2747870024?t=0h0m1s" },
+      { "platform": "twitch", "player": "jday", "url": "https://www.twitch.tv/videos/2747870220?t=0h0m1s" }
+    ]
+  },
+  "16.3": {
+    "duoRank": "Master 1",
+    "date": "2026-04-14",
+    "time": "23h",
+    "vods": [
+      { "platform": "twitch", "player": "nema", "url": "https://www.twitch.tv/videos/2747870024?t=6h55m8s" },
+      { "platform": "twitch", "player": "jday", "url": "https://www.twitch.tv/videos/2747870220?t=6h55m26s" }
+    ]
+  },
+  "16.4": {
+    "duoRank": "Master 1",
+    "date": "2026-04-16",
+    "time": "13h",
+    "vods": [
+      { "platform": "twitch", "player": "nema", "url": "https://www.twitch.tv/videos/2749280552?t=3h58m49s" },
+      { "platform": "twitch", "player": "jday", "url": "https://www.twitch.tv/videos/2749353697" }
+    ]
+  },
+  "16.5": {
+    "duoRank": "Master 1",
+    "date": "2026-04-18",
+    "time": "17h",
+    "vods": [
+      { "platform": "twitch", "player": "nema", "url": "https://www.twitch.tv/videos/2751057598?t=2h7m53s" },
+      { "platform": "twitch", "player": "jday", "url": "https://www.twitch.tv/videos/2751133232" }
+    ]
+  }
+}
