@@ -280,44 +280,95 @@ def play_game(session: str, default_my_elo: int | None = None) -> list[dict] | N
     return rows
 
 
-def last_session() -> tuple[str | None, int, int | None]:
-    """Retourne (nom_derniere_session, nb_parties, dernier_my_elo_after) ou (None, 0, None)."""
+def load_rows() -> list[dict]:
     if not CSV_FILE.exists():
-        return None, 0, None
+        return []
     with CSV_FILE.open(encoding="utf-8") as f:
-        rows = list(csv.DictReader(f))
-    if not rows:
-        return None, 0, None
-    name = rows[-1]["session"]
-    games = {r["game_id"] for r in rows if r["session"] == name}
-    try:
-        last_elo = int(rows[-1]["my_elo_after"])
-    except (ValueError, KeyError):
-        last_elo = None
-    return name, len(games), last_elo
+        return list(csv.DictReader(f))
 
 
-def append_rows(rows: list[dict]) -> None:
-    exists = CSV_FILE.exists()
-    with CSV_FILE.open("a", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=COLUMNS)
-        if not exists:
-            w.writeheader()
+def write_all(rows: list[dict]) -> None:
+    with CSV_FILE.open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=COLUMNS, extrasaction="ignore")
+        w.writeheader()
         w.writerows(rows)
+
+
+def parse_sid(sid: str) -> tuple[int, int]:
+    w, n = sid.split(".", 1)
+    return int(w), int(n)
+
+
+def session_summary(rows: list[dict], sid: str) -> tuple[int, int | None]:
+    """Return (number of distinct games in session, last my_elo_after)."""
+    games: set[str] = set()
+    last_elo: int | None = None
+    for r in rows:
+        if r["session"] == sid:
+            games.add(r["game_id"])
+            try:
+                last_elo = int(r["my_elo_after"])
+            except (ValueError, KeyError):
+                pass
+    return len(games), last_elo
+
+
+def save_rows(new_rows: list[dict]) -> None:
+    """Insert new_rows into games.csv at the right position.
+
+    Games within a session are always appended in order, so the insertion
+    point is right after the last existing row of the target session. For
+    a brand-new session, slot it before the first existing session with a
+    larger (week, num) so the CSV stays chronological.
+    """
+    sid = new_rows[0]["session"]
+    existing = load_rows()
+    if not existing:
+        write_all(list(new_rows))
+        return
+
+    last_idx = -1
+    for i, r in enumerate(existing):
+        if r["session"] == sid:
+            last_idx = i
+    if last_idx >= 0:
+        merged = existing[: last_idx + 1] + new_rows + existing[last_idx + 1 :]
+    else:
+        try:
+            target = parse_sid(sid)
+        except ValueError:
+            merged = existing + list(new_rows)
+        else:
+            insert_at = len(existing)
+            seen: set[str] = set()
+            for i, r in enumerate(existing):
+                s = r["session"]
+                if s in seen:
+                    continue
+                seen.add(s)
+                try:
+                    if parse_sid(s) > target:
+                        insert_at = i
+                        break
+                except ValueError:
+                    continue
+            merged = existing[:insert_at] + list(new_rows) + existing[insert_at:]
+    write_all(merged)
 
 
 def main() -> None:
     enable_ansi()
     print(f"{c('GeoScore', C.BOLD, C.BCYAN)} {c('-- fichier:', C.DIM)} {c(CSV_FILE, C.CYAN)}")
     iso_week = date.today().isocalendar().week
-    prev, n_games, prev_elo = last_session()
-    if prev:
+    all_rows = load_rows()
+    last_sid = all_rows[-1]["session"] if all_rows else None
+    if last_sid:
+        last_count, _ = session_summary(all_rows, last_sid)
         try:
-            w_str, n_str = prev.split(".", 1)
-            default_week, default_num = int(w_str), int(n_str)
+            default_week, default_num = parse_sid(last_sid)
         except ValueError:
             default_week, default_num = iso_week, 1
-        print(c(f"Derniere session: {prev} ({n_games} partie(s))", C.DIM))
+        print(c(f"Derniere session: {last_sid} ({last_count} partie(s))", C.DIM))
     else:
         default_week, default_num = iso_week, 1
 
@@ -332,15 +383,22 @@ def main() -> None:
     except ValueError:
         num = default_num
     session = f"{week}.{num}"
-    print(f"Session: {c(session, C.BOLD, C.BCYAN)}")
+
+    sess_count, sess_elo = session_summary(all_rows, session)
+    if sess_count:
+        tag = "reprise" if session != last_sid else "en cours"
+        info = f"{sess_count} partie(s) existante(s), dernier ELO: {sess_elo} — {tag}"
+    else:
+        info = "nouvelle session"
+    print(f"Session: {c(session, C.BOLD, C.BCYAN)} {c(f'({info})', C.DIM)}")
     print(c("Commandes pendant la saisie: u=undo, q=abandonner la partie\n", C.DIM))
 
     total = 0
-    next_elo: int | None = prev_elo if session == prev else None
+    next_elo: int | None = sess_elo
     while True:
         rows = play_game(session, default_my_elo=next_elo)
         if rows:
-            append_rows(rows)
+            save_rows(rows)
             total += 1
             next_elo = rows[-1]["my_elo_after"]
             print(c(f"Sauvegarde. {total} partie(s) cette session.\n", C.GREEN))

@@ -44,4 +44,6 @@ Sessions are identified by `<iso_week>.<num>` (ISO 8601 week of year), e.g. `16.
 
 ## CLI behavior (geoscore.py)
 
-Defaults to continuing the last session (same `week`, same `num`) and uses the last `my_elo_after` as the default for `my_elo_before` — so pressing Enter through the prompts appends to the ongoing session. Type a different num to start a new session in the same week; type a different week to start a new week.
+Defaults to continuing the last session (same `week`, same `num`) and uses the last `my_elo_after` **of the chosen session** as the default for `my_elo_before` — so pressing Enter through the prompts appends to the ongoing session.
+
+Picking a past `week.num` resumes that session: new games get inserted in `games.csv` right after the last existing row of the target session, and the default ELO is that session's last `my_elo_after`. Within a session, games are always added as the next one (N+1), never in the middle. A brand-new `week.num` is slotted chronologically (before the first existing session with a larger `(week, num)`). `save_rows` always rewrites the whole file, which is negligible at this size.
