@@ -176,7 +176,7 @@ const nameOf = countryName;
                 <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
                 <span class="tf-app">×{s.seen}</span>
-                <span class="tf-val tf-win">{s.acc.toFixed(1)}%</span>
+                <span class="tf-val tf-win">{s.acc.toFixed(1).replace(".", ",")}%</span>
               </li>
             ))}
           </ol>
@@ -187,7 +187,7 @@ const nameOf = countryName;
                 <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
                 <span class="tf-app">×{s.seen}</span>
-                <span class="tf-val tf-win">{s.acc.toFixed(1)}%</span>
+                <span class="tf-val tf-win">{s.acc.toFixed(1).replace(".", ",")}%</span>
               </li>
             ))}
           </ol>
@@ -208,7 +208,7 @@ const nameOf = countryName;
                 <span class="tf-rank">{i + 1}</span>
                 <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
-                <span class="tf-app">{s.acc.toFixed(1)}%</span>
+                <span class="tf-app">{s.acc.toFixed(1).replace(".", ",")}%</span>
                 <span class="tf-val tf-win">×{s.seen}</span>
               </li>
             ))}
@@ -232,7 +232,7 @@ const nameOf = countryName;
                 <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
                 <span class="tf-app">×{s.seen}</span>
-                <span class="tf-val tf-loss">{s.acc.toFixed(1)}%</span>
+                <span class="tf-val tf-loss">{s.acc.toFixed(1).replace(".", ",")}%</span>
               </li>
             ))}
           </ol>
@@ -243,7 +243,7 @@ const nameOf = countryName;
                 <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
                 <span class="tf-app">×{s.seen}</span>
-                <span class="tf-val tf-loss">{s.acc.toFixed(1)}%</span>
+                <span class="tf-val tf-loss">{s.acc.toFixed(1).replace(".", ",")}%</span>
               </li>
             ))}
           </ol>
@@ -381,7 +381,7 @@ const nameOf = countryName;
       flagEl.className = `wmt-flag fi fi-${d.code!.toLowerCase()}`;
       tip.querySelector(".wmt-name")!.textContent = d.name!;
       tip.querySelector('[data-field="seen"]')!.textContent = d.seen!;
-      tip.querySelector('[data-field="acc"]')!.textContent = `${d.acc}%`;
+      tip.querySelector('[data-field="acc"]')!.textContent = `${d.acc!.replace(".", ",")}%`;
       const score = Number(d.score);
       tip.querySelector('[data-field="score"]')!.textContent =
         `${score >= 0 ? "+" : "−"}${Math.abs(score).toLocaleString("fr-FR")}`;

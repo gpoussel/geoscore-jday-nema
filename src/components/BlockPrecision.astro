@@ -41,8 +41,8 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
           <script type="application/json" class="session-boundaries" is:inline set:html={JSON.stringify(boundaries)} />
         </div>
         <div class="prec-legend">
-          <span><i class="sw sw-win"></i> Duo · moy. {avgMe.toFixed(1)}%</span>
-          <span><i class="sw sw-loss"></i> Adversaires · moy. {avgAdv.toFixed(1)}%</span>
+          <span><i class="sw sw-win"></i> Duo · moy. {avgMe.toFixed(1).replace(".", ",")}%</span>
+          <span><i class="sw sw-loss"></i> Adversaires · moy. {avgAdv.toFixed(1).replace(".", ",")}%</span>
         </div>
       </div>
     </Card>
@@ -211,8 +211,8 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
       const g = points[idx];
       el.innerHTML =
         `<div class="pth">Partie #${idx + 1}</div>` +
-        `<div class="ptl"><span class="sw sw-win"></span> Duo <b>${g.myAcc.toFixed(1)}%</b></div>` +
-        `<div class="ptl"><span class="sw sw-loss"></span> Adv. <b>${g.advAcc.toFixed(1)}%</b></div>`;
+        `<div class="ptl"><span class="sw sw-win"></span> Duo <b>${g.myAcc.toFixed(1).replace(".", ",")}%</b></div>` +
+        `<div class="ptl"><span class="sw sw-loss"></span> Adv. <b>${g.advAcc.toFixed(1).replace(".", ",")}%</b></div>`;
       const w = container.clientWidth;
       const x = tooltip.caretX;
       const y = tooltip.caretY;

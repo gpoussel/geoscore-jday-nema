@@ -256,7 +256,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
         `<div class="etl">Partie #${idx + 1}</div>` +
         `<div class="ett" style="color:${color}">${g.won ? "Victoire" : "Défaite"} ${sign}${g.eloDelta}</div>` +
         `<div class="etl">ELO <b>${g.elo}</b></div>` +
-        `<div class="etl">Rounds <b>${g.rounds}</b> · Préc. <b>${g.myAcc.toFixed(1)}%</b></div>`;
+        `<div class="etl">Rounds <b>${g.rounds}</b> · Préc. <b>${g.myAcc.toFixed(1).replace(".", ",")}%</b></div>`;
       const w = container.clientWidth;
       const x = tooltip.caretX;
       const y = tooltip.caretY;

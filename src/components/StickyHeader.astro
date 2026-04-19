@@ -30,7 +30,7 @@ const { weeks, activeWeek, periods } = Astro.props;
             </b>
             <em>ELO</em>
           </span>
-          <span class="kpi-item"><b>{kpis.avgAcc.toFixed(1)}%</b><em>PRÉC</em></span>
+          <span class="kpi-item"><b>{kpis.avgAcc.toFixed(1).replace(".", ",")}%</b><em>PRÉC</em></span>
         </span>
       ))}
     </div>

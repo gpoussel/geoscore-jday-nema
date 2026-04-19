@@ -22,7 +22,7 @@ const { games, winRate, eloNet, avgAcc } = Astro.props;
     value={`${eloNet >= 0 ? "+" : ""}${eloNet}`}
     tone={eloNet >= 0 ? "win" : "loss"}
   />
-  <Kpi label="Précision moy." value={`${avgAcc.toFixed(1)}%`} />
+  <Kpi label="Précision moy." value={`${avgAcc.toFixed(1).replace(".", ",")}%`} />
 </div>
 
 <style>
