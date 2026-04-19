@@ -26,9 +26,13 @@ const colorFor = (code: string) => {
   return `color-mix(in oklch, var(--map-mid) ${(1 - k) * 100}%, var(--win) ${k * 100}%)`;
 };
 
-const topByAcc  = [...seenEntries].sort((a, b) => b[1].acc - a[1].acc).slice(0, 5);
-const flopByAcc = [...seenEntries].sort((a, b) => a[1].acc - b[1].acc).slice(0, 5);
-const topBySeen = [...seenEntries].sort((a, b) => b[1].seen - a[1].seen).slice(0, 12);
+const topByAcc    = [...seenEntries].sort((a, b) => b[1].acc - a[1].acc).slice(0, 5);
+const flopByAcc   = [...seenEntries].sort((a, b) => a[1].acc - b[1].acc).slice(0, 5);
+const topByScore  = [...seenEntries].sort((a, b) => b[1].score - a[1].score).slice(0, 5);
+const flopByScore = [...seenEntries].sort((a, b) => a[1].score - b[1].score).slice(0, 5);
+const topBySeen   = [...seenEntries].sort((a, b) => b[1].seen - a[1].seen).slice(0, 12);
+
+const fmtScore = (n: number) => Math.round(n).toLocaleString("fr-FR");
 
 const nameOf = countryName;
 ---
@@ -70,6 +74,7 @@ const nameOf = countryName;
                 data-acc={s?.acc?.toFixed(1) ?? ""}
                 data-adv={s?.advAcc?.toFixed(1) ?? ""}
                 data-gap={s?.gap?.toFixed(1) ?? ""}
+                data-score={s?.score?.toFixed(0) ?? ""}
                 x={country.x}
                 y={country.y}
                 width={country.w}
@@ -137,13 +142,13 @@ const nameOf = countryName;
             ))}
           </ol>
           <ol class="tf-list" data-metric="score">
-            {topByAcc.map(([code, s], i) => (
+            {topByScore.map(([code, s], i) => (
               <li>
                 <span class="tf-rank">{i + 1}</span>
                 <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
                 <span class="tf-app">×{s.seen}</span>
-                <span class="tf-val tf-win">{Math.round(s.acc * 50)}</span>
+                <span class="tf-val tf-win">{fmtScore(s.score)}</span>
               </li>
             ))}
           </ol>
@@ -176,13 +181,13 @@ const nameOf = countryName;
             ))}
           </ol>
           <ol class="tf-list" data-metric="score">
-            {flopByAcc.map(([code, s], i) => (
+            {flopByScore.map(([code, s], i) => (
               <li>
                 <span class="tf-rank">{i + 1}</span>
                 <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
                 <span class="tf-app">×{s.seen}</span>
-                <span class="tf-val tf-loss">{Math.round(s.acc * 50)}</span>
+                <span class="tf-val tf-loss">{fmtScore(s.score)}</span>
               </li>
             ))}
           </ol>
@@ -195,8 +200,8 @@ const nameOf = countryName;
 <script>
   type Metric = "score" | "precision" | "occurrence";
 
-  const LO = { score: 2750, precision: 55 };
-  const HI = { score: 4750, precision: 95 };
+  const LO = { score: 5000, precision: 55 };
+  const HI = { score: 15000, precision: 95 };
 
   const colorForT = (t: number) => {
     t = Math.max(0, Math.min(1, t));
@@ -221,7 +226,7 @@ const nameOf = countryName;
         if (metric === "occurrence") {
           t = maxSeen > 1 ? (seen - 2) / (maxSeen - 2) : 0.5;
         } else {
-          const val = metric === "score" ? Number(rect.dataset.acc) * 50 : Number(rect.dataset.acc);
+          const val = metric === "score" ? Number(rect.dataset.score) : Number(rect.dataset.acc);
           const lo = LO[metric];
           const hi = HI[metric];
           t = (val - lo) / (hi - lo);
@@ -241,7 +246,7 @@ const nameOf = countryName;
       const hi = wrap.querySelector<HTMLElement>("[data-tick-hi]");
       if (lo && mid && hi) {
         if (metric === "score") {
-          lo.textContent = "2750"; mid.textContent = "3750"; hi.textContent = "4750";
+          lo.textContent = "5k"; mid.textContent = "10k"; hi.textContent = "15k";
         } else if (metric === "occurrence") {
           lo.textContent = "2"; mid.textContent = String(Math.round((maxSeen + 2) / 2)); hi.textContent = maxSeenLabel.slice(1);
         } else {

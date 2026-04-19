@@ -77,4 +77,5 @@ export type CountryStat = {
   acc: number;
   advAcc: number;
   gap: number;
+  score: number;
 };
