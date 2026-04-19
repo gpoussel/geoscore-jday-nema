@@ -11,12 +11,12 @@ interface Props { countryStats: Record<string, CountryStat>; }
 const { countryStats } = Astro.props;
 
 type Entry = [string, CountryStat];
-const seenEntries: Entry[] = Object.entries(countryStats).filter(([, s]) => s.seen >= 2);
+const seenEntries: Entry[] = Object.entries(countryStats).filter(([, s]) => s.seen >= 1);
 const maxSeen = seenEntries.reduce((m, [, s]) => Math.max(m, s.seen), 1);
 
 const colorFor = (code: string) => {
   const s = countryStats[code];
-  if (!s || s.seen < 2) return "var(--map-unseen)";
+  if (!s || s.seen < 1) return "var(--map-unseen)";
   const t = Math.max(0, Math.min(1, (s.acc - 55) / 40));
   if (t < 0.5) {
     const k = t * 2;
@@ -86,7 +86,7 @@ const nameOf = countryName;
                 fill={colorFor(country.c)}
                 stroke="rgba(255,255,255,0.1)"
                 stroke-width="0.5"
-                style={`cursor: ${seen >= 2 ? "pointer" : "default"}`}
+                style={`cursor: ${seen >= 1 ? "pointer" : "default"}`}
               />
             );
           })}
@@ -106,7 +106,7 @@ const nameOf = countryName;
             <span data-tick-mid>75%</span>
             <span data-tick-hi>95%</span>
           </div>
-          <div class="wml-note">Pays vus &lt; 2× non colorés</div>
+          <div class="wml-note">Pays jamais vus non colorés</div>
         </div>
 
         <div class="wm-tooltip" hidden>
@@ -221,13 +221,13 @@ const nameOf = countryName;
       const maxSeen = Number(wrap.dataset.maxSeen) || 1;
       wrap.querySelectorAll<SVGRectElement>(".country").forEach((rect) => {
         const seen = Number(rect.dataset.seen);
-        if (!seen || seen < 2) {
+        if (!seen || seen < 1) {
           rect.setAttribute("fill", "var(--map-unseen)");
           return;
         }
         let t: number;
         if (metric === "occurrence") {
-          t = maxSeen > 1 ? (seen - 2) / (maxSeen - 2) : 0.5;
+          t = maxSeen > 1 ? (seen - 1) / (maxSeen - 1) : 0.5;
         } else {
           const val = metric === "score" ? Number(rect.dataset.score) : Number(rect.dataset.acc);
           const lo = LO[metric];
@@ -251,7 +251,7 @@ const nameOf = countryName;
         if (metric === "score") {
           lo.textContent = "−2.5k"; mid.textContent = "0"; hi.textContent = "+2.5k";
         } else if (metric === "occurrence") {
-          lo.textContent = "2"; mid.textContent = String(Math.round((maxSeen + 2) / 2)); hi.textContent = maxSeenLabel.slice(1);
+          lo.textContent = "1"; mid.textContent = String(Math.round((maxSeen + 1) / 2)); hi.textContent = maxSeenLabel.slice(1);
         } else {
           lo.textContent = "55%"; mid.textContent = "75%"; hi.textContent = "95%";
         }
@@ -281,7 +281,7 @@ const nameOf = countryName;
     if (!tip) return;
     rect.addEventListener("mouseenter", () => {
       const d = rect.dataset;
-      if (!d.seen || Number(d.seen) < 2) return;
+      if (!d.seen || Number(d.seen) < 1) return;
       tip.hidden = false;
       const flagEl = tip.querySelector<HTMLElement>(".wmt-flag")!;
       flagEl.className = `wmt-flag fi fi-${d.code!.toLowerCase()}`;
