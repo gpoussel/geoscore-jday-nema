@@ -65,6 +65,7 @@ def aggregate_games(rows: list[dict]) -> tuple[list[dict], list[dict]]:
 
     games: list[dict] = []
     rounds: list[dict] = []
+    session_counters: dict[str, int] = defaultdict(int)
     for gid in order:
         game_rows = sorted(by_game[gid], key=lambda x: int(x["round_num"]))
         head = game_rows[0]
@@ -84,16 +85,17 @@ def aggregate_games(rows: list[dict]) -> tuple[list[dict], list[dict]]:
             if s >= 5000:
                 perfects += 1
 
-        # game_id format: YYYYMMDD-HHMMSS — the CSV no longer stores a
-        # separate timestamp, so reconstruct ISO forms from the id itself.
-        d, t = gid.split("-", 1)
-        started_at = f"{d[:4]}-{d[4:6]}-{d[6:8]}T{t[:2]}:{t[2:4]}:{t[4:6]}"
-        date = started_at[:10]
+        session_id = head["session"]
+        session_counters[session_id] += 1
+        # game_id still encodes start time (YYYYMMDD-HHMMSS) as a unique id;
+        # we surface only the day portion for session-date fallback below.
+        d = gid.split("-", 1)[0]
+        date = f"{d[:4]}-{d[4:6]}-{d[6:8]}"
 
         games.append({
             "id": gid,
-            "session": head["session"],
-            "startedAt": started_at,
+            "session": session_id,
+            "gameNum": session_counters[session_id],
             "date": date,
             "rounds": total_rounds,
             "won": won,
