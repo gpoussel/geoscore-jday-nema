@@ -47,12 +47,12 @@ const tiles: {
     icon: "⚡",
   },
   {
-    label: "Mandale encaissée",
-    value: worstHit.damage ? worstHit.damage.toLocaleString("fr-FR") : "—",
+    label: "Belle saucisse",
+    value: worstHit.damage ? `-${worstHit.damage.toLocaleString("fr-FR")}` : "—",
     unit: "HP",
     meta: `${worstHit.country || "—"} · adv. ×${worstHit.usedMult ? fmtMult(worstHit.usedMult) : "—"}`,
     tone: "loss",
-    icon: "💥",
+    icon: "🌭",
   },
   {
     label: "Série de victoires",
