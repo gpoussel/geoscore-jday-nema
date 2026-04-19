@@ -150,7 +150,8 @@ const nameOf = countryName;
           </div>
           <div class="wmt-rows">
             <div><span>Apparitions</span><b data-field="seen"></b></div>
-            <div><span>Duo</span><b class="duo" data-field="acc"></b></div>
+            <div><span>Précision</span><b class="duo" data-field="acc"></b></div>
+            <div><span>Score</span><b data-field="score"></b></div>
           </div>
         </div>
       </div>
@@ -375,6 +376,9 @@ const nameOf = countryName;
       tip.querySelector(".wmt-name")!.textContent = d.name!;
       tip.querySelector('[data-field="seen"]')!.textContent = d.seen!;
       tip.querySelector('[data-field="acc"]')!.textContent = `${d.acc}%`;
+      const score = Number(d.score);
+      tip.querySelector('[data-field="score"]')!.textContent =
+        `${score >= 0 ? "+" : "−"}${Math.abs(score).toLocaleString("fr-FR")}`;
       rect.setAttribute("stroke", "white");
       rect.setAttribute("stroke-width", "1.5");
     });
