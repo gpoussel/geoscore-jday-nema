@@ -13,6 +13,7 @@ const list = Object.values(players);
 
 <div class="team-card">
   <div class="left">
+    <div class="kicker">Road to Champion</div>
     <div class="title-row">
       <div class="names">
         {list.map((p, i) => (
@@ -53,6 +54,14 @@ const list = Object.values(players);
   }
 
   .left { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 14px; }
+  .kicker {
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--win);
+    opacity: 0.9;
+  }
   .title-row { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
   .names {
     display: flex;
