@@ -52,10 +52,6 @@ const nameOf = countryName;
         <button class="btn active" data-metric="precision">Précision</button>
         <button class="btn" data-metric="occurrence">Occurrence</button>
       </div>
-      <label class="filter-chk" data-filter-chk>
-        <input type="checkbox" />
-        <span>≥ 6 fois seulement</span>
-      </label>
     </div>
   </BlockHead>
   <Card class="card-map">
@@ -138,6 +134,10 @@ const nameOf = countryName;
             <span data-metric="precision">Top 10<span class="tf-sub">meilleurs</span></span>
             <span data-metric="score">Top 10<span class="tf-sub">meilleurs</span></span>
             <span data-metric="occurrence">Top 40</span>
+            <label class="filter-chk" data-filter-chk>
+              <input type="checkbox" />
+              <span>≥ 6 fois seulement</span>
+            </label>
           </div>
           <ol class="tf-list" data-metric="precision" data-filter="all">
             {topByAcc.map(([code, s], i) => (
@@ -394,7 +394,8 @@ const nameOf = countryName;
 
   .filter-chk {
     display: inline-flex; align-items: center; gap: 8px;
-    font-family: var(--sans); font-size: 12px;
+    margin-left: auto;
+    font-family: var(--sans); font-style: normal; font-size: 12px;
     letter-spacing: 0.04em; color: var(--fg-2);
     cursor: pointer;
     user-select: none;
