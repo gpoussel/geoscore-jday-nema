@@ -17,7 +17,6 @@ export type RawGame = {
   session: string;
   week: number;
   gameNum: number;
-  date: string;
   rounds: number;
   won: boolean;
   margin: "tight" | "clean" | "crush";

@@ -87,16 +87,11 @@ def aggregate_games(rows: list[dict]) -> tuple[list[dict], list[dict]]:
 
         session_id = head["session"]
         session_counters[session_id] += 1
-        # game_id still encodes start time (YYYYMMDD-HHMMSS) as a unique id;
-        # we surface only the day portion for session-date fallback below.
-        d = gid.split("-", 1)[0]
-        date = f"{d[:4]}-{d[4:6]}-{d[6:8]}"
 
         games.append({
             "id": gid,
             "session": session_id,
             "gameNum": session_counters[session_id],
-            "date": date,
             "rounds": total_rounds,
             "won": won,
             "margin": margin_bucket(final_my_hp, final_opp_hp, won),
@@ -155,7 +150,7 @@ def build_sessions(games: list[dict], sessions_meta: dict) -> list[dict]:
             "id": sid,
             "week": week,
             "num": num,
-            "date": meta.get("date", sgames[0]["date"]),
+            "date": meta.get("date", ""),
             "time": meta.get("time", ""),
             "duoRank": meta.get("duoRank", "—"),
             "eloStart": sgames[0]["eloBefore"],

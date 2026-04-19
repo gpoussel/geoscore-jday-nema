@@ -47,3 +47,5 @@ Sessions are identified by `<iso_week>.<num>` (ISO 8601 week of year), e.g. `16.
 Defaults to continuing the last session (same `week`, same `num`) and uses the last `my_elo_after` **of the chosen session** as the default for `my_elo_before` — so pressing Enter through the prompts appends to the ongoing session.
 
 Picking a past `week.num` resumes that session: new games get inserted in `games.csv` right after the last existing row of the target session, and the default ELO is that session's last `my_elo_after`. Within a session, games are always added as the next one (N+1), never in the middle. A brand-new `week.num` is slotted chronologically (before the first existing session with a larger `(week, num)`). `save_rows` always rewrites the whole file, which is negligible at this size.
+
+After each insert, `save_rows` renumbers every `game_id` sequentially by CSV position (zero-padded 4 digits, e.g. `0042`). That keeps the invariant **`game_id` ordering ≡ chronological ordering**, so inserting into a past session shifts the ids of all later games upward.

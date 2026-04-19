@@ -11,7 +11,7 @@ import math
 import os
 import sys
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date
 from pathlib import Path
 
 from countries import is_valid as is_valid_country
@@ -204,7 +204,7 @@ def play_rounds() -> list[Round] | None:
         )
 
 
-def play_game(session: str, default_my_elo: int | None = None) -> list[dict] | None:
+def play_game(session: str, game_id: str, default_my_elo: int | None = None) -> list[dict] | None:
     print(c("\n--- Nouvelle partie ---", C.BOLD, C.BCYAN))
     if default_my_elo is not None:
         raw = ask_str(f"Mon ELO [{c(default_my_elo, C.CYAN)}] {c('(q=annuler)', C.DIM)}: ")
@@ -225,8 +225,6 @@ def play_game(session: str, default_my_elo: int | None = None) -> list[dict] | N
     opp_elo = ask_int("ELO adversaire: ")
     if opp_elo is None:
         return None
-
-    game_id = datetime.now().strftime("%Y%m%d-%H%M%S")
 
     rounds = play_rounds()
     if not rounds:
@@ -299,6 +297,19 @@ def parse_sid(sid: str) -> tuple[int, int]:
     return int(w), int(n)
 
 
+def next_game_id(rows: list[dict]) -> int:
+    """Return (max existing numeric game_id) + 1. Ignores non-numeric ids."""
+    max_id = 0
+    for r in rows:
+        try:
+            n = int(r["game_id"])
+        except (ValueError, KeyError):
+            continue
+        if n > max_id:
+            max_id = n
+    return max_id + 1
+
+
 def session_summary(rows: list[dict], sid: str) -> tuple[int, int | None]:
     """Return (number of distinct games in session, last my_elo_after)."""
     games: set[str] = set()
@@ -313,46 +324,65 @@ def session_summary(rows: list[dict], sid: str) -> tuple[int, int | None]:
     return len(games), last_elo
 
 
+def _renumber_game_ids(rows: list[dict]) -> None:
+    """Reassign zero-padded sequential game_ids by CSV position.
+
+    All rows sharing the same input game_id end up with the same new id.
+    After this pass, sorting games by id is equivalent to sorting by CSV
+    order — which is chronological since sessions are contiguous and
+    ordered by (week, num).
+    """
+    mapping: dict[str, str] = {}
+    for r in rows:
+        old = r["game_id"]
+        if old not in mapping:
+            mapping[old] = f"{len(mapping) + 1:04d}"
+    for r in rows:
+        r["game_id"] = mapping[r["game_id"]]
+
+
 def save_rows(new_rows: list[dict]) -> None:
-    """Insert new_rows into games.csv at the right position.
+    """Insert new_rows into games.csv at the right position, then renumber.
 
     Games within a session are always appended in order, so the insertion
     point is right after the last existing row of the target session. For
     a brand-new session, slot it before the first existing session with a
-    larger (week, num) so the CSV stays chronological.
+    larger (week, num) so the CSV stays chronological. Every game_id is
+    then reassigned sequentially so inserting a past session shifts later
+    games' ids upward and the id ordering stays in sync with date order.
     """
     sid = new_rows[0]["session"]
     existing = load_rows()
     if not existing:
-        write_all(list(new_rows))
-        return
-
-    last_idx = -1
-    for i, r in enumerate(existing):
-        if r["session"] == sid:
-            last_idx = i
-    if last_idx >= 0:
-        merged = existing[: last_idx + 1] + new_rows + existing[last_idx + 1 :]
+        merged = list(new_rows)
     else:
-        try:
-            target = parse_sid(sid)
-        except ValueError:
-            merged = existing + list(new_rows)
+        last_idx = -1
+        for i, r in enumerate(existing):
+            if r["session"] == sid:
+                last_idx = i
+        if last_idx >= 0:
+            insert_at = last_idx + 1
         else:
-            insert_at = len(existing)
-            seen: set[str] = set()
-            for i, r in enumerate(existing):
-                s = r["session"]
-                if s in seen:
-                    continue
-                seen.add(s)
-                try:
-                    if parse_sid(s) > target:
-                        insert_at = i
-                        break
-                except ValueError:
-                    continue
-            merged = existing[:insert_at] + list(new_rows) + existing[insert_at:]
+            try:
+                target = parse_sid(sid)
+            except ValueError:
+                insert_at = len(existing)
+            else:
+                insert_at = len(existing)
+                seen: set[str] = set()
+                for i, r in enumerate(existing):
+                    s = r["session"]
+                    if s in seen:
+                        continue
+                    seen.add(s)
+                    try:
+                        if parse_sid(s) > target:
+                            insert_at = i
+                            break
+                    except ValueError:
+                        continue
+        merged = existing[:insert_at] + list(new_rows) + existing[insert_at:]
+    _renumber_game_ids(merged)
     write_all(merged)
 
 
@@ -395,12 +425,14 @@ def main() -> None:
 
     total = 0
     next_elo: int | None = sess_elo
+    next_id = next_game_id(all_rows)
     while True:
-        rows = play_game(session, default_my_elo=next_elo)
+        rows = play_game(session, game_id=f"{next_id:04d}", default_my_elo=next_elo)
         if rows:
             save_rows(rows)
             total += 1
             next_elo = rows[-1]["my_elo_after"]
+            next_id += 1
             print(c(f"Sauvegarde. {total} partie(s) cette session.\n", C.GREEN))
         try:
             again = input(f"{c('[Entree]', C.BCYAN)}=nouvelle partie, {c('q', C.YELLOW)}=quitter> ").strip().lower()
