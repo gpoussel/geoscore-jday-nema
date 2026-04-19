@@ -15,6 +15,19 @@ import BlockSessions from "../components/BlockSessions.astro";
 const stats = statsData as Stats;
 const players = playersData as Players;
 
+const logPrecision = (s: number) =>
+  Math.max(0, (1 + Math.log(Math.max(1, s) / 5000)) * 100);
+
+const roundsByGame: Record<string, Round[]> = {};
+for (const r of stats.rounds) (roundsByGame[r.gameId] ??= []).push(r);
+
+const enrichedGames: Game[] = stats.games.map((g) => {
+  const rs = roundsByGame[g.id] ?? [];
+  const myAcc = rs.length ? rs.reduce((s, r) => s + logPrecision(r.myScore), 0) / rs.length : 0;
+  const advAcc = rs.length ? rs.reduce((s, r) => s + logPrecision(r.oppScore), 0) / rs.length : 0;
+  return { ...g, myAcc, advAcc };
+});
+
 type View = {
   games: Game[];
   rounds: Round[];
@@ -26,9 +39,6 @@ type View = {
 const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
   const gids = new Set(games.map((g) => g.id));
   const rounds = stats.rounds.filter((r) => gids.has(r.gameId));
-
-  const logPrecision = (s: number) =>
-    Math.max(0, (1 + Math.log(Math.max(1, s) / 5000)) * 100);
 
   const agg: Record<string, { seen: number; mySum: number; advSum: number; balSum: number }> = {};
   for (const r of rounds) {
@@ -68,10 +78,10 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
 
 const views: Record<"week1" | "all", View> = {
   week1: buildView(
-    stats.games.filter((g) => g.week === 1),
+    enrichedGames.filter((g) => g.week === 1),
     stats.sessions.filter((s) => s.week === 1),
   ),
-  all: buildView(stats.games, stats.sessions),
+  all: buildView(enrichedGames, stats.sessions),
 };
 
 const generatedAt = new Date(stats.generatedAt).toLocaleDateString("fr-FR");

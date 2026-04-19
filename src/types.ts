@@ -12,7 +12,7 @@ export type Vod = {
   url: string;
 };
 
-export type Game = {
+export type RawGame = {
   id: string;
   session: string;
   week: number;
@@ -24,14 +24,17 @@ export type Game = {
   elo: number;
   eloBefore: number;
   eloDelta: number;
-  myAcc: number;
-  advAcc: number;
   roundBuckets: number[];
   perfects: number;
   finalMyHp: number;
   finalOppHp: number;
   finalMyMult: number;
   finalOppMult: number;
+};
+
+export type Game = RawGame & {
+  myAcc: number;
+  advAcc: number;
 };
 
 export type Round = {
@@ -65,7 +68,7 @@ export type Players = Record<string, Player>;
 export type Stats = {
   generatedAt: string;
   duoRank: string;
-  games: Game[];
+  games: RawGame[];
   rounds: Round[];
   sessions: Session[];
 };
