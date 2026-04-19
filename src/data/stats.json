@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-19T17:42:52",
+  "generatedAt": "2026-04-19T17:43:47",
   "games": [
     {
       "id": "0001",
@@ -5586,7 +5586,7 @@
     {
       "gameId": "0031",
       "roundNum": 1,
-      "country": "MO",
+      "country": "MN",
       "myScore": 1034,
       "oppScore": 3853,
       "winner": "opp",
