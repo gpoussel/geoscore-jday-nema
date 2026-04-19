@@ -30,7 +30,7 @@
   --loss: oklch(0.68 0.17 50);
   --loss-soft: oklch(0.68 0.17 50 / 0.18);
 
-  --map-unseen: oklch(0.30 0.05 285);
+  --map-unseen: oklch(0.17 0.015 285);
   --map-mid: oklch(0.55 0.03 285);
 
   --accent: var(--win);

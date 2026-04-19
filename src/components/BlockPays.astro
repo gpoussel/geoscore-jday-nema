@@ -280,8 +280,8 @@ const nameOf = countryName;
     return `color-mix(in oklch, var(--map-mid) ${(1 - k) * 100}%, var(--win) ${k * 100}%)`;
   };
 
-  const HEAT_LO = "oklch(0.30 0.04 285)";
-  const HEAT_HI = "oklch(0.78 0.22 330)";
+  const HEAT_LO = "oklch(0.38 0.07 285)";
+  const HEAT_HI = "oklch(0.80 0.22 330)";
   const colorForHeat = (t: number) => {
     t = Math.max(0, Math.min(1, t));
     return `color-mix(in oklch, ${HEAT_LO} ${(1 - t) * 100}%, ${HEAT_HI} ${t * 100}%)`;
