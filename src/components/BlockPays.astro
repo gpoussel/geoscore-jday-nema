@@ -91,6 +91,7 @@ const nameOf = countryName;
               <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.025)" stroke-width="0.5" />
             </pattern>
           </defs>
+          <g class="wm-zoom">
           <rect x="0" y="0" width={MAP_W} height={MAP_H} fill="url(#wmgrid)" />
           {features.map((f) => {
             const code = featureCode(f);
@@ -117,7 +118,14 @@ const nameOf = countryName;
               />
             );
           })}
+          </g>
         </svg>
+
+        <div class="wm-zoom-ctrl">
+          <button type="button" data-zoom="in" aria-label="Zoomer">+</button>
+          <button type="button" data-zoom="out" aria-label="Dézoomer">−</button>
+          <button type="button" data-zoom="reset" aria-label="Réinitialiser la vue">⟲</button>
+        </div>
 
         <div class="wm-legend">
           <span class="wml-label" data-metric-label>Précision moyenne</span>
@@ -383,6 +391,84 @@ const nameOf = countryName;
       rect.setAttribute("stroke-width", "0.5");
     });
   });
+
+  const MIN_SCALE = 1, MAX_SCALE = 12, STEP = 1.4;
+  document.querySelectorAll<HTMLElement>(".worldmap-wrap").forEach((wrap) => {
+    const svg = wrap.querySelector<SVGSVGElement>(".worldmap");
+    const g = wrap.querySelector<SVGGElement>(".wm-zoom");
+    if (!svg || !g) return;
+
+    const vbW = Number(svg.getAttribute("viewBox")?.split(" ")[2] ?? 1000);
+    const vbH = Number(svg.getAttribute("viewBox")?.split(" ")[3] ?? 500);
+    let scale = 1, tx = 0, ty = 0;
+    let dragging = false, dragMoved = false, lastX = 0, lastY = 0;
+
+    const apply = () => {
+      const maxTx = vbW * (scale - 1);
+      const maxTy = vbH * (scale - 1);
+      tx = Math.min(0, Math.max(-maxTx, tx));
+      ty = Math.min(0, Math.max(-maxTy, ty));
+      g.setAttribute("transform", `translate(${tx} ${ty}) scale(${scale})`);
+      wrap.classList.toggle("zoomed", scale > 1.01);
+    };
+
+    const clientToVB = (cx: number, cy: number) => {
+      const r = svg.getBoundingClientRect();
+      return { x: ((cx - r.left) / r.width) * vbW, y: ((cy - r.top) / r.height) * vbH };
+    };
+
+    const zoomAt = (factor: number, cx: number, cy: number) => {
+      const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale * factor));
+      if (next === scale) return;
+      const p = clientToVB(cx, cy);
+      tx = p.x - ((p.x - tx) * next) / scale;
+      ty = p.y - ((p.y - ty) * next) / scale;
+      scale = next;
+      apply();
+    };
+
+    svg.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? STEP : 1 / STEP;
+      zoomAt(factor, e.clientX, e.clientY);
+    }, { passive: false });
+
+    svg.addEventListener("pointerdown", (e) => {
+      dragging = true; dragMoved = false;
+      lastX = e.clientX; lastY = e.clientY;
+      svg.setPointerCapture(e.pointerId);
+    });
+    svg.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - lastX, dy = e.clientY - lastY;
+      if (Math.abs(dx) + Math.abs(dy) > 2) dragMoved = true;
+      lastX = e.clientX; lastY = e.clientY;
+      const r = svg.getBoundingClientRect();
+      tx += (dx / r.width) * vbW;
+      ty += (dy / r.height) * vbH;
+      apply();
+    });
+    const endDrag = (e: PointerEvent) => {
+      dragging = false;
+      try { svg.releasePointerCapture(e.pointerId); } catch {}
+    };
+    svg.addEventListener("pointerup", endDrag);
+    svg.addEventListener("pointercancel", endDrag);
+    svg.addEventListener("click", (e) => {
+      if (dragMoved) { e.stopPropagation(); e.preventDefault(); }
+    }, true);
+
+    wrap.querySelectorAll<HTMLButtonElement>(".wm-zoom-ctrl [data-zoom]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const r = svg.getBoundingClientRect();
+        const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        const kind = btn.dataset.zoom;
+        if (kind === "in") zoomAt(STEP, cx, cy);
+        else if (kind === "out") zoomAt(1 / STEP, cx, cy);
+        else { scale = 1; tx = 0; ty = 0; apply(); }
+      });
+    });
+  });
 </script>
 
 <style is:global>
@@ -471,8 +557,26 @@ const nameOf = countryName;
   .filter-chk:hover { color: var(--fg-0); }
 
   .worldmap-wrap { position: relative; }
-  .worldmap { display: block; }
+  .worldmap { display: block; cursor: grab; touch-action: none; }
+  .worldmap:active { cursor: grabbing; }
   .country { transition: stroke 0.15s, fill 0.2s; }
+
+  .wm-zoom-ctrl {
+    position: absolute; bottom: 12px; right: 12px;
+    display: flex; flex-direction: column; gap: 4px;
+    z-index: 2;
+  }
+  .wm-zoom-ctrl button {
+    width: 28px; height: 28px;
+    background: oklch(0.18 0.015 60 / 0.9);
+    border: 1px solid var(--border);
+    color: var(--fg-1);
+    font-family: var(--mono); font-size: 14px;
+    border-radius: 6px; cursor: pointer;
+    backdrop-filter: blur(4px);
+    transition: all 0.15s;
+  }
+  .wm-zoom-ctrl button:hover { color: var(--fg-0); border-color: var(--border-hi); }
 
   .wm-legend {
     position: absolute; left: 0; bottom: 0;
