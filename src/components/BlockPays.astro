@@ -151,8 +151,6 @@ const nameOf = countryName;
           <div class="wmt-rows">
             <div><span>Apparitions</span><b data-field="seen"></b></div>
             <div><span>Duo</span><b class="duo" data-field="acc"></b></div>
-            <div><span>Adv.</span><b class="adv" data-field="adv"></b></div>
-            <div><span>Écart</span><b data-field="gap"></b></div>
           </div>
         </div>
       </div>
@@ -377,9 +375,6 @@ const nameOf = countryName;
       tip.querySelector(".wmt-name")!.textContent = d.name!;
       tip.querySelector('[data-field="seen"]')!.textContent = d.seen!;
       tip.querySelector('[data-field="acc"]')!.textContent = `${d.acc}%`;
-      tip.querySelector('[data-field="adv"]')!.textContent = `${d.adv}%`;
-      const gap = Number(d.gap);
-      tip.querySelector('[data-field="gap"]')!.textContent = `${gap >= 0 ? "+" : ""}${d.gap}`;
       rect.setAttribute("stroke", "white");
       rect.setAttribute("stroke-width", "1.5");
     });
@@ -609,7 +604,6 @@ const nameOf = countryName;
   .wmt-rows span { color: var(--fg-2); }
   .wmt-rows b { color: var(--fg-0); font-weight: 500; }
   .wmt-rows b.duo { color: var(--win); }
-  .wmt-rows b.adv { color: var(--loss); }
 
   .topflop { display: flex; flex-direction: column; gap: 12px; }
   .tf-title {
