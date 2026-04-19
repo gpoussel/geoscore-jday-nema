@@ -53,7 +53,6 @@ export type Session = {
   num: number;
   date: string;
   time: string;
-  duoRank: string;
   eloStart: number;
   eloEnd: number;
   games: number;
@@ -64,9 +63,13 @@ export type Session = {
 
 export type Players = Record<string, Player>;
 
+export type PlayersFile = {
+  duoRank: string;
+  players: Players;
+};
+
 export type Stats = {
   generatedAt: string;
-  duoRank: string;
   games: RawGame[];
   rounds: Round[];
   sessions: Session[];

@@ -11,13 +11,13 @@ Static dashboard tracking the [JDay](https://www.twitch.tv/misterjday) × [Néma
 │   ├── build_stats.py         games.csv + sessions.json → src/data/stats.json
 │   ├── countries.py           ISO 3166-1 alpha-2 validation
 │   ├── games.csv              one row per round (source of truth for games)
-│   └── sessions.json          session metadata (date, time, duoRank, VODs)
+│   └── sessions.json          session metadata (date, time, VODs)
 └── src/                       Astro 6 static site
     ├── components/            blocks (BlockElo, BlockPrecision, BlockPays, …)
     │   └── ui/                reusable primitives (Kpi, Card, Flag, …)
     ├── data/
     │   ├── stats.json         generated — don't edit by hand
-    │   ├── players.json       hand-maintained player identity (names, socials)
+    │   ├── players.json       hand-maintained player identity (names, socials) + duoRank
     │   └── world.ts           simplified country overrides
     ├── lib/country.ts         country-name helpers (i18n-iso-countries + fr)
     ├── pages/index.astro      single-page dashboard

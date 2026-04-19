@@ -152,7 +152,6 @@ def build_sessions(games: list[dict], sessions_meta: dict) -> list[dict]:
             "num": num,
             "date": meta.get("date", ""),
             "time": meta.get("time", ""),
-            "duoRank": meta.get("duoRank", "—"),
             "eloStart": sgames[0]["eloBefore"],
             "eloEnd": sgames[-1]["elo"],
             "games": len(sgames),
@@ -189,12 +188,8 @@ def main() -> None:
 
     sessions = build_sessions(games, sessions_meta)
 
-    # Duo rank = rank of most recent session (last in chronological order).
-    duo_rank = sessions[-1]["duoRank"] if sessions else "—"
-
     payload = {
         "generatedAt": datetime.now().isoformat(timespec="seconds"),
-        "duoRank": duo_rank,
         "games": games,
         "rounds": rounds,
         "sessions": sessions,

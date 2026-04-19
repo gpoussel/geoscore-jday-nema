@@ -31,7 +31,7 @@ After editing `games.csv` / `sessions.json` by hand, rerun `build_stats.py` — 
 
 Sessions are identified by `<iso_week>.<num>` (ISO 8601 week of year), e.g. `16.5` = ISO week 16, session 5. This string is the key in `sessions.json` and the value of the `session` column in `games.csv`. `build_stats.py:parse_session_id` splits it into `week` and `num`. `geoscore.py` defaults the week prompt to today's ISO week, or to the previous session's week if any; never invent another format.
 
-`sessions.json` stores **only metadata** (`duoRank`, `date`, `time`, `vods`) — never game data. Players are in `../src/data/players.json` (hand-maintained, not generated).
+`sessions.json` stores **only metadata** (`date`, `time`, `vods`) — never game data. The duo's current rank lives in `../src/data/players.json` (alongside the two player entries, under a top-level `duoRank` key). Players are hand-maintained, not generated.
 
 ## Data gotchas
 

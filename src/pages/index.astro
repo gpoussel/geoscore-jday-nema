@@ -2,7 +2,7 @@
 import "../styles/global.css";
 import statsData from "../data/stats.json";
 import playersData from "../data/players.json";
-import type { CountryStat, Game, Players, Round, Stats } from "../types";
+import type { CountryStat, Game, PlayersFile, Round, Stats } from "../types";
 import TeamCard from "../components/TeamCard.astro";
 import PeriodToggle from "../components/PeriodToggle.astro";
 import StickyHeader from "../components/StickyHeader.astro";
@@ -14,7 +14,7 @@ import BlockRecords from "../components/BlockRecords.astro";
 import BlockSessions from "../components/BlockSessions.astro";
 
 const stats = statsData as Stats;
-const players = playersData as Players;
+const { duoRank, players } = playersData as PlayersFile;
 
 const logPrecision = (s: number) =>
   Math.max(0, (1 + Math.log(Math.max(1, s) / 5000)) * 100);
@@ -126,7 +126,7 @@ const generatedAt = new Date(stats.generatedAt).toLocaleDateString("fr-FR");
     <StickyHeader weeks={weeks} activeWeek={latestWeek} periods={periods} />
     <div class="app">
       <header class="header">
-        <TeamCard players={players} duoRank={stats.duoRank} />
+        <TeamCard players={players} duoRank={duoRank} />
         <PeriodToggle weeks={weeks} activeWeek={latestWeek} />
       </header>
 
