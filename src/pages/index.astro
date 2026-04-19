@@ -1,0 +1,28 @@
+---
+import "../styles/global.css";
+import StatsApp from "../components/StatsApp";
+import statsData from "../data/stats.json";
+import type { Stats } from "../types";
+
+const data = statsData as Stats;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JDay × Néma — Duo Stats</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Geist:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="root">
+      <StatsApp data={data} client:load />
+    </div>
+  </body>
+</html>

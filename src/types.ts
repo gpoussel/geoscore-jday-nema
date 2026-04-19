@@ -1,0 +1,76 @@
+export type Player = {
+  name: string;
+  twitch: string | null;
+  youtube: string | null;
+  avatar: string | null;
+};
+
+export type Vod = {
+  platform: "twitch" | "youtube";
+  player: string | null;
+  url: string;
+};
+
+export type Game = {
+  id: string;
+  session: string;
+  week: number;
+  startedAt: string;
+  date: string;
+  rounds: number;
+  won: boolean;
+  margin: "tight" | "clean" | "crush";
+  elo: number;
+  eloBefore: number;
+  eloDelta: number;
+  myAcc: number;
+  advAcc: number;
+  roundBuckets: number[];
+  perfects: number;
+  finalMyHp: number;
+  finalOppHp: number;
+  finalMyMult: number;
+  finalOppMult: number;
+};
+
+export type Round = {
+  gameId: string;
+  roundNum: number;
+  country: string;
+  myScore: number;
+  oppScore: number;
+  winner: "me" | "opp" | "tie";
+  damage: number;
+  usedMult: number;
+};
+
+export type Session = {
+  name: string;
+  week: number;
+  date: string;
+  duoRank: string;
+  eloStart: number;
+  eloEnd: number;
+  games: number;
+  wins: number;
+  losses: number;
+  vods: Vod[];
+};
+
+export type Stats = {
+  generatedAt: string;
+  players: Record<string, Player>;
+  duoRank: string;
+  games: Game[];
+  rounds: Round[];
+  sessions: Session[];
+};
+
+export type Period = "week1" | "all";
+
+export type CountryStat = {
+  seen: number;
+  acc: number;
+  advAcc: number;
+  gap: number;
+};
