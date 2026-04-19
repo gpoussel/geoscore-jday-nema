@@ -46,9 +46,11 @@ export type Round = {
 };
 
 export type Session = {
-  name: string;
+  id: string;
   week: number;
+  num: number;
   date: string;
+  time: string;
   duoRank: string;
   eloStart: number;
   eloEnd: number;
