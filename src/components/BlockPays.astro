@@ -146,7 +146,7 @@ const nameOf = countryName;
                 <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
                 <span class="tf-app">×{s.seen}</span>
-                <span class="tf-val tf-win">{s.acc.toFixed(0)}%</span>
+                <span class="tf-val tf-win">{s.acc.toFixed(1)}%</span>
               </li>
             ))}
           </ol>
@@ -157,7 +157,7 @@ const nameOf = countryName;
                 <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
                 <span class="tf-app">×{s.seen}</span>
-                <span class="tf-val tf-win">{s.acc.toFixed(0)}%</span>
+                <span class="tf-val tf-win">{s.acc.toFixed(1)}%</span>
               </li>
             ))}
           </ol>
@@ -178,7 +178,7 @@ const nameOf = countryName;
                 <span class="tf-rank">{i + 1}</span>
                 <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
-                <span class="tf-app">{s.acc.toFixed(0)}%</span>
+                <span class="tf-app">{s.acc.toFixed(1)}%</span>
                 <span class="tf-val tf-win">×{s.seen}</span>
               </li>
             ))}
@@ -202,7 +202,7 @@ const nameOf = countryName;
                 <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
                 <span class="tf-app">×{s.seen}</span>
-                <span class="tf-val tf-loss">{s.acc.toFixed(0)}%</span>
+                <span class="tf-val tf-loss">{s.acc.toFixed(1)}%</span>
               </li>
             ))}
           </ol>
@@ -213,7 +213,7 @@ const nameOf = countryName;
                 <Flag code={code} class="tf-flag" />
                 <span class="tf-name">{nameOf(code)}</span>
                 <span class="tf-app">×{s.seen}</span>
-                <span class="tf-val tf-loss">{s.acc.toFixed(0)}%</span>
+                <span class="tf-val tf-loss">{s.acc.toFixed(1)}%</span>
               </li>
             ))}
           </ol>
