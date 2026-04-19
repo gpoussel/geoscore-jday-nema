@@ -10,12 +10,13 @@ const { games, rounds } = Astro.props;
 const gameIds = new Set(games.map((g) => g.id));
 const gameRounds = rounds.filter((r) => gameIds.has(r.gameId));
 
+const scoreDiff = (r: Round) => r.myScore - r.oppScore;
 const bestHit = gameRounds
   .filter((r) => r.winner === "me")
-  .reduce((best, r) => (r.damage > best.damage ? r : best), { damage: 0 } as Round);
+  .reduce((best, r) => (scoreDiff(r) > scoreDiff(best) ? r : best), { myScore: 0, oppScore: 0 } as Round);
 const worstHit = gameRounds
   .filter((r) => r.winner === "opp")
-  .reduce((best, r) => (r.damage > best.damage ? r : best), { damage: 0 } as Round);
+  .reduce((best, r) => (scoreDiff(r) < scoreDiff(best) ? r : best), { myScore: 0, oppScore: 0 } as Round);
 
 let winStreak = 0, lossStreak = 0, curW = 0, curL = 0;
 for (const g of games) {
@@ -42,19 +43,19 @@ const tiles: {
 }[] = [
   {
     label: "Coup parfait",
-    value: bestHit.damage ? bestHit.damage.toLocaleString("fr-FR") : "—",
-    unit: "HP",
+    value: scoreDiff(bestHit) ? `+${scoreDiff(bestHit).toLocaleString("fr-FR")}` : "—",
+    unit: "pts",
     country: bestHit.country || undefined,
-    meta: `mult. ×${bestHit.usedMult ? fmtMult(bestHit.usedMult) : "—"}`,
+    meta: scoreDiff(bestHit) ? `${bestHit.myScore} vs ${bestHit.oppScore}` : "",
     tone: "win",
     icon: "⚡",
   },
   {
     label: "Belle saucisse",
-    value: worstHit.damage ? `-${worstHit.damage.toLocaleString("fr-FR")}` : "—",
-    unit: "HP",
+    value: scoreDiff(worstHit) ? scoreDiff(worstHit).toLocaleString("fr-FR") : "—",
+    unit: "pts",
     country: worstHit.country || undefined,
-    meta: `adv. ×${worstHit.usedMult ? fmtMult(worstHit.usedMult) : "—"}`,
+    meta: scoreDiff(worstHit) ? `${worstHit.myScore} vs ${worstHit.oppScore}` : "",
     tone: "loss",
     icon: "🌭",
   },
@@ -103,7 +104,7 @@ const tiles: {
               <span>{countryName(t.country)}</span>
             </span>
           )}
-          {t.country && " · "}{t.meta}
+          {t.country && t.meta && " · "}{t.meta}
         </div>
       </div>
     ))}

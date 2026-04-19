@@ -48,7 +48,7 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
     agg[k].seen++;
     agg[k].mySum += logPrecision(r.myScore);
     agg[k].advSum += logPrecision(r.oppScore);
-    agg[k].balSum += (r.myScore - r.oppScore) * r.usedMult;
+    agg[k].balSum += r.myScore - r.oppScore;
   }
   const countryStats: Record<string, CountryStat> = {};
   for (const k in agg) {
