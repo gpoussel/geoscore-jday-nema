@@ -1,0 +1,48 @@
+---
+import Kpi from "./ui/Kpi.astro";
+
+interface Props {
+  games: number;
+  winRate: number;
+  eloNet: number;
+  avgAcc: number;
+  recordDamage: number;
+}
+const { games, winRate, eloNet, avgAcc, recordDamage } = Astro.props;
+---
+
+<div class="kpi-row">
+  <Kpi label="Parties jouées" value={games} />
+  <Kpi
+    label="Win-rate"
+    value={`${winRate}%`}
+    tone={winRate >= 50 ? "win" : "loss"}
+  />
+  <Kpi
+    label="ELO net"
+    value={`${eloNet >= 0 ? "+" : ""}${eloNet}`}
+    tone={eloNet >= 0 ? "win" : "loss"}
+    big
+  />
+  <Kpi label="Précision moy." value={`${avgAcc.toFixed(1)}%`} />
+  <Kpi
+    label="Record de dégâts"
+    value={recordDamage.toLocaleString("fr-FR")}
+    unit="HP"
+  />
+</div>
+
+<style>
+  .kpi-row {
+    margin-top: var(--gap);
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--gap);
+  }
+  @media (max-width: 1024px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 720px) {
+    .kpi-row { grid-template-columns: 1fr; }
+  }
+</style>

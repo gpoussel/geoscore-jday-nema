@@ -1,12 +1,80 @@
 ---
 import "../styles/global.css";
-import StatsApp from "../components/StatsApp";
 import statsData from "../data/stats.json";
 import playersData from "../data/players.json";
-import type { Players, Stats } from "../types";
+import type { CountryStat, Game, Players, Round, Stats } from "../types";
+import TeamCard from "../components/TeamCard.astro";
+import PeriodToggle from "../components/PeriodToggle.astro";
+import KpiRow from "../components/KpiRow.astro";
+import BlockElo from "../components/BlockElo.astro";
+import BlockPrecision from "../components/BlockPrecision.astro";
+import BlockPays from "../components/BlockPays.astro";
+import BlockRecords from "../components/BlockRecords.astro";
+import BlockSessions from "../components/BlockSessions.astro";
 
 const stats = statsData as Stats;
 const players = playersData as Players;
+
+type View = {
+  games: Game[];
+  rounds: Round[];
+  sessions: Stats["sessions"];
+  countryStats: Record<string, CountryStat>;
+  kpis: { games: number; winRate: number; eloNet: number; avgAcc: number; recordDamage: number };
+};
+
+const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
+  const gids = new Set(games.map((g) => g.id));
+  const rounds = stats.rounds.filter((r) => gids.has(r.gameId));
+
+  const agg: Record<string, { seen: number; mySum: number; advSum: number }> = {};
+  for (const r of rounds) {
+    const k = r.country;
+    if (!agg[k]) agg[k] = { seen: 0, mySum: 0, advSum: 0 };
+    agg[k].seen++;
+    agg[k].mySum += (r.myScore / 5000) * 100;
+    agg[k].advSum += (r.oppScore / 5000) * 100;
+  }
+  const countryStats: Record<string, CountryStat> = {};
+  for (const k in agg) {
+    const a = agg[k];
+    const acc = a.mySum / a.seen;
+    const advAcc = a.advSum / a.seen;
+    countryStats[k] = { seen: a.seen, acc, advAcc, gap: acc - advAcc };
+  }
+
+  const wins = games.filter((g) => g.won).length;
+  const eloNet = games.reduce((s, g) => s + g.eloDelta, 0);
+  const avgAcc = games.length ? games.reduce((s, g) => s + g.myAcc, 0) / games.length : 0;
+  const recordDamage = rounds.reduce(
+    (m, r) => (r.winner === "me" ? Math.max(m, r.damage) : m),
+    0,
+  );
+
+  return {
+    games,
+    rounds,
+    sessions,
+    countryStats,
+    kpis: {
+      games: games.length,
+      winRate: Math.round((wins / Math.max(1, games.length)) * 100),
+      eloNet,
+      avgAcc,
+      recordDamage,
+    },
+  };
+};
+
+const views: Record<"week1" | "all", View> = {
+  week1: buildView(
+    stats.games.filter((g) => g.week === 1),
+    stats.sessions.filter((s) => s.week === 1),
+  ),
+  all: buildView(stats.games, stats.sessions),
+};
+
+const generatedAt = new Date(stats.generatedAt).toLocaleDateString("fr-FR");
 ---
 
 <!doctype html>
@@ -22,9 +90,42 @@ const players = playersData as Players;
       rel="stylesheet"
     />
   </head>
-  <body>
-    <div id="root">
-      <StatsApp data={stats} players={players} client:load />
+  <body class="period-week1">
+    <div class="app">
+      <header class="header">
+        <TeamCard players={players} duoRank={stats.duoRank} />
+        <PeriodToggle />
+      </header>
+
+      {(["week1", "all"] as const).map((p) => {
+        const v = views[p];
+        return (
+          <div data-view={p} class="view">
+            <KpiRow {...v.kpis} />
+            <BlockElo games={v.games} />
+            <BlockPrecision games={v.games} />
+            <BlockPays countryStats={v.countryStats} />
+            <BlockRecords games={v.games} rounds={v.rounds} />
+            <BlockSessions sessions={v.sessions} players={players} />
+          </div>
+        );
+      })}
+
+      <footer class="footer">
+        <span>JDAY × NÉMA · DUO STATS</span>
+        <span data-footer-period>
+          <span class="fp-week1">SEMAINE 1 · {views.week1.games.length} PARTIES</span>
+          <span class="fp-all">GLOBAL · {views.all.games.length} PARTIES</span>
+        </span>
+        <span>MAJ {generatedAt}</span>
+      </footer>
     </div>
   </body>
 </html>
+
+<style is:global>
+  body.period-week1 [data-view="all"] { display: none; }
+  body.period-all [data-view="week1"] { display: none; }
+  body.period-week1 [data-footer-period] .fp-all { display: none; }
+  body.period-all [data-footer-period] .fp-week1 { display: none; }
+</style>

@@ -1,0 +1,183 @@
+---
+import BlockHead from "./ui/BlockHead.astro";
+import type { Player, Session } from "../types";
+
+interface Props { sessions: Session[]; players: Record<string, Player>; }
+const { sessions, players } = Astro.props;
+
+const formatDate = (raw: string) => {
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime())
+    ? raw
+    : d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" });
+};
+---
+
+<section class="block">
+  <BlockHead title="Sessions" emphasis="replays" />
+  <div class="timeline">
+    {sessions.map((s) => {
+      const eloDelta = s.eloEnd - s.eloStart;
+      const won = s.wins > s.losses;
+      return (
+        <div class="sc">
+          <div class="head">
+            <span class="date">{formatDate(s.date)}</span>
+            <span class="week">S{s.week}</span>
+          </div>
+          <div class="ranks">
+            <div class="rank">
+              <span class="name">Rang duo</span>
+              <span class="val">{s.duoRank}</span>
+            </div>
+          </div>
+          <div class="elo">
+            <div class="elo-row">
+              <span>ELO</span>
+              <b>{s.eloStart} → {s.eloEnd}</b>
+            </div>
+            <div class:list={["elo-delta", eloDelta >= 0 ? "pos" : "neg"]}>
+              {eloDelta >= 0 ? "+" : ""}{eloDelta}
+            </div>
+          </div>
+          <div class="score">
+            <span class="w">{s.wins}</span>
+            <span class="sep">–</span>
+            <span class="l">{s.losses}</span>
+            <span class="lbl">{s.games} parties</span>
+          </div>
+          {s.vods.length > 0 && (
+            <div class="vods">
+              {s.vods.map((vod) => {
+                const player = vod.player ? players[vod.player] : null;
+                const label = player ? player.name : vod.platform;
+                return (
+                  <a
+                    class:list={["vod-chip", `vod-${vod.platform}`]}
+                    href={vod.url || "#"}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={`VOD ${vod.platform} · ${label}`}
+                  >
+                    {vod.platform === "twitch" ? (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M4 2l-2 4v14h5v3h3l3-3h4l5-5V2H4z" />
+                      </svg>
+                    ) : (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M23 6.2s-.2-1.6-.9-2.3c-.8-.9-1.8-.9-2.2-1C16.7 2.6 12 2.6 12 2.6s-4.7 0-7.9.3c-.4.1-1.4.1-2.2 1C1.2 4.6 1 6.2 1 6.2S.8 8 .8 9.9v4c0 1.8.2 3.7.2 3.7s.2 1.6.9 2.3c.8.9 2 .9 2.4 1 1.8.2 7.7.3 7.7.3s4.7 0 7.9-.3c.4-.1 1.4-.1 2.2-1 .7-.7.9-2.3.9-2.3s.2-1.8.2-3.7V9.9c0-1.8-.2-3.7-.2-3.7zM9.7 13.8V7.2l6.2 3.3-6.2 3.3z" />
+                      </svg>
+                    )}
+                    {player && <span class="vod-avatar">{player.name[0]}</span>}
+                  </a>
+                );
+              })}
+            </div>
+          )}
+          <div class:list={["strip", won ? "strip-win" : "strip-loss"]}></div>
+        </div>
+      );
+    })}
+  </div>
+</section>
+
+<style>
+  .block { margin-top: calc(var(--gap) * 2.5); }
+  .timeline {
+    display: flex;
+    gap: var(--gap);
+    overflow-x: auto;
+    padding-bottom: 12px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .timeline::-webkit-scrollbar { height: 8px; }
+  .timeline::-webkit-scrollbar-track { background: var(--bg-1); border-radius: 4px; }
+  .timeline::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 4px; }
+
+  .sc {
+    min-width: 240px;
+    flex-shrink: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    scroll-snap-align: start;
+  }
+  .strip {
+    position: absolute;
+    left: 0; bottom: 0; width: 100%; height: 3px;
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+  .strip-win  { background: var(--win); }
+  .strip-loss { background: var(--loss); }
+
+  .head { display: flex; justify-content: space-between; align-items: center; }
+  .date {
+    font-family: var(--serif); font-style: italic;
+    font-size: 22px; letter-spacing: -0.01em; color: var(--fg-0);
+  }
+  .week {
+    font-family: var(--sans); font-size: 11px;
+    letter-spacing: 0.06em; color: var(--fg-2);
+    padding: 3px 8px; background: var(--bg-2); border-radius: 99px;
+  }
+
+  .ranks { display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--bg-2); border-radius: 6px; }
+  .rank { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; }
+  .rank .name { color: var(--fg-2); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .rank .val { color: var(--fg-0); margin-left: auto; font-size: 11px; letter-spacing: 0.06em; font-weight: 600; }
+
+  .elo {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding-top: 10px; border-top: 1px solid var(--border);
+  }
+  .elo-row { display: flex; flex-direction: column; gap: 2px; }
+  .elo-row span {
+    font-family: var(--sans); font-size: 11px;
+    letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-2);
+  }
+  .elo-row b {
+    font-family: var(--mono); font-size: 12px; color: var(--fg-0); font-weight: 500;
+  }
+  .elo-delta {
+    font-family: var(--serif); font-style: italic;
+    font-size: 26px; line-height: 1; letter-spacing: -0.02em;
+  }
+  .elo-delta.pos { color: var(--win); }
+  .elo-delta.neg { color: var(--loss); }
+
+  .score { display: flex; align-items: baseline; gap: 6px; }
+  .w { font-family: var(--serif); font-style: italic; font-size: 32px; color: var(--win); line-height: 0.9; }
+  .sep { font-family: var(--serif); font-style: italic; font-size: 28px; color: var(--fg-3); }
+  .l { font-family: var(--serif); font-style: italic; font-size: 32px; color: var(--loss); line-height: 0.9; }
+  .lbl {
+    margin-left: auto; font-family: var(--sans); font-size: 12px;
+    color: var(--fg-2); letter-spacing: 0.04em;
+  }
+
+  .vods { display: flex; gap: 6px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid var(--border); }
+  .vod-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 6px 4px 8px;
+    border-radius: 99px;
+    text-decoration: none;
+    font-family: var(--mono); font-size: 10px;
+    border: 1px solid var(--border);
+    transition: all 0.15s;
+  }
+  .vod-twitch  { color: #a970ff; }
+  .vod-youtube { color: #ff4444; }
+  .vod-chip:hover { border-color: currentColor; }
+  .vod-avatar {
+    width: 16px; height: 16px; border-radius: 50%;
+    display: inline-grid; place-items: center;
+    font-family: var(--sans); font-size: 9px; font-weight: 700;
+    color: var(--bg-0);
+    background: var(--fg-1);
+  }
+</style>

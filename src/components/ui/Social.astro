@@ -1,0 +1,49 @@
+---
+interface Props {
+  platform: "twitch" | "youtube" | "geoguessr";
+  url: string;
+  label: string;
+}
+const { platform, url, label } = Astro.props;
+---
+
+<a class:list={["social", platform]} href={url} target="_blank" rel="noreferrer">
+  {platform === "twitch" && (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M4 2l-2 4v14h5v3h3l3-3h4l5-5V2H4zm16 10l-3 3h-4l-3 3v-3H7V4h13v8zM17 6h-2v5h2V6zm-5 0h-2v5h2V6z" />
+    </svg>
+  )}
+  {platform === "youtube" && (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M23 6.2s-.2-1.6-.9-2.3c-.8-.9-1.8-.9-2.2-1C16.7 2.6 12 2.6 12 2.6s-4.7 0-7.9.3c-.4.1-1.4.1-2.2 1C1.2 4.6 1 6.2 1 6.2S.8 8 .8 9.9v1.8c0 1.8.2 3.7.2 3.7s.2 1.6.9 2.3c.8.9 2 .9 2.4 1 1.8.2 7.7.3 7.7.3s4.7 0 7.9-.3c.4-.1 1.4-.1 2.2-1 .7-.7.9-2.3.9-2.3s.2-1.8.2-3.7V9.9c0-1.8-.2-3.7-.2-3.7zM9.7 13.8V7.2l6.2 3.3-6.2 3.3z" />
+    </svg>
+  )}
+  {platform === "geoguessr" && (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="10" r="3" />
+      <path d="M12 2a8 8 0 0 0-8 8c0 5.5 8 12 8 12s8-6.5 8-12a8 8 0 0 0-8-8z" />
+    </svg>
+  )}
+  {label}
+</a>
+
+<style>
+  .social {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--fg-1);
+    font-family: var(--sans);
+    font-size: 12px;
+    transition: all 0.15s;
+  }
+  .social:hover { border-color: var(--border-hi); color: var(--fg-0); }
+  .twitch:hover    { color: #a970ff; border-color: #a970ff; }
+  .youtube:hover   { color: #ff4444; border-color: #ff4444; }
+  .geoguessr:hover { color: #fec80a; border-color: #fec80a; }
+</style>

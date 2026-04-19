@@ -1,0 +1,159 @@
+---
+import Card from "./ui/Card.astro";
+import CardHead from "./ui/CardHead.astro";
+import BlockHead from "./ui/BlockHead.astro";
+import type { Game } from "../types";
+
+interface Props { games: Game[]; }
+const { games } = Astro.props;
+
+const W = 720, H = 220, PAD = 32;
+const x = (i: number) => PAD + (i / Math.max(1, games.length - 1)) * (W - PAD * 2);
+const y = (v: number) => H - PAD - ((v - 50) / 50) * (H - PAD * 2);
+
+const meLine = games.map((g, i) => (i === 0 ? "M" : "L") + x(i) + "," + y(g.myAcc)).join(" ");
+const advLine = games.map((g, i) => (i === 0 ? "M" : "L") + x(i) + "," + y(g.advAcc)).join(" ");
+const avgMe = games.length ? games.reduce((s, g) => s + g.myAcc, 0) / games.length : 0;
+const avgAdv = games.length ? games.reduce((s, g) => s + g.advAcc, 0) / games.length : 0;
+
+const buckets = [0, 0, 0, 0, 0];
+games.forEach((g) => g.roundBuckets.forEach((v, i) => { buckets[i] += v; }));
+const total = buckets.reduce((a, b) => a + b, 0);
+const labels = ["0–1k", "1–2k", "2–3k", "3–4k", "4–5k"];
+const maxBucket = Math.max(1, ...buckets);
+
+const perfects = games.reduce((s, g) => s + g.perfects, 0);
+const totalRounds = games.reduce((s, g) => s + g.rounds, 0);
+const rate = totalRounds ? (perfects / totalRounds) * 100 : 0;
+const dotCount = Math.min(perfects, 24);
+---
+
+<section class="block">
+  <BlockHead title="Précision" emphasis="tir" />
+  <div class="grid">
+    <Card class="card-prec">
+      <CardHead eyebrow="Duo vs Adversaires" meta="Précision par partie" />
+      <div class="prec-chart">
+        <svg viewBox={`0 0 ${W} ${H}`} width="100%">
+          {[50, 60, 70, 80, 90, 100].map((v) => (
+            <>
+              <line x1={PAD} y1={y(v)} x2={W - PAD} y2={y(v)} stroke="rgba(255,255,255,0.04)" />
+              <text x={8} y={y(v) + 3} font-size="9" fill="rgba(255,255,255,0.3)" font-family="var(--mono)">{v}%</text>
+            </>
+          ))}
+          {games.length > 0 && (
+            <>
+              <path d={advLine} stroke="var(--loss)" stroke-width="2" fill="none" stroke-opacity="0.75" stroke-dasharray="4 3" />
+              <path d={meLine} stroke="var(--win)" stroke-width="2.5" fill="none" />
+              {games.map((g, i) => (
+                <circle cx={x(i)} cy={y(g.myAcc)} r="2.5" fill="var(--win)" />
+              ))}
+            </>
+          )}
+        </svg>
+        <div class="prec-legend">
+          <span><i class="sw sw-win"></i> Duo · moy. {avgMe.toFixed(1)}%</span>
+          <span><i class="sw sw-loss"></i> Adversaires · moy. {avgAdv.toFixed(1)}%</span>
+        </div>
+      </div>
+    </Card>
+
+    <Card class="card-histo">
+      <CardHead eyebrow="Distribution" meta="Score par round" />
+      <div class="histo">
+        <div class="histo-bars">
+          {buckets.map((v, i) => {
+            const pct = (v / maxBucket) * 100;
+            const tone = i < 2 ? "loss" : i < 3 ? "neutral" : "win";
+            return (
+              <div class="histo-col">
+                <div class="histo-val">{v}</div>
+                <div class="histo-bar-wrap">
+                  <div class:list={["histo-bar", `tone-${tone}`]} style={`height: ${pct}%`}></div>
+                </div>
+                <div class="histo-label">{labels[i]}</div>
+                <div class="histo-pct">{total ? Math.round((v / total) * 100) : 0}%</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </Card>
+
+    <Card class="card-perfect">
+      <div class="perfects">
+        <div class="perfects-lbl">Rounds parfaits</div>
+        <div class="perfects-value">
+          <span class="pv-num">{perfects}</span>
+          <span class="pv-star">★</span>
+        </div>
+        <div class="perfects-sub"><b>5000 pts</b> · {rate.toFixed(1)}% des rounds</div>
+        <div class="perfects-dots">
+          {Array.from({ length: dotCount }).map(() => <span class="pdot"></span>)}
+          {perfects > 24 && <span class="pdot-more">+{perfects - 24}</span>}
+        </div>
+      </div>
+    </Card>
+  </div>
+</section>
+
+<style>
+  .block { margin-top: calc(var(--gap) * 2.5); }
+  .grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: var(--gap);
+  }
+
+  .prec-legend {
+    display: flex; gap: 24px; margin-top: 12px;
+    font-family: var(--sans); font-size: 13px; color: var(--fg-1);
+  }
+  .prec-legend span { display: flex; align-items: center; gap: 8px; }
+  .sw { width: 14px; height: 3px; display: inline-block; border-radius: 2px; }
+  .sw-win { background: var(--win); }
+  .sw-loss { background: var(--loss); }
+
+  .histo { display: flex; flex-direction: column; height: 100%; }
+  .histo-bars {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+    flex: 1; align-items: end;
+  }
+  .histo-col { display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; }
+  .histo-val { font-family: var(--sans); font-size: 13px; color: var(--fg-1); }
+  .histo-bar-wrap { width: 100%; height: 150px; display: flex; align-items: flex-end; }
+  .histo-bar { width: 100%; border-radius: 3px 3px 0 0; min-height: 3px; }
+  .tone-win { background: linear-gradient(180deg, var(--win), oklch(0.64 0.12 195)); }
+  .tone-loss { background: linear-gradient(180deg, var(--loss), oklch(0.58 0.15 50)); }
+  .tone-neutral { background: var(--map-mid); }
+  .histo-label { font-family: var(--sans); font-size: 12px; color: var(--fg-2); letter-spacing: 0.02em; }
+  .histo-pct { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--fg-0); }
+
+  .perfects { display: flex; flex-direction: column; gap: 10px; height: 100%; justify-content: center; }
+  .perfects-lbl {
+    font-family: var(--sans); font-size: 12px; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--fg-2);
+  }
+  .perfects-value {
+    font-family: var(--serif); font-style: italic;
+    font-size: 104px; line-height: 0.9; color: var(--win);
+    display: flex; align-items: baseline; gap: 12px;
+    letter-spacing: -0.04em;
+  }
+  .pv-star { font-size: 36px; color: var(--win); }
+  .perfects-sub { font-family: var(--sans); font-size: 13px; color: var(--fg-1); }
+  .perfects-sub b { color: var(--fg-0); }
+  .perfects-dots {
+    display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;
+    padding-top: 12px; border-top: 1px solid var(--border);
+  }
+  .pdot { width: 8px; height: 8px; background: var(--win); border-radius: 2px; }
+  .pdot-more {
+    font-family: var(--sans); font-size: 12px; color: var(--fg-2);
+    padding: 0 4px;
+  }
+
+  @media (max-width: 1024px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
