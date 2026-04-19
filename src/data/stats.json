@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-19T11:53:28",
+  "generatedAt": "2026-04-19T11:59:11",
   "duoRank": "Master 1",
   "games": [
     {
@@ -2331,7 +2331,7 @@
     {
       "gameId": "20260418-211519",
       "roundNum": 6,
-      "country": "US:ND",
+      "country": "US",
       "myScore": 4333,
       "oppScore": 4629,
       "winner": "opp",
@@ -2361,7 +2361,7 @@
     {
       "gameId": "20260418-211519",
       "roundNum": 9,
-      "country": "US:MI",
+      "country": "US",
       "myScore": 4517,
       "oppScore": 2761,
       "winner": "me",
@@ -2511,7 +2511,7 @@
     {
       "gameId": "20260418-213140",
       "roundNum": 8,
-      "country": "US:NH",
+      "country": "US",
       "myScore": 4858,
       "oppScore": 4872,
       "winner": "opp",
@@ -2551,7 +2551,7 @@
     {
       "gameId": "20260418-213140",
       "roundNum": 12,
-      "country": "US:FL",
+      "country": "US",
       "myScore": 4779,
       "oppScore": 4851,
       "winner": "opp",
@@ -2851,7 +2851,7 @@
     {
       "gameId": "20260418-214947",
       "roundNum": 11,
-      "country": "US:WI",
+      "country": "US",
       "myScore": 4562,
       "oppScore": 3178,
       "winner": "me",
@@ -3071,7 +3071,7 @@
     {
       "gameId": "20260418-221534",
       "roundNum": 3,
-      "country": "US:NC",
+      "country": "US",
       "myScore": 3523,
       "oppScore": 4998,
       "winner": "opp",
@@ -3351,7 +3351,7 @@
     {
       "gameId": "20260418-222842",
       "roundNum": 3,
-      "country": "US:GA",
+      "country": "US",
       "myScore": 4003,
       "oppScore": 4605,
       "winner": "opp",
@@ -3521,7 +3521,7 @@
     {
       "gameId": "20260418-223739",
       "roundNum": 5,
-      "country": "US:TX",
+      "country": "US",
       "myScore": 4993,
       "oppScore": 4209,
       "winner": "me",
@@ -3541,7 +3541,7 @@
     {
       "gameId": "20260418-223739",
       "roundNum": 7,
-      "country": "US:WI",
+      "country": "US",
       "myScore": 4880,
       "oppScore": 4603,
       "winner": "me",
@@ -3801,7 +3801,7 @@
     {
       "gameId": "20260418-224859",
       "roundNum": 2,
-      "country": "US:IN",
+      "country": "US",
       "myScore": 4998,
       "oppScore": 4997,
       "winner": "me",
@@ -3911,7 +3911,7 @@
     {
       "gameId": "20260418-225243",
       "roundNum": 4,
-      "country": "US:ND",
+      "country": "US",
       "myScore": 3346,
       "oppScore": 4999,
       "winner": "opp",
@@ -3931,7 +3931,7 @@
     {
       "gameId": "20260418-225243",
       "roundNum": 6,
-      "country": "US:SC",
+      "country": "US",
       "myScore": 5000,
       "oppScore": 4711,
       "winner": "me",
@@ -4021,7 +4021,7 @@
     {
       "gameId": "20260418-225701",
       "roundNum": 8,
-      "country": "US:IA",
+      "country": "US",
       "myScore": 4169,
       "oppScore": 4553,
       "winner": "opp",
@@ -4201,7 +4201,7 @@
     {
       "gameId": "20260418-230634",
       "roundNum": 2,
-      "country": "US:UT",
+      "country": "US",
       "myScore": 3169,
       "oppScore": 4997,
       "winner": "opp",
@@ -4211,7 +4211,7 @@
     {
       "gameId": "20260418-230634",
       "roundNum": 3,
-      "country": "US:OR",
+      "country": "US",
       "myScore": 4806,
       "oppScore": 4996,
       "winner": "opp",
@@ -4241,7 +4241,7 @@
     {
       "gameId": "20260418-230634",
       "roundNum": 6,
-      "country": "US:GA",
+      "country": "US",
       "myScore": 4594,
       "oppScore": 2788,
       "winner": "me",
@@ -4311,7 +4311,7 @@
     {
       "gameId": "20260418-231239",
       "roundNum": 3,
-      "country": "US:PA",
+      "country": "US",
       "myScore": 4582,
       "oppScore": 4262,
       "winner": "me",
@@ -4521,7 +4521,7 @@
     {
       "gameId": "20260418-231854",
       "roundNum": 14,
-      "country": "US:VA",
+      "country": "US",
       "myScore": 4491,
       "oppScore": 4771,
       "winner": "opp",
@@ -4841,7 +4841,7 @@
     {
       "gameId": "20260418-233140",
       "roundNum": 11,
-      "country": "US:MN",
+      "country": "US",
       "myScore": 4646,
       "oppScore": 4756,
       "winner": "opp",
@@ -5011,7 +5011,7 @@
     {
       "gameId": "20260418-234225",
       "roundNum": 2,
-      "country": "US:IA",
+      "country": "US",
       "myScore": 5000,
       "oppScore": 4691,
       "winner": "me",
@@ -5221,7 +5221,7 @@
     {
       "gameId": "20260418-235147",
       "roundNum": 2,
-      "country": "US:WI",
+      "country": "US",
       "myScore": 4847,
       "oppScore": 3953,
       "winner": "me",
@@ -5361,7 +5361,7 @@
     {
       "gameId": "20260419-000039",
       "roundNum": 5,
-      "country": "US:AR",
+      "country": "US",
       "myScore": 3429,
       "oppScore": 4067,
       "winner": "opp",
@@ -5511,7 +5511,7 @@
     {
       "gameId": "20260419-000740",
       "roundNum": 4,
-      "country": "US:SD",
+      "country": "US",
       "myScore": 3603,
       "oppScore": 4996,
       "winner": "opp",
@@ -5521,7 +5521,7 @@
     {
       "gameId": "20260419-000740",
       "roundNum": 5,
-      "country": "US:CA",
+      "country": "US",
       "myScore": 4392,
       "oppScore": 4408,
       "winner": "opp",
@@ -5651,7 +5651,7 @@
     {
       "gameId": "20260419-001327",
       "roundNum": 6,
-      "country": "US:OH",
+      "country": "US",
       "myScore": 4951,
       "oppScore": 4999,
       "winner": "opp",
@@ -5761,7 +5761,7 @@
     {
       "gameId": "20260419-001722",
       "roundNum": 8,
-      "country": "US:HI",
+      "country": "US",
       "myScore": 4995,
       "oppScore": 4961,
       "winner": "me",
@@ -5961,7 +5961,7 @@
     {
       "gameId": "20260419-002900",
       "roundNum": 2,
-      "country": "US:ND",
+      "country": "US",
       "myScore": 4993,
       "oppScore": 4492,
       "winner": "me",
@@ -5991,7 +5991,7 @@
     {
       "gameId": "20260419-002900",
       "roundNum": 5,
-      "country": "US:IL",
+      "country": "US",
       "myScore": 4223,
       "oppScore": 4786,
       "winner": "opp",
@@ -6031,7 +6031,7 @@
     {
       "gameId": "20260419-002900",
       "roundNum": 9,
-      "country": "US:OK",
+      "country": "US",
       "myScore": 3494,
       "oppScore": 4602,
       "winner": "opp",
@@ -6281,7 +6281,7 @@
     {
       "gameId": "20260419-004202",
       "roundNum": 6,
-      "country": "US:AZ",
+      "country": "US",
       "myScore": 5000,
       "oppScore": 4168,
       "winner": "me",
@@ -6581,7 +6581,7 @@
     {
       "gameId": "20260419-005035",
       "roundNum": 12,
-      "country": "US:CA",
+      "country": "US",
       "myScore": 1046,
       "oppScore": 4992,
       "winner": "opp",
@@ -7071,7 +7071,7 @@
     {
       "gameId": "20260419-011100",
       "roundNum": 11,
-      "country": "US:IN",
+      "country": "US",
       "myScore": 4864,
       "oppScore": 4146,
       "winner": "me",
@@ -7431,7 +7431,7 @@
     {
       "gameId": "20260419-081936",
       "roundNum": 9,
-      "country": "US:MI",
+      "country": "US",
       "myScore": 4786,
       "oppScore": 4950,
       "winner": "opp",
@@ -7501,7 +7501,7 @@
     {
       "gameId": "20260419-082427",
       "roundNum": 1,
-      "country": "US:AK",
+      "country": "US",
       "myScore": 4849,
       "oppScore": 4979,
       "winner": "opp",
@@ -7581,7 +7581,7 @@
     {
       "gameId": "20260419-082427",
       "roundNum": 9,
-      "country": "US:WV",
+      "country": "US",
       "myScore": 4956,
       "oppScore": 4481,
       "winner": "me",
@@ -7631,7 +7631,7 @@
     {
       "gameId": "20260419-082818",
       "roundNum": 2,
-      "country": "US:AZ",
+      "country": "US",
       "myScore": 4564,
       "oppScore": 4997,
       "winner": "opp",
@@ -7811,7 +7811,7 @@
     {
       "gameId": "20260419-083113",
       "roundNum": 12,
-      "country": "US:OK",
+      "country": "US",
       "myScore": 4993,
       "oppScore": 4999,
       "winner": "opp",
@@ -7871,7 +7871,7 @@
     {
       "gameId": "20260419-083511",
       "roundNum": 5,
-      "country": "US:TN",
+      "country": "US",
       "myScore": 4704,
       "oppScore": 4765,
       "winner": "opp",
@@ -7941,7 +7941,7 @@
     {
       "gameId": "20260419-083511",
       "roundNum": 12,
-      "country": "US:MT",
+      "country": "US",
       "myScore": 4916,
       "oppScore": 4594,
       "winner": "me",
@@ -8041,7 +8041,7 @@
     {
       "gameId": "20260419-083930",
       "roundNum": 5,
-      "country": "US:AZ",
+      "country": "US",
       "myScore": 4798,
       "oppScore": 3949,
       "winner": "me",
@@ -8051,7 +8051,7 @@
     {
       "gameId": "20260419-083930",
       "roundNum": 6,
-      "country": "US:LA",
+      "country": "US",
       "myScore": 4863,
       "oppScore": 4915,
       "winner": "opp",
@@ -8111,7 +8111,7 @@
     {
       "gameId": "20260419-084422",
       "roundNum": 3,
-      "country": "US:NY",
+      "country": "US",
       "myScore": 4556,
       "oppScore": 4955,
       "winner": "opp",
@@ -8181,7 +8181,7 @@
     {
       "gameId": "20260419-084747",
       "roundNum": 3,
-      "country": "US:NY",
+      "country": "US",
       "myScore": 4657,
       "oppScore": 4720,
       "winner": "opp",
@@ -8191,7 +8191,7 @@
     {
       "gameId": "20260419-084747",
       "roundNum": 4,
-      "country": "US:ID",
+      "country": "US",
       "myScore": 4998,
       "oppScore": 4989,
       "winner": "me",
@@ -8221,7 +8221,7 @@
     {
       "gameId": "20260419-084747",
       "roundNum": 7,
-      "country": "US:OH",
+      "country": "US",
       "myScore": 4987,
       "oppScore": 4933,
       "winner": "me",
@@ -8321,7 +8321,7 @@
     {
       "gameId": "20260419-085114",
       "roundNum": 9,
-      "country": "US:GA",
+      "country": "US",
       "myScore": 3917,
       "oppScore": 4909,
       "winner": "opp",
@@ -8411,7 +8411,7 @@
     {
       "gameId": "20260419-085523",
       "roundNum": 6,
-      "country": "US:ME",
+      "country": "US",
       "myScore": 4859,
       "oppScore": 3634,
       "winner": "me",
@@ -8491,7 +8491,7 @@
     {
       "gameId": "20260419-085830",
       "roundNum": 4,
-      "country": "US:UT",
+      "country": "US",
       "myScore": 4990,
       "oppScore": 4843,
       "winner": "me",
@@ -8751,7 +8751,7 @@
     {
       "gameId": "20260419-090606",
       "roundNum": 5,
-      "country": "US:OH",
+      "country": "US",
       "myScore": 5000,
       "oppScore": 4999,
       "winner": "me",
@@ -8831,7 +8831,7 @@
     {
       "gameId": "20260419-090836",
       "roundNum": 5,
-      "country": "US:OR",
+      "country": "US",
       "myScore": 1565,
       "oppScore": 4955,
       "winner": "opp",
@@ -8841,7 +8841,7 @@
     {
       "gameId": "20260419-090836",
       "roundNum": 6,
-      "country": "US:TN",
+      "country": "US",
       "myScore": 4999,
       "oppScore": 4193,
       "winner": "me",
@@ -9181,7 +9181,7 @@
     {
       "gameId": "20260419-091807",
       "roundNum": 10,
-      "country": "US:MO",
+      "country": "US",
       "myScore": 4667,
       "oppScore": 4881,
       "winner": "opp",
@@ -9431,7 +9431,7 @@
     {
       "gameId": "20260419-092655",
       "roundNum": 4,
-      "country": "US:WA",
+      "country": "US",
       "myScore": 2561,
       "oppScore": 5000,
       "winner": "opp",
@@ -9471,7 +9471,7 @@
     {
       "gameId": "20260419-092655",
       "roundNum": 8,
-      "country": "US:KS",
+      "country": "US",
       "myScore": 4424,
       "oppScore": 4820,
       "winner": "opp",
@@ -9621,7 +9621,7 @@
     {
       "gameId": "20260419-093013",
       "roundNum": 14,
-      "country": "US:TN",
+      "country": "US",
       "myScore": 4998,
       "oppScore": 4925,
       "winner": "me",
@@ -9761,7 +9761,7 @@
     {
       "gameId": "20260419-093507",
       "roundNum": 12,
-      "country": "US:MI",
+      "country": "US",
       "myScore": 3715,
       "oppScore": 4846,
       "winner": "opp",
@@ -9771,7 +9771,7 @@
     {
       "gameId": "20260419-093507",
       "roundNum": 13,
-      "country": "US:WA",
+      "country": "US",
       "myScore": 4930,
       "oppScore": 4941,
       "winner": "opp",
@@ -10011,7 +10011,7 @@
     {
       "gameId": "20260419-094558",
       "roundNum": 7,
-      "country": "US:NM",
+      "country": "US",
       "myScore": 4917,
       "oppScore": 4792,
       "winner": "me",
@@ -10091,7 +10091,7 @@
     {
       "gameId": "20260419-095032",
       "roundNum": 1,
-      "country": "US:OH",
+      "country": "US",
       "myScore": 4735,
       "oppScore": 4851,
       "winner": "opp",
@@ -10171,7 +10171,7 @@
     {
       "gameId": "20260419-095032",
       "roundNum": 9,
-      "country": "US:AL",
+      "country": "US",
       "myScore": 4876,
       "oppScore": 4829,
       "winner": "me",
@@ -10251,7 +10251,7 @@
     {
       "gameId": "20260419-095032",
       "roundNum": 17,
-      "country": "US:PA",
+      "country": "US",
       "myScore": 4259,
       "oppScore": 5000,
       "winner": "opp",
