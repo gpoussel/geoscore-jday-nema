@@ -68,11 +68,19 @@ export type PlayersFile = {
   players: Players;
 };
 
+export type Distribution = {
+  map: string;
+  source: string;
+  counts: Record<string, number>;
+  totalCount: number;
+};
+
 export type Stats = {
   generatedAt: string;
   games: RawGame[];
   rounds: Round[];
   sessions: Session[];
+  distribution: Distribution;
 };
 
 export type Period = "current" | "all";
@@ -83,4 +91,6 @@ export type CountryStat = {
   advAcc: number;
   gap: number;
   score: number;
+  expectedShare: number;
+  deviation: number | null;
 };

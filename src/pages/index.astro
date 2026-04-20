@@ -50,13 +50,21 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
     agg[k].advSum += logPrecision(r.oppScore);
     agg[k].balSum += r.myScore - r.oppScore;
   }
+  const totalRounds = rounds.length;
+  const distCounts = stats.distribution?.counts ?? {};
+  const distTotal = stats.distribution?.totalCount || 0;
   const countryStats: Record<string, CountryStat> = {};
   for (const k in agg) {
     const a = agg[k];
     const acc = a.mySum / a.seen;
     const advAcc = a.advSum / a.seen;
     const score = a.balSum / a.seen;
-    countryStats[k] = { seen: a.seen, acc, advAcc, gap: acc - advAcc, score };
+    const expectedShare = distTotal > 0 ? (distCounts[k] ?? 0) / distTotal : 0;
+    const observedShare = totalRounds > 0 ? a.seen / totalRounds : 0;
+    const deviation = expectedShare > 0
+      ? ((observedShare - expectedShare) / expectedShare) * 100
+      : null;
+    countryStats[k] = { seen: a.seen, acc, advAcc, gap: acc - advAcc, score, expectedShare, deviation };
   }
 
   const wins = games.filter((g) => g.won).length;
@@ -167,7 +175,7 @@ const ogImage = `${baseUrl}og.png`;
           <KpiRow {...v.kpis} />
           <BlockElo games={v.games} sessions={v.sessions} />
           <BlockPrecision games={v.games} sessions={v.sessions} aggregateBySession={key === "all"} />
-          <BlockPays countryStats={v.countryStats} />
+          <BlockPays countryStats={v.countryStats} distribution={stats.distribution} />
           <BlockRecords games={v.games} rounds={v.rounds} />
           <BlockSessions sessions={v.sessions} players={players} />
         </div>

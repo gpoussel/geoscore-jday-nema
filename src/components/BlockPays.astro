@@ -4,7 +4,7 @@ import CardHead from "./ui/CardHead.astro";
 import BlockHead from "./ui/BlockHead.astro";
 import Flag from "./ui/Flag.astro";
 import { countryName } from "../lib/country";
-import type { CountryStat } from "../types";
+import type { CountryStat, Distribution } from "../types";
 import { geoNaturalEarth1, geoPath } from "d3-geo";
 import { feature } from "topojson-client";
 import type { Topology } from "topojson-specification";
@@ -32,8 +32,8 @@ const featureCode = (f: Feature<Geometry, GeoJsonProperties>): string => {
   return id ? countriesLib.numericToAlpha2(id) ?? "" : "";
 };
 
-interface Props { countryStats: Record<string, CountryStat>; }
-const { countryStats } = Astro.props;
+interface Props { countryStats: Record<string, CountryStat>; distribution: Distribution; }
+const { countryStats, distribution } = Astro.props;
 
 type Entry = [string, CountryStat];
 const seenEntries: Entry[] = Object.entries(countryStats).filter(([, s]) => s.seen >= 1);
@@ -63,6 +63,16 @@ const topBySeen   = [...seenEntries].sort((a, b) => b[1].seen - a[1].seen).slice
 const fmtBalance = (n: number) => {
   const r = Math.round(n);
   return `${r >= 0 ? "+" : "−"}${Math.abs(r).toLocaleString("fr-FR")}`;
+};
+
+const DEV_NEUTRAL = 5;
+type DevDisplay = { text: string; tone: "up" | "down" | "flat" | "na" };
+const fmtDeviation = (d: number | null): DevDisplay => {
+  if (d == null) return { text: "–", tone: "na" };
+  const r = Math.round(d);
+  if (Math.abs(r) <= DEV_NEUTRAL) return { text: `±${Math.abs(r)}%`, tone: "flat" };
+  if (r > 0) return { text: `▲+${r}%`, tone: "up" };
+  return { text: `▼−${Math.abs(r)}%`, tone: "down" };
 };
 
 const nameOf = countryName;
@@ -164,6 +174,20 @@ const nameOf = countryName;
             <span data-metric="precision">Top 10<span class="tf-sub">meilleurs</span></span>
             <span data-metric="score">Top 10<span class="tf-sub">meilleurs</span></span>
             <span data-metric="occurrence">Top 40</span>
+            {distribution?.source && (
+              <a
+                class="map-credit"
+                data-metric="occurrence"
+                href={distribution.source}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Distribution de la carte utilisée"
+              >
+                <span class="mc-label">Carte</span>
+                <span class="mc-name">{distribution.map}</span>
+                <span class="mc-ext" aria-hidden="true">↗</span>
+              </a>
+            )}
             <label class="filter-chk" data-filter-chk>
               <input type="checkbox" checked />
               <span>≥ 6 fois seulement</span>
@@ -202,16 +226,21 @@ const nameOf = countryName;
               </li>
             ))}
           </ol>
-          <ol class="tf-list" data-metric="occurrence">
-            {topBySeen.map(([code, s], i) => (
-              <li>
-                <span class="tf-rank">{i + 1}</span>
-                <Flag code={code} class="tf-flag" />
-                <span class="tf-name">{nameOf(code)}</span>
-                <span class="tf-app">{s.acc.toFixed(1).replace(".", ",")}%</span>
-                <span class="tf-val tf-win">×{s.seen}</span>
-              </li>
-            ))}
+          <ol class="tf-list tf-list-occ" data-metric="occurrence">
+            {topBySeen.map(([code, s], i) => {
+              const dev = fmtDeviation(s.deviation);
+              return (
+                <li>
+                  <span class="tf-rank">{i + 1}</span>
+                  <Flag code={code} class="tf-flag" />
+                  <span class="tf-name">{nameOf(code)}</span>
+                  <span class="tf-val tf-win">×{s.seen}</span>
+                  <span class={`tf-dev tf-dev-${dev.tone}`} title="Écart vs. distribution attendue sur la carte">
+                    {dev.text}
+                  </span>
+                </li>
+              );
+            })}
           </ol>
         </div>
       </Card>
@@ -529,6 +558,31 @@ const nameOf = countryName;
   .metric-bar .btn:hover { color: var(--fg-0); }
   .metric-bar .btn.active { background: var(--fg-0); color: var(--bg-0); }
 
+  .map-credit {
+    display: inline-flex; align-items: baseline; gap: 8px;
+    text-decoration: none;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .map-credit:hover { border-color: var(--border-hi); }
+  .map-credit .mc-label {
+    font-family: var(--sans); font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--fg-2);
+  }
+  .map-credit .mc-name {
+    font-family: var(--serif); font-style: italic;
+    font-size: 14px; color: var(--fg-0);
+  }
+  .map-credit .mc-ext {
+    font-family: var(--sans); font-size: 11px;
+    color: var(--fg-2);
+  }
+  .map-credit:hover .mc-name { color: var(--fg-0); }
+  .map-credit:hover .mc-ext { color: var(--fg-0); }
+
   .filter-chk {
     display: inline-flex; align-items: center; gap: 8px;
     margin-left: auto;
@@ -648,6 +702,14 @@ const nameOf = countryName;
   .tf-val { font-weight: 600; font-size: 13px; }
   .tf-win { color: var(--win); }
   .tf-loss { color: var(--loss); }
+  .tf-dev {
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
+    letter-spacing: -0.02em;
+    min-width: 52px; text-align: right;
+    color: var(--fg-1);
+  }
+  .tf-dev-flat { color: var(--fg-3); }
+  .tf-dev-na   { color: var(--fg-3); opacity: 0.5; }
 
   @media (max-width: 1024px) {
     .tf-row { grid-template-columns: 1fr; }
