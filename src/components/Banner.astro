@@ -1,0 +1,28 @@
+---
+interface Props { text?: string | null }
+const { text } = Astro.props;
+const content = text?.trim() ?? "";
+---
+
+{content && (
+  <aside class="banner" role="status">
+    <p class="banner-text">{content}</p>
+  </aside>
+)}
+
+<style>
+  .banner {
+    width: 100%;
+    padding: 10px 20px;
+    background: color-mix(in oklch, var(--bg-1) 70%, var(--win) 30%);
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+  .banner-text {
+    margin: 0;
+    font-family: var(--sans);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    color: var(--fg-0);
+  }
+</style>

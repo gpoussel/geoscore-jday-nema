@@ -2,10 +2,12 @@
 import "../styles/global.css";
 import statsData from "../data/stats.json";
 import playersData from "../data/players.json";
+import bannerData from "../data/banner.json";
 import type { CountryStat, Game, PlayersFile, Round, Stats } from "../types";
 import TeamCard from "../components/TeamCard.astro";
 import PeriodToggle from "../components/PeriodToggle.astro";
 import StickyHeader from "../components/StickyHeader.astro";
+import Banner from "../components/Banner.astro";
 import KpiRow from "../components/KpiRow.astro";
 import BlockElo from "../components/BlockElo.astro";
 import BlockPrecision from "../components/BlockPrecision.astro";
@@ -163,6 +165,7 @@ const ogImage = `${baseUrl}og.png`;
     />
   </head>
   <body data-period={activePeriod}>
+    <Banner text={bannerData.text} />
     <StickyHeader weeks={weeks} activeWeek={latestWeek} periods={periods} />
     <div class="app">
       <header class="header">
