@@ -38,7 +38,7 @@ stats/sessions.json ┘                                                         
 - `games.csv` holds one row per round.
 - `sessions.json` is the only session-level metadata (date, time, rank, VOD links).
 - `src/data/players.json` is the source of truth for player identity — never regenerated from Python.
-- Per-game precision (`myAcc`, `advAcc`) is **computed in the web layer** from round scores via a logarithmic formula that mirrors GeoGuessr's exp-decay scoring. The JSON does not carry them.
+- Per-game precision (`myAcc`, `advAcc`) is **computed in the web layer** as `score / 50` (linear mapping of 0–5000 pts to 0–100%). The JSON does not carry them.
 
 ## Commands
 
@@ -67,11 +67,7 @@ There is no test suite. `astro check` (run as part of `build`) must stay at 0 er
 - Period toggle (current week ↔ global) is a **build-time dual render**: both views are emitted into the HTML and `PeriodToggle.astro` flips a `body.period-*` class — no hydration, no runtime state.
 - World map uses `d3-geo` + `topojson-client` + `world-atlas` (all compile-time only, so the shipped JS stays tiny). Pan/zoom is a short inline script on the SVG.
 - Colors are OKLCH with three hues: purple (`285`) base, teal (`172`) wins, orange (`50`) losses. All interpolation goes through `color-mix(in oklch, …)`.
-- Precision is log-scaled: per round, `max(0, log2(score/2500) × 100)`. Anything under 2500 pts reads as 0%, which throws out the trivial range and keeps the full 0–100 amplitude on what actually matters — from 2500 (random hemisphere) to 5000 (bullseye):
-
-  | Score | 0–2500 | 3000 | 3500 | 4000 | 4500 | 5000 |
-  |------:|-------:|-----:|-----:|-----:|-----:|-----:|
-  |  Préc.|     0% | 26%  | 49%  | 68%  | 85%  | 100% |
+- Precision is linear: per round, `score / 50` (0–5000 pts → 0–100%).
 
 ## Tech stack
 
