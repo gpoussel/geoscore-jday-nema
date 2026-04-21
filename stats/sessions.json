@@ -117,6 +117,11 @@
         "platform": "twitch",
         "player": "jday",
         "url": "https://www.twitch.tv/videos/2747004024"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=_muksQWU5tU"
       }
     ]
   },
