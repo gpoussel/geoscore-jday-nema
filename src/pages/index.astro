@@ -35,7 +35,12 @@ type View = {
   rounds: Round[];
   sessions: Stats["sessions"];
   countryStats: Record<string, CountryStat>;
-  kpis: { games: number; winRate: number; eloNet: number; avgAcc: number };
+  kpis: { games: number; winRate: number; eloNet: number; elo: number; avgAcc: number };
+};
+
+const latestElo = (games: Game[]) => {
+  const sorted = [...games].sort((a, b) => Number(a.id) - Number(b.id));
+  return sorted[sorted.length - 1]?.elo ?? 0;
 };
 
 const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
@@ -81,6 +86,7 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
       games: games.length,
       winRate: Math.round((wins / Math.max(1, games.length)) * 100),
       eloNet,
+      elo: latestElo(games),
       avgAcc,
     },
   };
@@ -118,8 +124,7 @@ const hideCss = periods
 const generatedAt = new Date(stats.generatedAt).toLocaleDateString("fr-FR");
 
 const allView = periods.find((p) => p.key === "all")!.view;
-const sortedAll = [...allView.games].sort((a, b) => Number(a.id) - Number(b.id));
-const currentElo = sortedAll[sortedAll.length - 1]?.elo ?? 0;
+const currentElo = allView.kpis.elo;
 const playerNames = Object.values(players).map((p) => p.name).join(" × ");
 const ogTitle = "Road to Champion · JDay & Néma";
 const ogDescription =

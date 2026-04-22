@@ -6,7 +6,7 @@ interface Props {
   activeWeek: number;
   periods: {
     key: string;
-    view: { kpis: { games: number; winRate: number; eloNet: number; avgAcc: number } };
+    view: { kpis: { games: number; winRate: number; eloNet: number; elo: number; avgAcc: number } };
   }[];
 }
 const { weeks, activeWeek, periods } = Astro.props;
@@ -25,10 +25,14 @@ const { weeks, activeWeek, periods } = Astro.props;
             <em>WR</em>
           </span>
           <span class="kpi-item">
+            <b>{kpis.elo}</b>
+            <em>ELO</em>
+          </span>
+          <span class="kpi-item">
             <b class={kpis.eloNet >= 0 ? "tone-win" : "tone-loss"}>
               {kpis.eloNet >= 0 ? "+" : ""}{kpis.eloNet}
             </b>
-            <em>ELO</em>
+            <em>Δ</em>
           </span>
           <span class="kpi-item"><b>{kpis.avgAcc.toFixed(1).replace(".", ",")}%</b><em>PRÉC</em></span>
         </span>
