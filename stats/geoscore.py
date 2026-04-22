@@ -202,6 +202,9 @@ def play_rounds(known_countries: set[str]) -> list[Round] | None:
         except ValueError:
             print(c("  Scores invalides", C.RED))
             continue
+        if not (0 <= my_s <= 5000 and 0 <= opp_s <= 5000):
+            print(c("  Scores hors bornes (0-5000)", C.RED))
+            continue
         country = parts[2].lower()
         if not is_valid_country(country):
             print(c(f"  Code pays inconnu: {country!r} (ex: fr, uk, us:fl)", C.RED))
