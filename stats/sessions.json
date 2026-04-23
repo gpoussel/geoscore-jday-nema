@@ -138,6 +138,11 @@
         "platform": "twitch",
         "player": "jday",
         "url": "https://www.twitch.tv/videos/2747870220?t=0h0m1s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=7D9thD4L9eg&t=555s"
       }
     ]
   },
@@ -154,6 +159,11 @@
         "platform": "twitch",
         "player": "jday",
         "url": "https://www.twitch.tv/videos/2747870220?t=6h55m26s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=7D9thD4L9eg&t=25080s"
       }
     ]
   },
@@ -170,6 +180,11 @@
         "platform": "twitch",
         "player": "jday",
         "url": "https://www.twitch.tv/videos/2749353697"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=w8eOfg_FnJA"
       }
     ]
   },
