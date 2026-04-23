@@ -279,6 +279,9 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
     const weekStarts = weekStartsEl?.textContent
       ? (JSON.parse(weekStartsEl.textContent) as number[])
       : [];
+    const allAcc = data.flatMap((d) => [d.myAcc, d.advAcc]);
+    const minP = Math.max(0, Math.floor(Math.min(...allAcc) / 5) * 5);
+    const maxP = Math.min(100, Math.ceil(Math.max(...allAcc) / 5) * 5);
 
     const sessionMarkersPlugin = {
       id: "sessionMarkers",
@@ -398,8 +401,8 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
         scales: {
           x: { display: false },
           y: {
-            min: 50,
-            max: 100,
+            min: minP,
+            max: maxP,
             grid: { color: "rgba(255,255,255,0.04)" },
             border: { display: false },
             ticks: {

@@ -291,8 +291,8 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
     const rawStep = (hi - lo) / 4 || 1;
     const niceSteps = [5, 10, 20, 25, 50, 100, 200, 250, 500];
     const step = niceSteps.find((s) => s >= rawStep) ?? 1000;
-    const minE = Math.floor((lo - step / 2) / step) * step;
-    const maxE = Math.ceil((hi + step / 2) / step) * step;
+    const minE = Math.floor(lo / step) * step;
+    const maxE = Math.ceil(hi / step) * step;
 
     const sessionMarkersPlugin = {
       id: "sessionMarkers",
