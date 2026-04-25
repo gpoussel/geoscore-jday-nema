@@ -8,6 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The Astro site consumes `stats.json` at build time only — it never reads the CSV directly. Any schema change in `build_stats.py`'s output must be mirrored in `../src/types.ts`.
 
+Map distributions live in `../src/data/distributions.json` (hand-maintained, keyed by date range — not generated here).
+
 ## Commands
 
 ```bash
