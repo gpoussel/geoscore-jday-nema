@@ -71,16 +71,19 @@ export type PlayersFile = {
 export type Distribution = {
   map: string;
   source: string;
+  from?: string;
+  to?: string;
   counts: Record<string, number>;
-  totalCount: number;
 };
+
+export type DistributionsFile = { distributions: Distribution[] };
 
 export type Stats = {
   generatedAt: string;
   games: RawGame[];
   rounds: Round[];
   sessions: Session[];
-  distribution: Distribution;
+  distribution: Distribution & { totalCount: number };
 };
 
 export type Period = "current" | "all";
