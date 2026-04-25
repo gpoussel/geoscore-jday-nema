@@ -2,20 +2,21 @@
 import PeriodToggle from "./PeriodToggle.astro";
 
 interface Props {
-  weeks: number[];
-  activeWeek: number;
   periods: {
     key: string;
+    label: string;
+    short: string;
     view: { kpis: { games: number; winRate: number; eloNet: number; elo: number; avgAcc: number } };
   }[];
+  activeKey: string;
 }
-const { weeks, activeWeek, periods } = Astro.props;
+const { periods, activeKey } = Astro.props;
 ---
 
 <div class="sticky-header" data-sticky>
   <div class="sticky-inner">
     <span class="brand">Road to Champion</span>
-    <PeriodToggle weeks={weeks} activeWeek={activeWeek} />
+    <PeriodToggle periods={periods} activeKey={activeKey} />
     <div class="sticky-kpis">
       {periods.map(({ key, view: { kpis } }) => (
         <span data-view={key} class="kpi-bundle">
@@ -92,6 +93,8 @@ const { weeks, activeWeek, periods } = Astro.props;
   .sticky-header :global(.period-bar .label) {
     display: none;
   }
+  .sticky-header :global(.period-bar .long)  { display: none; }
+  .sticky-header :global(.period-bar .short) { display: inline; }
   .sticky-kpis {
     margin-left: auto;
     display: flex;

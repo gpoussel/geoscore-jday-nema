@@ -1,21 +1,23 @@
 ---
 interface Props {
-  weeks: number[];
-  activeWeek: number;
+  periods: { key: string; label: string; short: string }[];
+  activeKey: string;
 }
-const { weeks, activeWeek } = Astro.props;
+const { periods, activeKey } = Astro.props;
 ---
 
 <div class="period-bar">
   <span class="label">Période</span>
   <div class="toggle">
-    {weeks.map((w) => (
+    {periods.map((p) => (
       <button
-        class:list={["btn", { active: w === activeWeek }]}
-        data-period={`w${w}`}
-      >Semaine {w}</button>
+        class:list={["btn", { active: p.key === activeKey }]}
+        data-period={p.key}
+      >
+        <span class="long">{p.label}</span>
+        <span class="short">{p.short}</span>
+      </button>
     ))}
-    <button class="btn" data-period="all">Tout</button>
   </div>
 </div>
 
@@ -72,7 +74,15 @@ const { weeks, activeWeek } = Astro.props;
     color: var(--bg-0);
   }
 
+  .long  { display: inline; }
+  .short { display: none; }
+
   @media (max-width: 980px) {
     .period-bar { justify-content: flex-start; }
+  }
+
+  @media (max-width: 640px) {
+    .long  { display: none; }
+    .short { display: inline; }
   }
 </style>

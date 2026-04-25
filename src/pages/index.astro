@@ -137,26 +137,42 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
   };
 };
 
-const weeks = [...new Set(enrichedGames.map((g) => g.week))].sort((a, b) => a - b);
-const latestWeek = weeks.length ? weeks[weeks.length - 1] : 0;
+type ViewKey = "week" | "30d" | "all";
 
-type ViewKey = string; // "w15", "w16", …, "all"
-const periods: { key: ViewKey; label: string; view: View }[] = [
-  ...weeks.map((w) => ({
-    key: `w${w}`,
-    label: `SEMAINE ${w}`,
-    view: buildView(
-      enrichedGames.filter((g) => g.week === w),
-      stats.sessions.filter((s) => s.week === w),
-    ),
-  })),
-  {
-    key: "all",
-    label: "GLOBAL",
-    view: buildView(enrichedGames, stats.sessions),
-  },
+const periodSpecs: {
+  key: ViewKey;
+  label: string;
+  short: string;
+  footerLabel: string;
+}[] = [
+  { key: "week", label: "CETTE SEMAINE", short: "SEM.", footerLabel: "CETTE SEMAINE" },
+  { key: "30d",  label: "DERNIER MOIS",  short: "MOIS", footerLabel: "DERNIER MOIS"  },
+  { key: "all",  label: "TOUT",          short: "TOUT", footerLabel: "GLOBAL"        },
 ];
-const activePeriod = `w${latestWeek}`;
+
+const generatedAtMs = Date.parse(stats.generatedAt.slice(0, 10));
+const generatedDow = new Date(generatedAtMs).getUTCDay() || 7;
+const isoWeekStartMs = generatedAtMs - (generatedDow - 1) * 86_400_000;
+const isoWeekEndMs = isoWeekStartMs + 6 * 86_400_000;
+
+const sessionInPeriod = (s: Stats["sessions"][number], key: ViewKey): boolean => {
+  if (key === "all") return true;
+  const sd = Date.parse(s.date);
+  if (key === "week") return sd >= isoWeekStartMs && sd <= isoWeekEndMs;
+  return sd >= generatedAtMs - 30 * 86_400_000;
+};
+
+const periods = periodSpecs.map(({ key, label, short, footerLabel }) => {
+  const sessions = stats.sessions.filter((s) => sessionInPeriod(s, key));
+  const sids = new Set(sessions.map((s) => s.id));
+  const games = enrichedGames.filter((g) => sids.has(g.session));
+  return { key, label, short, footerLabel, view: buildView(games, sessions) };
+});
+
+const activePeriod: ViewKey =
+  (periods.find((p) => p.key === "week" && p.view.games.length > 0)?.key) ??
+  (periods.find((p) => p.key === "30d"  && p.view.games.length > 0)?.key) ??
+  "all";
 
 const hideCss = periods
   .map(
@@ -215,11 +231,11 @@ const ogImage = `${baseUrl}og.png`;
   </head>
   <body data-period={activePeriod}>
     <Banner text={bannerData.text} />
-    <StickyHeader weeks={weeks} activeWeek={latestWeek} periods={periods} />
+    <StickyHeader periods={periods} activeKey={activePeriod} />
     <div class="app">
       <header class="header">
         <TeamCard players={players} duoRank={duoRank} />
-        <PeriodToggle weeks={weeks} activeWeek={latestWeek} />
+        <PeriodToggle periods={periods} activeKey={activePeriod} />
       </header>
 
       {periods.map(({ key, view: v }) => (
@@ -236,8 +252,8 @@ const ogImage = `${baseUrl}og.png`;
       <footer class="footer">
         <span>JDAY × NÉMA · DUO STATS</span>
         <span data-footer-period>
-          {periods.map(({ key, label, view: v }) => (
-            <span data-fp={key}>{label} · {v.games.length} PARTIES</span>
+          {periods.map(({ key, footerLabel, view: v }) => (
+            <span data-fp={key}>{footerLabel} · {v.games.length} PARTIES</span>
           ))}
         </span>
         <span class="foot-right">
