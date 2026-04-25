@@ -117,11 +117,9 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
   const eloNet = games.reduce((s, g) => s + g.eloDelta, 0);
   const avgAcc = games.length ? games.reduce((s, g) => s + g.myAcc, 0) / games.length : 0;
 
-  const viewDistributions = [...roundsPerDist.keys()].sort((a, b) => {
-    const ka = a.from ?? a.to ?? "";
-    const kb = b.from ?? b.to ?? "";
-    return ka.localeCompare(kb);
-  });
+  const viewDistributions = [...roundsPerDist.keys()].sort((a, b) =>
+    (a.from ?? "0000-00-00").localeCompare(b.from ?? "0000-00-00"),
+  );
 
   return {
     games,
