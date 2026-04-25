@@ -24,7 +24,6 @@ from countries import is_valid as is_valid_country
 ROOT = Path(__file__).resolve().parent
 CSV_FILE = ROOT / "games.csv"
 SESSIONS_FILE = ROOT / "sessions.json"
-DISTRIBUTION_FILE = ROOT / "distribution.json"
 WEB_ROOT = ROOT.parent
 OUT_FILE = WEB_ROOT / "src" / "data" / "stats.json"
 OG_SCRIPT = WEB_ROOT / "scripts" / "build-og.mjs"
@@ -62,29 +61,6 @@ def load_json(path: Path, default):
         return default
     with path.open(encoding="utf-8") as f:
         return json.load(f)
-
-
-def load_distribution(path: Path) -> dict:
-    """Load the map's theoretical country distribution and normalize it.
-
-    Emits the counts plus a `totalCount` so the web layer can compute expected
-    shares without re-summing. Unknown country codes are warned about but
-    kept (downstream code simply won't hit them)."""
-    if not path.exists():
-        return {"map": "", "source": "", "counts": {}, "totalCount": 0}
-    with path.open(encoding="utf-8") as f:
-        data = json.load(f)
-    counts = data.get("counts", {}) or {}
-    unknown = [c for c in counts if not is_valid_country(c.lower())]
-    if unknown:
-        print(f"⚠ distribution has {len(unknown)} unknown country code(s): {', '.join(sorted(unknown))}")
-    total = sum(counts.values())
-    return {
-        "map": data.get("map", ""),
-        "source": data.get("source", ""),
-        "counts": counts,
-        "totalCount": total,
-    }
 
 
 def aggregate_games(rows: list[dict]) -> tuple[list[dict], list[dict]]:
@@ -214,7 +190,6 @@ def main() -> None:
             print(f"  {code!r}: {len(rounds)}× ({', '.join(rounds[:3])}{'…' if len(rounds) > 3 else ''})")
 
     sessions_meta = load_json(SESSIONS_FILE, {})
-    distribution = load_distribution(DISTRIBUTION_FILE)
 
     games, rounds = aggregate_games(rows)
 
@@ -228,7 +203,6 @@ def main() -> None:
         "games": games,
         "rounds": rounds,
         "sessions": sessions,
-        "distribution": distribution,
     }
 
     OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
