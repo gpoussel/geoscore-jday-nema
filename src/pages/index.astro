@@ -2,8 +2,11 @@
 import "../styles/global.css";
 import statsData from "../data/stats.json";
 import playersData from "../data/players.json";
+import distributionsData from "../data/distributions.json";
 import bannerData from "../data/banner.json";
-import type { CountryStat, Game, PlayersFile, Round, Stats } from "../types";
+import type {
+  CountryStat, Distribution, DistributionsFile, Game, PlayersFile, Round, Stats,
+} from "../types";
 import TeamCard from "../components/TeamCard.astro";
 import PeriodToggle from "../components/PeriodToggle.astro";
 import StickyHeader from "../components/StickyHeader.astro";
@@ -17,6 +20,7 @@ import BlockSessions from "../components/BlockSessions.astro";
 
 const stats = statsData as Stats;
 const { duoRank, players } = playersData as PlayersFile;
+const { distributions } = distributionsData as DistributionsFile;
 
 const precision = (s: number) => s / 50;
 
@@ -30,11 +34,30 @@ const enrichedGames: Game[] = stats.games.map((g) => {
   return { ...g, myAcc, advAcc };
 });
 
+const distTotals = new Map<Distribution, number>(
+  distributions.map((d) => [d, Object.values(d.counts).reduce((s, n) => s + n, 0)]),
+);
+
+const distFor = (date: string): Distribution | undefined =>
+  distributions.find((d) => (!d.from || date >= d.from) && (!d.to || date <= d.to));
+
+const distBySession = new Map<string, Distribution>();
+for (const s of stats.sessions) {
+  const d = distFor(s.date);
+  if (!d) throw new Error(`No distribution covers session ${s.id} (date ${s.date})`);
+  distBySession.set(s.id, d);
+}
+
+const sessionByGame = new Map<string, string>(
+  stats.games.map((g) => [g.id, g.session]),
+);
+
 type View = {
   games: Game[];
   rounds: Round[];
   sessions: Stats["sessions"];
   countryStats: Record<string, CountryStat>;
+  distributions: Distribution[];
   kpis: { games: number; winRate: number; eloNet: number; elo: number; avgAcc: number };
 };
 
@@ -48,6 +71,7 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
   const rounds = stats.rounds.filter((r) => gids.has(r.gameId));
 
   const agg: Record<string, { seen: number; mySum: number; advSum: number; balSum: number }> = {};
+  const roundsPerDist = new Map<Distribution, number>();
   for (const r of rounds) {
     const k = r.country;
     if (!agg[k]) agg[k] = { seen: 0, mySum: 0, advSum: 0, balSum: 0 };
@@ -55,33 +79,56 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
     agg[k].mySum += precision(r.myScore);
     agg[k].advSum += precision(r.oppScore);
     agg[k].balSum += r.myScore - r.oppScore;
+
+    const sid = sessionByGame.get(r.gameId)!;
+    const d = distBySession.get(sid)!;
+    roundsPerDist.set(d, (roundsPerDist.get(d) ?? 0) + 1);
   }
+
   const totalRounds = rounds.length;
-  const distCounts = stats.distribution?.counts ?? {};
-  const distTotal = stats.distribution?.totalCount || 0;
+  const expectedShare: Record<string, number> = {};
+  if (totalRounds > 0) {
+    for (const [d, n] of roundsPerDist) {
+      const T = distTotals.get(d)!;
+      if (T <= 0) continue;
+      const w = n / totalRounds;
+      for (const [code, c] of Object.entries(d.counts)) {
+        expectedShare[code] = (expectedShare[code] ?? 0) + (w * c) / T;
+      }
+    }
+  }
+
   const countryStats: Record<string, CountryStat> = {};
   for (const k in agg) {
     const a = agg[k];
     const acc = a.mySum / a.seen;
     const advAcc = a.advSum / a.seen;
     const score = a.balSum / a.seen;
-    const expectedShare = distTotal > 0 ? (distCounts[k] ?? 0) / distTotal : 0;
+    const exp = expectedShare[k] ?? 0;
     const observedShare = totalRounds > 0 ? a.seen / totalRounds : 0;
-    const deviation = expectedShare > 0
-      ? ((observedShare - expectedShare) / expectedShare) * 100
-      : null;
-    countryStats[k] = { seen: a.seen, acc, advAcc, gap: acc - advAcc, score, expectedShare, deviation };
+    const deviation = exp > 0 ? ((observedShare - exp) / exp) * 100 : null;
+    countryStats[k] = {
+      seen: a.seen, acc, advAcc, gap: acc - advAcc, score,
+      expectedShare: exp, deviation,
+    };
   }
 
   const wins = games.filter((g) => g.won).length;
   const eloNet = games.reduce((s, g) => s + g.eloDelta, 0);
   const avgAcc = games.length ? games.reduce((s, g) => s + g.myAcc, 0) / games.length : 0;
 
+  const viewDistributions = [...roundsPerDist.keys()].sort((a, b) => {
+    const ka = a.from ?? a.to ?? "";
+    const kb = b.from ?? b.to ?? "";
+    return ka.localeCompare(kb);
+  });
+
   return {
     games,
     rounds,
     sessions,
     countryStats,
+    distributions: viewDistributions,
     kpis: {
       games: games.length,
       winRate: Math.round((wins / Math.max(1, games.length)) * 100),
@@ -182,7 +229,7 @@ const ogImage = `${baseUrl}og.png`;
           <KpiRow {...v.kpis} />
           <BlockElo games={v.games} sessions={v.sessions} />
           <BlockPrecision games={v.games} sessions={v.sessions} aggregateBySession={key === "all"} />
-          <BlockPays countryStats={v.countryStats} distribution={stats.distribution} />
+          <BlockPays countryStats={v.countryStats} distributions={v.distributions} />
           <BlockRecords games={v.games} rounds={v.rounds} />
           <BlockSessions sessions={v.sessions} players={players} />
         </div>

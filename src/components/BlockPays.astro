@@ -32,8 +32,8 @@ const featureCode = (f: Feature<Geometry, GeoJsonProperties>): string => {
   return id ? countriesLib.numericToAlpha2(id) ?? "" : "";
 };
 
-interface Props { countryStats: Record<string, CountryStat>; distribution: Distribution; }
-const { countryStats, distribution } = Astro.props;
+interface Props { countryStats: Record<string, CountryStat>; distributions: Distribution[]; }
+const { countryStats, distributions } = Astro.props;
 
 type Entry = [string, CountryStat];
 const seenEntries: Entry[] = Object.entries(countryStats).filter(([, s]) => s.seen >= 1);
@@ -174,19 +174,22 @@ const nameOf = countryName;
             <span data-metric="precision">Top 10<span class="tf-sub">meilleurs</span></span>
             <span data-metric="score">Top 10<span class="tf-sub">meilleurs</span></span>
             <span data-metric="occurrence">Top 40</span>
-            {distribution?.source && (
-              <a
-                class="map-credit"
-                data-metric="occurrence"
-                href={distribution.source}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Distribution de la carte utilisée"
-              >
-                <span class="mc-label">Carte</span>
-                <span class="mc-name">{distribution.map}</span>
-                <span class="mc-ext" aria-hidden="true">↗</span>
-              </a>
+            {distributions.length > 0 && (
+              <div class="map-credits" data-metric="occurrence">
+                <span class="mc-label">{distributions.length > 1 ? "Cartes" : "Carte"}</span>
+                {distributions.map((d) => (
+                  <a
+                    class="map-credit"
+                    href={d.source}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Distribution de la carte utilisée"
+                  >
+                    <span class="mc-name">{d.map}</span>
+                    <span class="mc-ext" aria-hidden="true">↗</span>
+                  </a>
+                ))}
+              </div>
             )}
             <label class="filter-chk" data-filter-chk>
               <input type="checkbox" checked />
@@ -558,10 +561,21 @@ const nameOf = countryName;
   .metric-bar .btn:hover { color: var(--fg-0); }
   .metric-bar .btn.active { background: var(--fg-0); color: var(--bg-0); }
 
-  .map-credit {
-    display: inline-flex; align-items: center; gap: 8px;
+  .map-credits {
+    display: inline-flex; align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
     align-self: center;
     margin-left: auto;
+  }
+  .map-credits .mc-label {
+    font-family: var(--sans); font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--fg-2);
+  }
+
+  .map-credit {
+    display: inline-flex; align-items: center; gap: 8px;
     text-decoration: none;
     padding: 6px 12px;
     border: 1px solid var(--border);
@@ -569,11 +583,6 @@ const nameOf = countryName;
     transition: border-color 0.15s, color 0.15s;
   }
   .map-credit:hover { border-color: var(--border-hi); }
-  .map-credit .mc-label {
-    font-family: var(--sans); font-size: 10px;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--fg-2);
-  }
   .map-credit .mc-name {
     font-family: var(--serif); font-style: italic;
     font-size: 14px; color: var(--fg-0);

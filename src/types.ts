@@ -83,7 +83,6 @@ export type Stats = {
   games: RawGame[];
   rounds: Round[];
   sessions: Session[];
-  distribution: Distribution & { totalCount: number };
 };
 
 export type Period = "current" | "all";
