@@ -152,8 +152,9 @@ def ask_str(prompt: str, default: str = "") -> str:
     return raw or default
 
 
-def play_rounds(known_countries: set[str]) -> list[Round] | None:
+def play_rounds(known_countries: set[str], opp_elo: int) -> tuple[list[Round], int] | None:
     rounds: list[Round] = []
+    current_opp_elo = opp_elo
     while True:
         history = compute_state(rounds)
         if history:
@@ -166,13 +167,14 @@ def play_rounds(known_countries: set[str]) -> list[Round] | None:
             my_mult, opp_mult = STARTING_MULT, STARTING_MULT
 
         if my_hp <= 0 or opp_hp <= 0:
-            return rounds
+            return rounds, current_opp_elo
 
         round_num = len(rounds) + 1
         prompt = (
             f"{c(f'R{round_num}', C.BOLD, C.BCYAN)} "
             f"[{c(my_hp, hp_color(my_hp))}-{c(opp_hp, hp_color(opp_hp))}] "
-            f"{c(fmt_mult(my_mult), C.YELLOW)}/{c(fmt_mult(opp_mult), C.YELLOW)}"
+            f"{c(fmt_mult(my_mult), C.YELLOW)}/{c(fmt_mult(opp_mult), C.YELLOW)} "
+            f"{c(f'(opp: {current_opp_elo})', C.DIM)} "
             f"{c('> ', C.BCYAN)}"
         )
         try:
@@ -193,8 +195,16 @@ def play_rounds(known_countries: set[str]) -> list[Round] | None:
             continue
 
         parts = raw.split()
+        if len(parts) == 2 and parts[0].lower() == "elo":
+            try:
+                current_opp_elo = int(parts[1])
+                print(c(f"  ELO adversaire corrige: {current_opp_elo}", C.CYAN))
+                continue
+            except ValueError:
+                pass
+
         if len(parts) != 3:
-            print(c("  Format: mon_score adv_score pays  (ex: 4850 4200 fr)", C.RED))
+            print(c("  Format: mon_score adv_score pays  (ex: 4850 4200 fr) ou 'elo 1234'", C.RED))
             continue
         try:
             my_s = int(parts[0])
@@ -261,10 +271,12 @@ def play_game(session: str, game_id: str, known_countries: set[str], default_my_
     if opp_elo is None:
         return None
 
-    rounds = play_rounds(known_countries)
-    if not rounds:
+    res = play_rounds(known_countries, opp_elo)
+    if not res:
         print(c("Partie abandonnee (non sauvegardee).", C.YELLOW))
         return None
+
+    rounds, opp_elo = res
 
     history = compute_state(rounds)
     final_my = history[-1]["my_hp"]
