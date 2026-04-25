@@ -4,6 +4,7 @@ dist
 .DS_Store
 __pycache__/
 .playwright-mcp/
+.superpowers/
 *.png
 !public/favicon.png
 !public/og.png
