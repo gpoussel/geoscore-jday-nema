@@ -201,6 +201,11 @@
         "platform": "twitch",
         "player": "jday",
         "url": "https://www.twitch.tv/videos/2751133232"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=PivF04VGu2g"
       }
     ]
   },
@@ -217,6 +222,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2752760306"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=DzWx1au842Q"
       }
     ]
   },
@@ -233,6 +243,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2753529321?t=0h0m1s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=nhuL27JEgaM&t=825s"
       }
     ]
   },
@@ -249,6 +264,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2753529321?t=6h31m15s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=nhuL27JEgaM&t=23475s"
       }
     ]
   },
@@ -265,6 +285,11 @@
         "platform": "twitch",
         "player": "jday",
         "url": "https://www.twitch.tv/videos/2755011741"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=cJz2HbMk8dY"
       }
     ]
   },
@@ -297,6 +322,22 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2758388861"
+      }
+    ]
+  },
+  "18.2": {
+    "date": "2026-04-28",
+    "time": "23h",
+    "vods": [
+      {
+        "platform": "twitch",
+        "player": "jday",
+        "url": "https://www.twitch.tv/videos/2759268670?t=2h49m15s"
+      },
+      {
+        "platform": "twitch",
+        "player": "nema",
+        "url": "https://www.twitch.tv/videos/2759266334?t=2h52m29s"
       }
     ]
   }
