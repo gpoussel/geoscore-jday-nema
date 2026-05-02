@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import csv
+import difflib
 import math
 import os
 import sys
@@ -16,7 +17,7 @@ from pathlib import Path
 
 import pycountry
 
-from countries import is_valid as is_valid_country
+from countries import is_valid as is_valid_country, COUNTRIES
 
 STARTING_HP = 6000
 STARTING_MULT = 1.0
@@ -240,9 +241,36 @@ def play_rounds(known_countries: set[str], opp_elo: int) -> tuple[list[Round], i
         if not (0 <= my_s <= 5000 and 0 <= opp_s <= 5000):
             print(c("  Scores hors bornes (0-5000)", C.RED))
             continue
+
+        country = country.lower()
         if not is_valid_country(country):
-            print(c(f"  Code pays inconnu: {country!r} (ex: fr, uk, us:fl)", C.RED))
-            continue
+            # Fuzzy match attempt if not a valid code
+            # Create a map of {name: code}
+            country_names_map = {}
+            for code in COUNTRIES:
+                obj = pycountry.countries.get(alpha_2=code.upper())
+                if obj:
+                    country_names_map[obj.name.lower()] = code
+            
+            # Add US States to the map
+            from countries import US_STATES
+            for state_code in US_STATES:
+                # pycountry.subdivisions.get(code='US-FL')
+                state_obj = pycountry.subdivisions.get(code=f"US-{state_code.upper()}")
+                if state_obj:
+                    country_names_map[state_obj.name.lower()] = f"us:{state_code}"
+
+            # Use difflib to find the closest country/state name
+            matches = difflib.get_close_matches(country, country_names_map.keys(), n=1, cutoff=0.6)
+            if matches:
+                matched_name = matches[0]
+                matched_code = country_names_map[matched_name]
+                print(c(f"  Fuzzy match: {country!r} -> {matched_name} ({matched_code})", C.CYAN))
+                country = matched_code
+            else:
+                print(c(f"  Code pays/etat inconnu et aucun match trouve pour: {country!r}", C.RED))
+                continue
+
         if country not in known_countries:
             label = country_label(country)
             try:
