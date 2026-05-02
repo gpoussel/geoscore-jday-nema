@@ -266,10 +266,11 @@ def play_rounds(known_countries: set[str], opp_elo: int) -> tuple[list[Round], i
             sym_c = c("=", C.BOLD, C.BYELLOW)
             dmg_c = c(f"{s['damage']}", C.BYELLOW)
         next_info = f"(next {fmt_mult(s['my_mult'])}/{fmt_mult(s['opp_mult'])})"
+        label = country_label(country)
         print(
             f"  {sym_c} {dmg_c} @ {c(fmt_mult(s['used_mult']), C.YELLOW)}"
             f" -> {c(s['my_hp'], hp_color(s['my_hp']))}-{c(s['opp_hp'], hp_color(s['opp_hp']))}"
-            f" {c(next_info, C.DIM)}"
+            f" {c(next_info, C.DIM)} {c(f'[{label}]', C.DIM)}"
         )
 
 
