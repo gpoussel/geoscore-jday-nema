@@ -203,19 +203,43 @@ def play_rounds(known_countries: set[str], opp_elo: int) -> tuple[list[Round], i
             except ValueError:
                 pass
 
-        if len(parts) != 3:
-            print(c("  Format: mon_score adv_score pays  (ex: 4850 4200 fr) ou 'elo 1234'", C.RED))
+        if len(parts) not in (2, 3):
+            print(c("  Format: 'fr 4850 4200' / '4850 4200 fr' (duel) ou 'fr 5000' / '5000 fr' (egalite)", C.RED))
             continue
+
+        # Detect format: 2 parts (tie) or 3 parts (duel)
         try:
-            my_s = int(parts[0])
-            opp_s = int(parts[1])
-        except ValueError:
-            print(c("  Scores invalides", C.RED))
+            if len(parts) == 2:
+                # Handle tie: score country or country score
+                try:
+                    # Try: score country
+                    my_s = int(parts[0])
+                    opp_s = my_s
+                    country = parts[1].lower()
+                except ValueError:
+                    # Try: country score
+                    country = parts[0].lower()
+                    my_s = int(parts[1])
+                    opp_s = my_s
+            else:
+                # Handle duel: 3 parts
+                try:
+                    # Try: score1 score2 country
+                    my_s = int(parts[0])
+                    opp_s = int(parts[1])
+                    country = parts[2].lower()
+                except ValueError:
+                    # Try: country score1 score2
+                    country = parts[0].lower()
+                    my_s = int(parts[1])
+                    opp_s = int(parts[2])
+        except (ValueError, IndexError):
+            print(c("  Format invalide. Scores requis (entiers).", C.RED))
             continue
+
         if not (0 <= my_s <= 5000 and 0 <= opp_s <= 5000):
             print(c("  Scores hors bornes (0-5000)", C.RED))
             continue
-        country = parts[2].lower()
         if not is_valid_country(country):
             print(c(f"  Code pays inconnu: {country!r} (ex: fr, uk, us:fl)", C.RED))
             continue
