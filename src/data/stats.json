@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-03T01:09:37",
+  "generatedAt": "2026-05-03T01:13:37",
   "games": [
     {
       "id": "0001",
@@ -37682,7 +37682,7 @@
     {
       "gameId": "0309",
       "roundNum": 7,
-      "country": "GR",
+      "country": "CY",
       "myScore": 2954,
       "oppScore": 2502,
       "winner": "me",
