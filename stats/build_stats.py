@@ -143,32 +143,59 @@ def parse_session_id(sid: str) -> tuple[int, int]:
 def build_sessions(games: list[dict], sessions_meta: dict) -> list[dict]:
     """Aggregate games by session id, enrich with metadata."""
     by_session: dict[str, list[dict]] = defaultdict(list)
-    order: list[str] = []
+    played_order: list[str] = []
     for g in games:
         if g["session"] not in by_session:
-            order.append(g["session"])
+            played_order.append(g["session"])
         by_session[g["session"]].append(g)
 
+    # Combine played sessions and metadata-only sessions
+    all_sids = set(played_order) | set(sessions_meta.keys())
+    
+    # Sort all session IDs chronologically
+    def sid_key(sid: str):
+        w, n = parse_session_id(sid)
+        return w, n
+
+    sorted_sids = sorted(list(all_sids), key=sid_key)
+
     out: list[dict] = []
-    for sid in order:
-        sgames = by_session[sid]
+    for sid in sorted_sids:
+        sgames = by_session.get(sid, [])
         meta = sessions_meta.get(sid, {})
         week, num = parse_session_id(sid)
-        wins = sum(1 for g in sgames if g["won"])
-        losses = len(sgames) - wins
-        out.append({
-            "id": sid,
-            "week": week,
-            "num": num,
-            "date": meta.get("date", ""),
-            "time": meta.get("time", ""),
-            "eloStart": sgames[0]["eloBefore"],
-            "eloEnd": sgames[-1]["elo"],
-            "games": len(sgames),
-            "wins": wins,
-            "losses": losses,
-            "vods": meta.get("vods", []),
-        })
+        
+        if sgames:
+            wins = sum(1 for g in sgames if g["won"])
+            losses = len(sgames) - wins
+            out.append({
+                "id": sid,
+                "week": week,
+                "num": num,
+                "date": meta.get("date", ""),
+                "time": meta.get("time", ""),
+                "eloStart": sgames[0]["eloBefore"],
+                "eloEnd": sgames[-1]["elo"],
+                "games": len(sgames),
+                "wins": wins,
+                "losses": losses,
+                "vods": meta.get("vods", []),
+            })
+        else:
+            # "En chantier" session
+            out.append({
+                "id": sid,
+                "week": week,
+                "num": num,
+                "date": meta.get("date", ""),
+                "time": meta.get("time", ""),
+                "eloStart": 0,
+                "eloEnd": 0,
+                "games": 0,
+                "wins": 0,
+                "losses": 0,
+                "vods": meta.get("vods", []),
+            })
     return out
 
 

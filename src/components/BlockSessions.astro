@@ -17,29 +17,38 @@ const formatDate = (raw: string) => {
   <BlockHead title="Sessions" emphasis="replays" />
   <div class="timeline">
     {sessions.map((s) => {
+      const isPending = s.games === 0;
       const eloDelta = s.eloEnd - s.eloStart;
       const won = s.wins > s.losses;
       return (
-        <div class="sc">
+        <div class:list={["sc", { pending: isPending }]}>
           <div class="head">
             <span class="date">{formatDate(s.date)}</span>
             <span class="week">S{s.week}.{s.num}</span>
           </div>
-          <div class="elo">
-            <div class="elo-row">
-              <span>ELO</span>
-              <b>{s.eloStart} → {s.eloEnd}</b>
+          {!isPending ? (
+            <>
+              <div class="elo">
+                <div class="elo-row">
+                  <span>ELO</span>
+                  <b>{s.eloStart} → {s.eloEnd}</b>
+                </div>
+                <div class:list={["elo-delta", eloDelta >= 0 ? "pos" : "neg"]}>
+                  {eloDelta >= 0 ? "+" : ""}{eloDelta}
+                </div>
+              </div>
+              <div class="score">
+                <span class="w">{s.wins}</span>
+                <span class="sep">–</span>
+                <span class="l">{s.losses}</span>
+                <span class="lbl">{s.games} parties</span>
+              </div>
+            </>
+          ) : (
+            <div class="pending-box">
+              <span class="pending-label">En chantier</span>
             </div>
-            <div class:list={["elo-delta", eloDelta >= 0 ? "pos" : "neg"]}>
-              {eloDelta >= 0 ? "+" : ""}{eloDelta}
-            </div>
-          </div>
-          <div class="score">
-            <span class="w">{s.wins}</span>
-            <span class="sep">–</span>
-            <span class="l">{s.losses}</span>
-            <span class="lbl">{s.games} parties</span>
-          </div>
+          )}
           {s.vods.length > 0 && (
             <div class="vods">
               {s.vods.map((vod) => {
@@ -101,6 +110,14 @@ const formatDate = (raw: string) => {
     gap: 12px;
     position: relative;
     scroll-snap-align: start;
+  }
+  .sc.pending { border-style: dashed; opacity: 0.8; }
+  .pending-box {
+    flex: 1; display: grid; place-items: center; min-height: 80px;
+    background: var(--bg-1); border-radius: calc(var(--radius) - 4px);
+  }
+  .pending-label {
+    font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--fg-3);
   }
   .strip {
     position: absolute;
