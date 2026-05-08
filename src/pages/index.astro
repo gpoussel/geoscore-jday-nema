@@ -20,7 +20,7 @@ import BlockSessions from "../components/BlockSessions.astro";
 
 const stats = statsData as Stats;
 const { duoRank, players } = playersData as PlayersFile;
-const { distributions } = distributionsData as DistributionsFile;
+const { distributions } = (distributionsData as unknown) as DistributionsFile;
 
 const precision = (s: number) => s / 50;
 
