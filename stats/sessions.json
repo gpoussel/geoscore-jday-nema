@@ -409,5 +409,21 @@
         "url": "https://www.twitch.tv/videos/2765559101?t=5h53m42s"
       }
     ]
+  },
+  "19.4": {
+    "date": "2026-05-08",
+    "time": "21h",
+    "vods": [
+      {
+        "platform": "twitch",
+        "player": "nema",
+        "url": "https://www.twitch.tv/videos/2767238518"
+      },
+      {
+        "platform": "twitch",
+        "player": "jday",
+        "url": "https://www.twitch.tv/videos/2767168234?t=1h39m39s"
+      }
+    ]
   }
 }
