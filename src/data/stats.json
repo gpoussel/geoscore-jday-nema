@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T20:55:48",
+  "generatedAt": "2026-05-08T20:58:53",
   "games": [
     {
       "id": "0001",
@@ -44879,6 +44879,11 @@
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2758388861"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=yY97nW3W3I0"
         }
       ]
     },
@@ -44903,6 +44908,11 @@
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2759266334?t=2h52m29s"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=QCeAVbuGZVg&t=10230s"
         }
       ]
     },
@@ -44927,6 +44937,11 @@
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2762480531"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=j8GgnYwZxj0"
         }
       ]
     },
