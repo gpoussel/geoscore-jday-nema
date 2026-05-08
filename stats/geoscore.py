@@ -128,7 +128,7 @@ def known_countries_from_rows(rows: list[dict]) -> set[str]:
     return {r["country"].strip().lower() for r in rows if r.get("country")}
 
 
-def ask_int(prompt: str, allow_abort: bool = False) -> int | None:
+def ask_int(prompt: str, allow_abort: bool = False, allow_undo: bool = False) -> int | str | None:
     while True:
         try:
             raw = input(prompt).strip()
@@ -137,8 +137,11 @@ def ask_int(prompt: str, allow_abort: bool = False) -> int | None:
         if not raw:
             print(c("  Valeur requise.", C.RED))
             continue
-        if allow_abort and raw.lower() in ("q", "quit"):
+        low = raw.lower()
+        if allow_abort and low in ("q", "quit"):
             return None
+        if allow_undo and low in ("u", "undo"):
+            return "undo"
         try:
             return int(raw)
         except ValueError:
@@ -153,8 +156,9 @@ def ask_str(prompt: str, default: str = "") -> str:
     return raw or default
 
 
-def play_rounds(known_countries: set[str], opp_elo: int) -> tuple[list[Round], int] | None:
-    rounds: list[Round] = []
+def play_rounds(known_countries: set[str], opp_elo: int, rounds: list[Round] | None = None) -> tuple[list[Round], int] | None:
+    if rounds is None:
+        rounds = []
     current_opp_elo = opp_elo
     while True:
         history = compute_state(rounds)
@@ -167,7 +171,7 @@ def play_rounds(known_countries: set[str], opp_elo: int) -> tuple[list[Round], i
             my_hp, opp_hp = STARTING_HP, STARTING_HP
             my_mult, opp_mult = STARTING_MULT, STARTING_MULT
 
-        if my_hp <= 0 or opp_hp <= 0:
+        if (my_hp <= 0 or opp_hp <= 0) and rounds:
             return rounds, current_opp_elo
 
         round_num = len(rounds) + 1
@@ -304,78 +308,100 @@ def play_rounds(known_countries: set[str], opp_elo: int) -> tuple[list[Round], i
 
 def play_game(session: str, game_id: str, known_countries: set[str], default_my_elo: int | None = None) -> list[dict] | None:
     print(c("\n--- Nouvelle partie ---", C.BOLD, C.BCYAN))
-    if default_my_elo is not None:
-        raw = ask_str(f"Mon ELO [{c(default_my_elo, C.CYAN)}] {c('(q=annuler)', C.DIM)}: ")
-        if raw.lower() in ("q", "quit"):
-            return None
-        if not raw:
-            my_elo = default_my_elo
-        else:
-            try:
-                my_elo = int(raw)
-            except ValueError:
-                print(c("  Nombre invalide, annulation.", C.RED))
+    my_elo = default_my_elo
+    
+    while True:
+        # 1. Mon ELO
+        if my_elo is None or (default_my_elo is not None and my_elo == default_my_elo):
+            if default_my_elo is not None:
+                raw = input(f"Mon ELO [{c(default_my_elo, C.CYAN)}] {c('(q=annuler)', C.DIM)}: ").strip()
+                if not raw:
+                    my_elo = default_my_elo
+                elif raw.lower() in ("q", "quit"):
+                    return None
+                else:
+                    try:
+                        my_elo = int(raw)
+                    except ValueError:
+                        print(c("  Nombre invalide.", C.RED))
+                        my_elo = None
+                        continue
+            else:
+                res = ask_int(f"Mon ELO {c('(q=annuler)', C.DIM)}: ", allow_abort=True)
+                if res is None: return None
+                my_elo = res
+        
+        # 2. ELO adversaire
+        res = ask_int(f"ELO adversaire {c('(u=retour)', C.DIM)}: ", allow_abort=True, allow_undo=True)
+        if res is None: return None
+        if res == "undo":
+            my_elo = None
+            continue
+        opp_elo = res
+        
+        # 3 & 4. Rounds and Delta
+        rounds_list: list[Round] = []
+        current_opp_elo = opp_elo
+        while True:
+            res_rounds = play_rounds(known_countries, current_opp_elo, rounds_list)
+            if res_rounds is None:
+                print(c("Partie abandonnee (non sauvegardee).", C.YELLOW))
                 return None
-    else:
-        my_elo = ask_int(f"Mon ELO {c('(q=annuler)', C.DIM)}: ", allow_abort=True)
-        if my_elo is None:
-            return None
-    opp_elo = ask_int("ELO adversaire: ")
-    if opp_elo is None:
-        return None
+            rounds_list, current_opp_elo = res_rounds
 
-    res = play_rounds(known_countries, opp_elo)
-    if not res:
-        print(c("Partie abandonnee (non sauvegardee).", C.YELLOW))
-        return None
+            history = compute_state(rounds_list)
+            final_my = history[-1]["my_hp"]
+            final_opp = history[-1]["opp_hp"]
+            won = final_my > 0
+            if won:
+                verdict = c("VICTOIRE", C.BOLD, C.BGREEN)
+            else:
+                verdict = c("DEFAITE", C.BOLD, C.BRED)
+            print(
+                f"\n{c('===', C.BOLD)} {verdict} "
+                f"en {c(f'{len(rounds_list)}R', C.BOLD)} "
+                f"({c(final_my, hp_color(final_my))}-{c(final_opp, hp_color(final_opp))}) "
+                f"{c('===', C.BOLD)}"
+            )
 
-    rounds, opp_elo = res
+            res_delta = ask_int(f"Delta ELO (ex: +25, -18) {c('(u=retour)', C.DIM)}: ", allow_undo=True)
+            if res_delta == "undo":
+                if rounds_list:
+                    last = rounds_list.pop()
+                    print(c(f"  Annule: {last.my_score}-{last.opp_score} {last.country}", C.YELLOW))
+                    continue
+                else:
+                    print(c("  (rien a annuler)", C.DIM))
+                    break # back to ELO adversaire prompt
 
-    history = compute_state(rounds)
-    final_my = history[-1]["my_hp"]
-    final_opp = history[-1]["opp_hp"]
-    won = final_my > 0
-    if won:
-        verdict = c("VICTOIRE", C.BOLD, C.BGREEN)
-    else:
-        verdict = c("DEFAITE", C.BOLD, C.BRED)
-    print(
-        f"\n{c('===', C.BOLD)} {verdict} "
-        f"en {c(f'{len(rounds)}R', C.BOLD)} "
-        f"({c(final_my, hp_color(final_my))}-{c(final_opp, hp_color(final_opp))}) "
-        f"{c('===', C.BOLD)}"
-    )
+            delta = res_delta if isinstance(res_delta, int) else 0
 
-    delta = ask_int("Delta ELO (ex: +25, -18): ")
-    if delta is None:
-        delta = 0
-
-    rows = []
-    for i, (r, s) in enumerate(zip(rounds, history), start=1):
-        rows.append({
-            "session": session,
-            "game_id": game_id,
-            "my_elo_before": my_elo,
-            "opp_elo": opp_elo,
-            "elo_delta": delta,
-            "my_elo_after": my_elo + delta,
-            "won": won,
-            "total_rounds": len(rounds),
-            "final_my_hp": final_my,
-            "final_opp_hp": final_opp,
-            "round_num": i,
-            "country": r.country,
-            "my_score": r.my_score,
-            "opp_score": r.opp_score,
-            "winner": s["winner"],
-            "damage": s["damage"],
-            "used_mult": s["used_mult"],
-            "my_hp_after": s["my_hp"],
-            "opp_hp_after": s["opp_hp"],
-            "my_mult_after": s["my_mult"],
-            "opp_mult_after": s["opp_mult"],
-        })
-    return rows
+            rows = []
+            for i, (r, s) in enumerate(zip(rounds_list, history), start=1):
+                rows.append({
+                    "session": session,
+                    "game_id": game_id,
+                    "my_elo_before": my_elo,
+                    "opp_elo": current_opp_elo,
+                    "elo_delta": delta,
+                    "my_elo_after": my_elo + delta,
+                    "won": won,
+                    "total_rounds": len(rounds_list),
+                    "final_my_hp": final_my,
+                    "final_opp_hp": final_opp,
+                    "round_num": i,
+                    "country": r.country,
+                    "my_score": r.my_score,
+                    "opp_score": r.opp_score,
+                    "winner": s["winner"],
+                    "damage": s["damage"],
+                    "used_mult": s["used_mult"],
+                    "my_hp_after": s["my_hp"],
+                    "opp_hp_after": s["opp_hp"],
+                    "my_mult_after": s["my_mult"],
+                    "opp_mult_after": s["opp_mult"],
+                })
+            return rows
 
 
 def load_rows() -> list[dict]:
