@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-09T09:06:43",
+  "generatedAt": "2026-05-10T10:55:34",
   "games": [
     {
       "id": "0001",
@@ -47387,6 +47387,11 @@
           "platform": "twitch",
           "player": "jday",
           "url": "https://www.twitch.tv/videos/2764888361"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=wboUAJUnjk8"
         },
         {
           "platform": "twitch",

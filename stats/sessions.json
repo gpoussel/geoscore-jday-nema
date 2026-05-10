@@ -387,6 +387,11 @@
         "url": "https://www.twitch.tv/videos/2764888361"
       },
       {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=wboUAJUnjk8"
+      },
+      {
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2764892476"
