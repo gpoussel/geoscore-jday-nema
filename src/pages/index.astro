@@ -43,6 +43,7 @@ const distFor = (date: string): Distribution | undefined =>
 
 const distBySession = new Map<string, Distribution>();
 for (const s of stats.sessions) {
+  if (s.games === 0) continue;
   const d = distFor(s.date);
   if (!d) throw new Error(`No distribution covers session ${s.id} (date ${s.date})`);
   distBySession.set(s.id, d);
@@ -117,7 +118,7 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
   const eloNet = games.reduce((s, g) => s + g.eloDelta, 0);
   const avgAcc = games.length ? games.reduce((s, g) => s + g.myAcc, 0) / games.length : 0;
 
-  const viewDistributions = [...new Set(sessions.map((s) => distBySession.get(s.id)!))].sort((a, b) =>
+  const viewDistributions = [...new Set(sessions.map((s) => distBySession.get(s.id)).filter((d): d is Distribution => Boolean(d)))].sort((a, b) =>
     (a.from ?? "0000-00-00").localeCompare(b.from ?? "0000-00-00"),
   );
 

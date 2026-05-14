@@ -34,19 +34,19 @@ const boundaries = aggregateBySession
   : sessions
       .map((s) => {
         const idx = games.findIndex((g) => g.session === s.id);
-        return idx < 0 ? null : { idx, date: fmtDate(s.date), time: s.time, week: s.week };
+        return idx < 0 ? null : { idx, date: fmtDate(s.date), time: s.time, weekKey: s.weekKey };
       })
-      .filter((b): b is { idx: number; date: string; time: string; week: number } => b !== null);
+      .filter((b): b is { idx: number; date: string; time: string; weekKey: string } => b !== null);
 
 const weekStartIdxs = (() => {
   if (aggregateBySession) {
     const sessionsWithGames = sessions.filter((s) => games.some((g) => g.session === s.id));
     return sessionsWithGames
-      .map((s, i) => (i === 0 || s.week !== sessionsWithGames[i - 1].week ? i : -1))
+      .map((s, i) => (i === 0 || s.weekKey !== sessionsWithGames[i - 1].weekKey ? i : -1))
       .filter((i) => i >= 0);
   }
   return boundaries
-    .map((b, i) => (i === 0 || b.week !== boundaries[i - 1].week ? b.idx : -1))
+    .map((b, i) => (i === 0 || b.weekKey !== boundaries[i - 1].weekKey ? b.idx : -1))
     .filter((i) => i >= 0);
 })();
 
@@ -273,7 +273,7 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
     const data = JSON.parse(dataEl.textContent) as Pt[];
     if (!data.length) return;
     const boundaries = boundariesEl?.textContent
-      ? (JSON.parse(boundariesEl.textContent) as { idx: number; date: string; time: string; week: number }[])
+      ? (JSON.parse(boundariesEl.textContent) as { idx: number; date: string; time: string; weekKey: string }[])
       : [];
     const weekStartsEl = el.querySelector<HTMLScriptElement>(".week-starts");
     const weekStarts = weekStartsEl?.textContent

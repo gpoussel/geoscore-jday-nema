@@ -15,7 +15,9 @@ export type Vod = {
 export type RawGame = {
   id: string;
   session: string;
+  year: number;
   week: number;
+  weekKey: string;
   gameNum: number;
   rounds: number;
   won: boolean;
@@ -49,7 +51,9 @@ export type Round = {
 
 export type Session = {
   id: string;
+  year: number;
   week: number;
+  weekKey: string;
   num: number;
   date: string;
   time: string;

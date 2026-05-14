@@ -11,9 +11,9 @@ const fmtDate = (iso: string) => { const [, m, d] = iso.split("-"); return `${d}
 const boundaries = sessions
   .map((s) => {
     const idx = games.findIndex((g) => g.session === s.id);
-    return idx < 0 ? null : { idx, date: fmtDate(s.date), time: s.time, week: s.week };
+    return idx < 0 ? null : { idx, date: fmtDate(s.date), time: s.time, weekKey: s.weekKey };
   })
-  .filter((b): b is { idx: number; date: string; time: string; week: number } => b !== null);
+  .filter((b): b is { idx: number; date: string; time: string; weekKey: string } => b !== null);
 
 const elos = games.map((g) => g.elo);
 const highIdx = games.length ? elos.indexOf(Math.max(...elos)) : -1;
@@ -276,9 +276,9 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
     const data = JSON.parse(dataEl.textContent) as Pt[];
     if (!data.length) return;
     const boundaries = boundariesEl?.textContent
-      ? (JSON.parse(boundariesEl.textContent) as { idx: number; date: string; time: string; week: number }[])
+      ? (JSON.parse(boundariesEl.textContent) as { idx: number; date: string; time: string; weekKey: string }[])
       : [];
-    const weekStarts = boundaries.filter((b, i) => i === 0 || b.week !== boundaries[i - 1].week);
+    const weekStarts = boundaries.filter((b, i) => i === 0 || b.weekKey !== boundaries[i - 1].weekKey);
     const highIdx = Number(el.dataset.highIdx);
     const lowIdx = Number(el.dataset.lowIdx);
     const elos = data.map((d) => d.elo);

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import csv
 import json
+import re
 import shutil
 import subprocess
 from collections import defaultdict
@@ -134,10 +135,22 @@ def aggregate_games(rows: list[dict]) -> tuple[list[dict], list[dict]]:
     return games, rounds
 
 
-def parse_session_id(sid: str) -> tuple[int, int]:
-    """Parse a session id like '16.5' (ISO week 16, session 5) into (week, num)."""
-    w, n = sid.split(".", 1)
-    return int(w), int(n)
+def parse_session_id(sid: str) -> tuple[int, int, int]:
+    """Parse '26W16.05' into (ISO year, week, session num).
+
+    Legacy ids like '16.5' are still accepted and treated as 2026 data.
+    """
+    long_match = re.fullmatch(r"(\d{2})W(\d{2})\.(\d{2})", sid)
+    if long_match:
+        year, week, num = long_match.groups()
+        return 2000 + int(year), int(week), int(num)
+
+    legacy_match = re.fullmatch(r"(\d{1,2})\.(\d{1,2})", sid)
+    if legacy_match:
+        week, num = legacy_match.groups()
+        return 2026, int(week), int(num)
+
+    raise ValueError(f"Invalid session id: {sid!r}")
 
 
 def build_sessions(games: list[dict], sessions_meta: dict) -> list[dict]:
@@ -154,8 +167,8 @@ def build_sessions(games: list[dict], sessions_meta: dict) -> list[dict]:
     
     # Sort all session IDs chronologically
     def sid_key(sid: str):
-        w, n = parse_session_id(sid)
-        return w, n
+        year, week, num = parse_session_id(sid)
+        return year, week, num
 
     sorted_sids = sorted(list(all_sids), key=sid_key)
 
@@ -163,14 +176,17 @@ def build_sessions(games: list[dict], sessions_meta: dict) -> list[dict]:
     for sid in sorted_sids:
         sgames = by_session.get(sid, [])
         meta = sessions_meta.get(sid, {})
-        week, num = parse_session_id(sid)
+        year, week, num = parse_session_id(sid)
+        week_key = f"{year}-W{week:02d}"
         
         if sgames:
             wins = sum(1 for g in sgames if g["won"])
             losses = len(sgames) - wins
             out.append({
                 "id": sid,
+                "year": year,
                 "week": week,
+                "weekKey": week_key,
                 "num": num,
                 "date": meta.get("date", ""),
                 "time": meta.get("time", ""),
@@ -185,7 +201,9 @@ def build_sessions(games: list[dict], sessions_meta: dict) -> list[dict]:
             # "En chantier" session
             out.append({
                 "id": sid,
+                "year": year,
                 "week": week,
+                "weekKey": week_key,
                 "num": num,
                 "date": meta.get("date", ""),
                 "time": meta.get("time", ""),
@@ -221,7 +239,10 @@ def main() -> None:
     games, rounds = aggregate_games(rows)
 
     for g in games:
-        g["week"], _ = parse_session_id(g["session"])
+        year, week, _ = parse_session_id(g["session"])
+        g["year"] = year
+        g["week"] = week
+        g["weekKey"] = f"{year}-W{week:02d}"
 
     sessions = build_sessions(games, sessions_meta)
 

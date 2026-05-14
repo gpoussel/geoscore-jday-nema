@@ -1,5 +1,236 @@
 {
-  "15.1": {
+  "25W52.01": {
+    "date": "2025-12-26",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=6fQZ3_c70tc&t=6180s"
+      }
+    ]
+  },
+  "26W02.01": {
+    "date": "2026-01-06",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=rlYVjWLKd2w&t=10080s"
+      }
+    ]
+  },
+  "26W05.01": {
+    "date": "2026-01-27",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=wqLmWwGr-b4&t=9930s"
+      }
+    ]
+  },
+  "26W06.01": {
+    "date": "2026-02-03",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=1Qxyw27SHZ0&t=720s"
+      }
+    ]
+  },
+  "26W07.01": {
+    "date": "2026-02-10",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=ayq6b4WSxQ4&t=705s"
+      }
+    ]
+  },
+  "26W08.01": {
+    "date": "2026-02-17",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=nSAlzj48hQ4&t=705s"
+      }
+    ]
+  },
+  "26W08.02": {
+    "date": "2026-02-19",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=178o_QMemEY&t=660s"
+      }
+    ]
+  },
+  "26W09.01": {
+    "date": "2026-02-26",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=GOAyJ62qYmA&t=800s"
+      }
+    ]
+  },
+  "26W10.01": {
+    "date": "2026-03-03",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=XOMnEy-5xYw&t=1000s"
+      }
+    ]
+  },
+  "26W10.02": {
+    "date": "2026-03-05",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=Bo6TZyFUDqQ"
+      }
+    ]
+  },
+  "26W11.01": {
+    "date": "2026-03-10",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=Yl1B0xnrvXY&t=870s"
+      }
+    ]
+  },
+  "26W11.02": {
+    "date": "2026-03-14",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=tdptBv7IGQI"
+      }
+    ]
+  },
+  "26W12.01": {
+    "date": "2026-03-16",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=eYLhhEY0Im4"
+      }
+    ]
+  },
+  "26W13.01": {
+    "date": "2026-03-24",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=DtLRMsdIitM&t=650s"
+      }
+    ]
+  },
+  "26W13.02": {
+    "date": "2026-03-24",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=DtLRMsdIitM&t=19160s"
+      }
+    ]
+  },
+  "26W13.03": {
+    "date": "2026-03-25",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=l_a676SeGpo"
+      }
+    ]
+  },
+  "26W13.04": {
+    "date": "2026-03-27",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=DzJOI1uPrJA"
+      }
+    ]
+  },
+  "26W14.01": {
+    "date": "2026-03-30",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=uXQH44G3ar8"
+      }
+    ]
+  },
+  "26W14.02": {
+    "date": "2026-03-31",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=_tfl_ZnKgvY&t=9930s"
+      }
+    ]
+  },
+  "26W14.03": {
+    "date": "2026-04-03",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=25tH85R6EjQ"
+      }
+    ]
+  },
+  "26W14.04": {
+    "date": "2026-04-03",
+    "time": "",
+    "vods": [
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=RQxBHkUuB04&t=6300s"
+      }
+    ]
+  },
+  "26W15.01": {
     "date": "2026-04-07",
     "time": "13h",
     "vods": [
@@ -9,18 +240,18 @@
         "url": "https://www.twitch.tv/videos/2742082924"
       },
       {
-        "platform": "youtube",
-        "player": "jday",
-        "url": "https://www.youtube.com/watch?v=ESCCXNTzBVs"
-      },
-      {
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2742010098?t=3h52m16s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=ESCCXNTzBVs"
       }
     ]
   },
-  "15.2": {
+  "26W15.02": {
     "date": "2026-04-07",
     "time": "18h",
     "vods": [
@@ -30,18 +261,18 @@
         "url": "https://www.twitch.tv/videos/2742230423?t=0h0m1s"
       },
       {
-        "platform": "youtube",
-        "player": "jday",
-        "url": "https://www.youtube.com/watch?v=G46_l2HGEMs&t=660s"
-      },
-      {
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2742010098?t=3h52m16s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=G46_l2HGEMs&t=660s"
       }
     ]
   },
-  "15.3": {
+  "26W15.03": {
     "date": "2026-04-07",
     "time": "23h",
     "vods": [
@@ -51,18 +282,18 @@
         "url": "https://www.twitch.tv/videos/2742230423?t=5h3m12s"
       },
       {
-        "platform": "youtube",
-        "player": "jday",
-        "url": "https://www.youtube.com/watch?v=G46_l2HGEMs&t=18280s"
-      },
-      {
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2742232942?t=4h55m23s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=G46_l2HGEMs&t=18280s"
       }
     ]
   },
-  "15.4": {
+  "26W15.04": {
     "date": "2026-04-08",
     "time": "20h",
     "vods": [
@@ -72,18 +303,18 @@
         "url": "https://www.twitch.tv/videos/2743116970"
       },
       {
-        "platform": "youtube",
-        "player": "jday",
-        "url": "https://www.youtube.com/watch?v=i6RpW1Mtze4"
-      },
-      {
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2743120394"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=i6RpW1Mtze4"
       }
     ]
   },
-  "15.5": {
+  "26W15.05": {
     "date": "2026-04-10",
     "time": "13h",
     "vods": [
@@ -93,18 +324,18 @@
         "url": "https://www.twitch.tv/videos/2744475590"
       },
       {
-        "platform": "youtube",
-        "player": "jday",
-        "url": "https://www.youtube.com/watch?v=0S70mlSh-SI"
-      },
-      {
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2744402921?t=3h41m41s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=0S70mlSh-SI"
       }
     ]
   },
-  "16.1": {
+  "26W16.01": {
     "date": "2026-04-13",
     "time": "13h",
     "vods": [
@@ -125,7 +356,7 @@
       }
     ]
   },
-  "16.2": {
+  "26W16.02": {
     "date": "2026-04-14",
     "time": "16h",
     "vods": [
@@ -146,7 +377,7 @@
       }
     ]
   },
-  "16.3": {
+  "26W16.03": {
     "date": "2026-04-14",
     "time": "23h",
     "vods": [
@@ -167,7 +398,7 @@
       }
     ]
   },
-  "16.4": {
+  "26W16.04": {
     "date": "2026-04-16",
     "time": "13h",
     "vods": [
@@ -188,7 +419,7 @@
       }
     ]
   },
-  "16.5": {
+  "26W16.05": {
     "date": "2026-04-18",
     "time": "17h",
     "vods": [
@@ -209,7 +440,7 @@
       }
     ]
   },
-  "17.1": {
+  "26W17.01": {
     "date": "2026-04-20",
     "time": "17h",
     "vods": [
@@ -230,7 +461,7 @@
       }
     ]
   },
-  "17.2": {
+  "26W17.02": {
     "date": "2026-04-21",
     "time": "16h",
     "vods": [
@@ -251,7 +482,7 @@
       }
     ]
   },
-  "17.3": {
+  "26W17.03": {
     "date": "2026-04-21",
     "time": "23h",
     "vods": [
@@ -272,7 +503,7 @@
       }
     ]
   },
-  "17.4": {
+  "26W17.04": {
     "date": "2026-04-23",
     "time": "13h",
     "vods": [
@@ -293,7 +524,7 @@
       }
     ]
   },
-  "17.5": {
+  "26W17.05": {
     "date": "2026-04-25",
     "time": "18h",
     "vods": [
@@ -314,7 +545,7 @@
       }
     ]
   },
-  "18.1": {
+  "26W18.01": {
     "date": "2026-04-27",
     "time": "18h",
     "vods": [
@@ -335,7 +566,7 @@
       }
     ]
   },
-  "18.2": {
+  "26W18.02": {
     "date": "2026-04-28",
     "time": "23h",
     "vods": [
@@ -356,7 +587,7 @@
       }
     ]
   },
-  "18.3": {
+  "26W18.03": {
     "date": "2026-05-02",
     "time": "19h",
     "vods": [
@@ -377,7 +608,7 @@
       }
     ]
   },
-  "19.1": {
+  "26W19.01": {
     "date": "2026-05-05",
     "time": "20h",
     "vods": [
@@ -387,18 +618,18 @@
         "url": "https://www.twitch.tv/videos/2764888361"
       },
       {
-        "platform": "youtube",
-        "player": "jday",
-        "url": "https://www.youtube.com/watch?v=wboUAJUnjk8"
-      },
-      {
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2764892476"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=wboUAJUnjk8"
       }
     ]
   },
-  "19.2": {
+  "26W19.02": {
     "date": "2026-05-06",
     "time": "18h",
     "vods": [
@@ -408,18 +639,18 @@
         "url": "https://www.twitch.tv/videos/2765581204"
       },
       {
-        "platform": "youtube",
-        "player": "jday",
-        "url": "https://www.youtube.com/watch?v=Hc7DYjGoU94&t=710s"
-      },
-      {
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2765559101?t=0h38m21s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=Hc7DYjGoU94&t=710s"
       }
     ]
   },
-  "19.3": {
+  "26W19.03": {
     "date": "2026-05-06",
     "time": "23h",
     "vods": [
@@ -429,18 +660,18 @@
         "url": "https://www.twitch.tv/videos/2765581204?t=5h49m25s"
       },
       {
-        "platform": "youtube",
-        "player": "jday",
-        "url": "https://www.youtube.com/watch?v=Hc7DYjGoU94&t=19560s"
-      },
-      {
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2765559101?t=5h53m42s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=Hc7DYjGoU94&t=19560s"
       }
     ]
   },
-  "19.4": {
+  "26W19.04": {
     "date": "2026-05-08",
     "time": "21h",
     "vods": [
@@ -457,11 +688,11 @@
       {
         "platform": "youtube",
         "player": "jday",
-        "url": "https://www.youtube.com/watch?v=2ubI8n7Twek"
+        "url": "https://www.youtube.com/watch?v=2ubI8n7Twek&t=6165s"
       }
     ]
   },
-  "20.1": {
+  "26W20.01": {
     "date": "2026-05-11",
     "time": "12h",
     "vods": [
@@ -471,18 +702,18 @@
         "url": "https://www.twitch.tv/videos/2769342790"
       },
       {
-        "platform": "youtube",
-        "player": "jday",
-        "url": "https://www.youtube.com/watch?v=Sno4K-dD0GY"
-      },
-      {
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2769275390?t=3h51m1s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=Sno4K-dD0GY"
       }
     ]
   },
-  "20.2": {
+  "26W20.02": {
     "date": "2026-05-13",
     "time": "18h",
     "vods": [
@@ -498,7 +729,7 @@
       }
     ]
   },
-  "20.3": {
+  "26W20.03": {
     "date": "2026-05-14",
     "time": "13h",
     "vods": [

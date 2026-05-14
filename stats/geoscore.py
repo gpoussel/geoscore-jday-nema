@@ -10,6 +10,7 @@ import csv
 import difflib
 import math
 import os
+import re
 import sys
 from dataclasses import dataclass
 from datetime import date
@@ -418,9 +419,22 @@ def write_all(rows: list[dict]) -> None:
         w.writerows(rows)
 
 
-def parse_sid(sid: str) -> tuple[int, int]:
-    w, n = sid.split(".", 1)
-    return int(w), int(n)
+def parse_sid(sid: str) -> tuple[int, int, int]:
+    long_match = re.fullmatch(r"(\d{2})W(\d{2})\.(\d{2})", sid)
+    if long_match:
+        year, week, num = long_match.groups()
+        return 2000 + int(year), int(week), int(num)
+
+    legacy_match = re.fullmatch(r"(\d{1,2})\.(\d{1,2})", sid)
+    if legacy_match:
+        week, num = legacy_match.groups()
+        return 2026, int(week), int(num)
+
+    raise ValueError(f"Invalid session id: {sid!r}")
+
+
+def format_sid(year: int, week: int, num: int) -> str:
+    return f"{year % 100:02d}W{week:02d}.{num:02d}"
 
 
 def next_game_id(rows: list[dict]) -> int:
@@ -456,7 +470,7 @@ def _renumber_game_ids(rows: list[dict]) -> None:
     All rows sharing the same input game_id end up with the same new id.
     After this pass, sorting games by id is equivalent to sorting by CSV
     order — which is chronological since sessions are contiguous and
-    ordered by (week, num).
+    ordered by (year, week, num).
     """
     mapping: dict[str, str] = {}
     for r in rows:
@@ -473,7 +487,7 @@ def save_rows(new_rows: list[dict]) -> None:
     Games within a session are always appended in order, so the insertion
     point is right after the last existing row of the target session. For
     a brand-new session, slot it before the first existing session with a
-    larger (week, num) so the CSV stays chronological. Every game_id is
+    larger (year, week, num) so the CSV stays chronological. Every game_id is
     then reassigned sequentially so inserting a past session shifts later
     games' ids upward and the id ordering stays in sync with date order.
     """
@@ -515,19 +529,35 @@ def save_rows(new_rows: list[dict]) -> None:
 def main() -> None:
     enable_ansi()
     print(f"{c('GeoScore', C.BOLD, C.BCYAN)} {c('-- fichier:', C.DIM)} {c(CSV_FILE, C.CYAN)}")
-    iso_week = date.today().isocalendar().week
+    today_iso = date.today().isocalendar()
+    iso_year = today_iso.year
+    iso_week = today_iso.week
     all_rows = load_rows()
     last_sid = all_rows[-1]["session"] if all_rows else None
+    overall_last_elo = None
+    if all_rows:
+        try:
+            overall_last_elo = int(all_rows[-1]["my_elo_after"])
+        except (ValueError, KeyError):
+            pass
+
     if last_sid:
         last_count, _ = session_summary(all_rows, last_sid)
         try:
-            default_week, default_num = parse_sid(last_sid)
+            default_year, default_week, default_num = parse_sid(last_sid)
         except ValueError:
-            default_week, default_num = iso_week, 1
+            default_year, default_week, default_num = iso_year, iso_week, 1
         print(c(f"Derniere session: {last_sid} ({last_count} partie(s))", C.DIM))
     else:
-        default_week, default_num = iso_week, 1
+        default_year, default_week, default_num = iso_year, iso_week, 1
 
+    year_raw = ask_str(f"Annee ISO [{c(str(default_year)[-2:], C.CYAN)}]: ")
+    try:
+        year = int(year_raw) if year_raw else default_year
+        if year < 100:
+            year += 2000
+    except ValueError:
+        year = default_year
     week_raw = ask_str(f"Semaine [{c(default_week, C.CYAN)}]: ")
     try:
         week = int(week_raw) if week_raw else default_week
@@ -538,9 +568,12 @@ def main() -> None:
         num = int(num_raw) if num_raw else default_num
     except ValueError:
         num = default_num
-    session = f"{week}.{num}"
+    session = format_sid(year, week, num)
 
     sess_count, sess_elo = session_summary(all_rows, session)
+    if sess_elo is None:
+        sess_elo = overall_last_elo
+
     if sess_count:
         tag = "reprise" if session != last_sid else "en cours"
         info = f"{sess_count} partie(s) existante(s), dernier ELO: {sess_elo} — {tag}"

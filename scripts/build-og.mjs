@@ -17,7 +17,7 @@ const currentElo = sortedByDate[sortedByDate.length - 1]?.elo ?? 0;
 const startingElo = sortedByDate[0]?.eloBefore ?? 0;
 const eloNet = currentElo - startingElo;
 const sessions = stats.sessions.length;
-const weeks = new Set(games.map((g) => g.week)).size;
+const weeks = new Set(games.map((g) => g.weekKey ?? `${g.year ?? ""}-W${String(g.week).padStart(2, "0")}`)).size;
 const { duoRank } = playersFile;
 const players = Object.values(playersFile.players).map((p) => p.name);
 

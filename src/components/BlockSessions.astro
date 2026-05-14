@@ -24,7 +24,6 @@ const formatDate = (raw: string) => {
         <div class:list={["sc", { pending: isPending }]}>
           <div class="head">
             <span class="date">{formatDate(s.date)}</span>
-            <span class="week">S{s.week}.{s.num}</span>
           </div>
           {!isPending ? (
             <>
@@ -127,17 +126,11 @@ const formatDate = (raw: string) => {
   .strip-win  { background: var(--win); }
   .strip-loss { background: var(--loss); }
 
-  .head { display: flex; justify-content: space-between; align-items: center; }
+  .head { display: flex; align-items: center; }
   .date {
     font-family: var(--serif); font-style: italic;
     font-size: 22px; letter-spacing: -0.01em; color: var(--fg-0);
   }
-  .week {
-    font-family: var(--sans); font-size: 11px;
-    letter-spacing: 0.06em; color: var(--fg-2);
-    padding: 3px 8px; background: var(--bg-2); border-radius: 99px;
-  }
-
   .elo {
     display: flex; justify-content: space-between; align-items: baseline;
   }
