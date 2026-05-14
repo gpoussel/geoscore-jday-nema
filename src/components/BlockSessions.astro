@@ -1,9 +1,12 @@
 ---
 import BlockHead from "./ui/BlockHead.astro";
 import type { Player, Session } from "../types";
+import { rankIcon, rankLabel } from "../lib/ranks";
 
-interface Props { sessions: Session[]; players: Record<string, Player>; }
-const { sessions, players } = Astro.props;
+interface Props { sessions: Session[]; players: Record<string, Player>; rankByWeek: Record<string, string>; }
+const { sessions, players, rankByWeek } = Astro.props;
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const formatDate = (raw: string) => {
   const d = new Date(raw);
@@ -20,10 +23,19 @@ const formatDate = (raw: string) => {
       const isPending = s.games === 0;
       const eloDelta = s.eloEnd - s.eloStart;
       const won = s.wins > s.losses;
+      const rank = rankByWeek[s.weekKey];
+      const rankName = rank ? rankLabel(rank) : "";
+      const rankIconFile = rank ? rankIcon(rank) : undefined;
+      const rankIconUrl = rankIconFile ? `${base}/ranks/${rankIconFile}` : undefined;
       return (
         <div class:list={["sc", { pending: isPending }]}>
           <div class="head">
             <span class="date">{formatDate(s.date)}</span>
+            {rankIconUrl && (
+              <span class="session-rank" title={rankName} aria-label={rankName}>
+                <img class="session-rank-icon" src={rankIconUrl} alt="" width="18" height="18" loading="lazy" />
+              </span>
+            )}
           </div>
           {!isPending ? (
             <>
@@ -126,10 +138,27 @@ const formatDate = (raw: string) => {
   .strip-win  { background: var(--win); }
   .strip-loss { background: var(--loss); }
 
-  .head { display: flex; align-items: center; }
+  .head { display: flex; align-items: center; gap: 10px; }
   .date {
     font-family: var(--serif); font-style: italic;
     font-size: 22px; letter-spacing: -0.01em; color: var(--fg-0);
+  }
+  .session-rank {
+    margin-left: auto;
+    width: 20px;
+    height: 20px;
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+  }
+  .session-rank-icon {
+    width: 18px;
+    height: 18px;
+    max-width: 18px;
+    max-height: 18px;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 1px 4px oklch(0 0 0 / 0.22));
   }
   .elo {
     display: flex; justify-content: space-between; align-items: baseline;

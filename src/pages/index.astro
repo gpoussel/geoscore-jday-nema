@@ -37,20 +37,28 @@ const enrichedGames: Game[] = stats.games.map((g) => {
 
 const rankByWeek: Record<string, string> = {};
 const weeksWithGames = [...new Set(stats.sessions.filter((s) => s.games > 0).map((s) => s.weekKey))].sort();
+const weeksWithVodOrGamesList = [
+  ...new Set(
+    stats.sessions
+      .filter((s) => s.games > 0 || s.vods.length > 0)
+      .map((s) => s.weekKey),
+  ),
+].sort();
 const weeksWithVodOrGames = new Set(
-  stats.sessions
-    .filter((s) => s.games > 0 || s.vods.length > 0)
-    .map((s) => s.weekKey),
+  weeksWithVodOrGamesList,
 );
 for (const weekKey of Object.keys(duoRanks)) {
   if (!weeksWithVodOrGames.has(weekKey)) {
     throw new Error(`Unexpected duo rank for week ${weekKey}: no VOD or game exists for that week`);
   }
 }
-for (const weekKey of weeksWithGames) {
+for (const weekKey of weeksWithVodOrGamesList) {
   const rank = duoRanks[weekKey];
+  if (rank) rankByWeek[weekKey] = rank;
+}
+for (const weekKey of weeksWithGames) {
+  const rank = rankByWeek[weekKey];
   if (!rank) throw new Error(`Missing duo rank for week ${weekKey} in src/data/players.json`);
-  rankByWeek[weekKey] = rank;
 }
 
 const latestSession = [...stats.sessions]
@@ -301,7 +309,7 @@ const ogImage = `${baseUrl}og.png`;
           <BlockPrecision games={v.games} sessions={v.sessions} aggregateBySession={key !== "week"} />
           <BlockPays countryStats={v.countryStats} distributions={v.distributions} />
           <BlockRecords games={v.games} rounds={v.rounds} />
-          <BlockSessions sessions={v.sessions} players={players} />
+          <BlockSessions sessions={v.sessions} players={players} rankByWeek={rankByWeek} />
         </div>
       ))}
 
