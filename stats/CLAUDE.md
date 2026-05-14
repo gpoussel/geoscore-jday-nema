@@ -48,10 +48,14 @@ Sessions are identified by `<yy>W<iso_week>.<num>` (ISO 8601 year + week), e.g. 
 
 Defaults to continuing the last session (same `year`, `week`, same `num`) and uses the last `my_elo_after` **of the chosen session** as the default for `my_elo_before` — so pressing Enter through the prompts appends to the ongoing session.
 
+For a brand-new past session, the default `my_elo_before` is the last known `my_elo_after` from the latest session chronologically before the chosen session. If no earlier game exists, there is no default and the CLI asks for the ELO explicitly.
+
 Picking a past `yyWweek.num` resumes that session: new games get inserted in `games.csv` right after the last existing row of the target session, and the default ELO is that session's last `my_elo_after`. Within a session, games are always added as the next one (N+1), never in the middle. A brand-new session is slotted chronologically (before the first existing session with a larger `(year, week, num)`). `save_rows` always rewrites the whole file, which is negligible at this size.
 
 After each insert, `save_rows` renumbers every `game_id` sequentially by CSV position (zero-padded 4 digits, e.g. `0042`). That keeps the invariant **`game_id` ordering ≡ chronological ordering**, so inserting into a past session shifts the ids of all later games upward.
 
 During round entry, `h` prints inline help. Useful navigation commands are `s` for a recap, `u` to undo the last round, `b` to return to the opponent ELO prompt, `e <round> ...` to edit a previous round, `d <round>` to delete a round, and `g <round>` to truncate the game back to that round.
 
-Sessions dated before `2026-04-17` use the old shared-multiplier Duel rules. Later sessions use the current per-team multiplier rules. The CSV schema stays unchanged: under the old rules, `my_mult_after` and `opp_mult_after` are written with the same shared value. Use `uv run geoscore.py --fix-multipliers` after changing this logic to recompute derived CSV columns (`damage`, HP, winner, multiplier fields) from the recorded scores without touching ELO values.
+At the final ELO prompt, a signed value (`+25`, `-18`) is treated as an ELO delta, while an unsigned value (`1248`) is treated as the new absolute ELO. The CSV still stores both `elo_delta` and `my_elo_after`.
+
+Sessions dated before `2026-04-17` use the old shared-multiplier Duel rules: R1-R4 stay at `1x`, R5 is `1.5x`, then the multiplier increases by `0.5x` each round. Later sessions use the current per-team multiplier rules. The CSV schema stays unchanged: under the old rules, `my_mult_after` and `opp_mult_after` are written with the same shared value. Use `uv run geoscore.py --fix-multipliers` after changing this logic to recompute derived CSV columns (`damage`, HP, winner, multiplier fields) from the recorded scores without touching ELO values.

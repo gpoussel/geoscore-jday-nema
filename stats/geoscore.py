@@ -24,6 +24,7 @@ from countries import is_valid as is_valid_country, COUNTRIES
 STARTING_HP = 6000
 STARTING_MULT = 1.0
 MULT_STEP = 0.5
+SHARED_MULT_START_ROUND = 5
 CSV_FILE = Path(__file__).resolve().parent / "games.csv"
 SESSIONS_FILE = Path(__file__).resolve().parent / "sessions.json"
 SHARED_MULT_CUTOFF = date(2026, 4, 17)
@@ -60,6 +61,12 @@ def c(text: object, *codes: str) -> str:
     return f"{''.join(codes)}{text}{C.RESET}"
 
 
+def shared_mult_for_round(round_num: int) -> float:
+    if round_num < SHARED_MULT_START_ROUND:
+        return STARTING_MULT
+    return STARTING_MULT + (round_num - SHARED_MULT_START_ROUND + 1) * MULT_STEP
+
+
 COLUMNS = [
     "session", "game_id",
     "my_elo_before", "opp_elo", "elo_delta", "my_elo_after", "won",
@@ -88,9 +95,9 @@ def compute_state(rounds: list[Round], *, shared_mult: bool = False) -> list[dic
     my_hp, opp_hp = STARTING_HP, STARTING_HP
     my_mult, opp_mult = STARTING_MULT, STARTING_MULT
     history: list[dict] = []
-    for r in rounds:
+    for round_num, r in enumerate(rounds, start=1):
         if shared_mult:
-            used = my_mult
+            used = shared_mult_for_round(round_num)
             if r.my_score > r.opp_score:
                 damage = math.floor((r.my_score - r.opp_score) * used + 0.5)
                 opp_hp = max(0, opp_hp - damage)
@@ -102,7 +109,7 @@ def compute_state(rounds: list[Round], *, shared_mult: bool = False) -> list[dic
             else:
                 damage = 0
                 winner = "tie"
-            my_mult += MULT_STEP
+            my_mult = shared_mult_for_round(round_num + 1)
             opp_mult = my_mult
         else:
             if r.my_score > r.opp_score:
@@ -310,6 +317,34 @@ def ask_str(prompt: str, default: str = "") -> str:
     except EOFError:
         return default
     return raw or default
+
+
+def ask_elo_result(prompt: str, current_elo: int) -> tuple[int, int] | str | None:
+    while True:
+        try:
+            raw = input(prompt).strip()
+        except EOFError:
+            return None
+        if not raw:
+            print(c("  Valeur requise.", C.RED))
+            continue
+        low = raw.lower()
+        if low in ("u", "undo"):
+            return "undo"
+        try:
+            value = int(raw)
+        except ValueError:
+            print(c("  Nombre invalide.", C.RED))
+            continue
+
+        if raw[0] in "+-":
+            delta = value
+            new_elo = current_elo + delta
+        else:
+            new_elo = value
+            delta = new_elo - current_elo
+        print(c(f"  ELO: {current_elo} -> {new_elo} ({delta:+d})", C.DIM))
+        return delta, new_elo
 
 
 def play_rounds(
@@ -529,8 +564,11 @@ def play_game(
                 f"{c('===', C.BOLD)}"
             )
 
-            res_delta = ask_int(f"Delta ELO (ex: +25, -18) {c('(u=retour)', C.DIM)}: ", allow_undo=True)
-            if res_delta == "undo":
+            res_elo = ask_elo_result(
+                f"Delta ELO ou nouvel ELO (ex: +25, -18, {my_elo + 25}) {c('(u=retour)', C.DIM)}: ",
+                my_elo,
+            )
+            if res_elo == "undo":
                 if rounds_list:
                     last = rounds_list.pop()
                     print(c(f"  Annule: {last.my_score}-{last.opp_score} {last.country}", C.YELLOW))
@@ -538,8 +576,11 @@ def play_game(
                 else:
                     print(c("  (rien a annuler)", C.DIM))
                     break # back to ELO adversaire prompt
+            if res_elo is None:
+                print(c("Partie abandonnee (non sauvegardee).", C.YELLOW))
+                return None
 
-            delta = res_delta if isinstance(res_delta, int) else 0
+            delta, new_elo = res_elo
 
             rows = []
             for i, (r, s) in enumerate(zip(rounds_list, history), start=1):
@@ -549,7 +590,7 @@ def play_game(
                     "my_elo_before": my_elo,
                     "opp_elo": current_opp_elo,
                     "elo_delta": delta,
-                    "my_elo_after": my_elo + delta,
+                    "my_elo_after": new_elo,
                     "won": won,
                     "total_rounds": len(rounds_list),
                     "final_my_hp": final_my,
@@ -670,6 +711,31 @@ def session_summary(rows: list[dict], sid: str) -> tuple[int, int | None]:
     return len(games), last_elo
 
 
+def previous_elo_before_session(rows: list[dict], sid: str) -> int | None:
+    """Return the last known ELO before the target session starts."""
+    try:
+        target = parse_sid(sid)
+    except ValueError:
+        return None
+
+    previous_elo: int | None = None
+    previous_key: tuple[int, int, int] | None = None
+    for r in rows:
+        try:
+            key = parse_sid(r["session"])
+        except (KeyError, ValueError):
+            continue
+        if key >= target:
+            continue
+        if previous_key is None or key >= previous_key:
+            try:
+                previous_elo = int(r["my_elo_after"])
+                previous_key = key
+            except (KeyError, ValueError):
+                pass
+    return previous_elo
+
+
 def _renumber_game_ids(rows: list[dict]) -> None:
     """Reassign zero-padded sequential game_ids by CSV position.
 
@@ -687,6 +753,17 @@ def _renumber_game_ids(rows: list[dict]) -> None:
         r["game_id"] = mapping[r["game_id"]]
 
 
+def _assign_unique_pending_game_id(new_rows: list[dict], existing: list[dict]) -> None:
+    existing_ids = {r.get("game_id", "") for r in existing}
+    pending = "__pending_1"
+    n = 1
+    while pending in existing_ids:
+        n += 1
+        pending = f"__pending_{n}"
+    for r in new_rows:
+        r["game_id"] = pending
+
+
 def save_rows(new_rows: list[dict]) -> None:
     """Insert new_rows into games.csv at the right position, then renumber.
 
@@ -699,6 +776,8 @@ def save_rows(new_rows: list[dict]) -> None:
     """
     sid = new_rows[0]["session"]
     existing = load_rows()
+    new_rows = [dict(r) for r in new_rows]
+    _assign_unique_pending_game_id(new_rows, existing)
     if not existing:
         merged = list(new_rows)
     else:
@@ -808,12 +887,6 @@ def main() -> None:
     all_rows = load_rows()
     sessions_meta = load_sessions_meta()
     last_sid = all_rows[-1]["session"] if all_rows else None
-    overall_last_elo = None
-    if all_rows:
-        try:
-            overall_last_elo = int(all_rows[-1]["my_elo_after"])
-        except (ValueError, KeyError):
-            pass
 
     if last_sid:
         last_count, _ = session_summary(all_rows, last_sid)
@@ -846,13 +919,15 @@ def main() -> None:
 
     sess_count, sess_elo = session_summary(all_rows, session)
     if sess_elo is None:
-        sess_elo = overall_last_elo
+        sess_elo = previous_elo_before_session(all_rows, session)
 
     if sess_count:
         tag = "reprise" if session != last_sid else "en cours"
         info = f"{sess_count} partie(s) existante(s), dernier ELO: {sess_elo} — {tag}"
+    elif sess_elo is not None:
+        info = f"nouvelle session, ELO precedent: {sess_elo}"
     else:
-        info = "nouvelle session"
+        info = "nouvelle session, aucun ELO precedent"
     print(f"Session: {c(session, C.BOLD, C.BCYAN)} {c(f'({info})', C.DIM)}")
     shared_mult = uses_shared_mult(session, sessions_meta)
     session_date = session_date_from_meta(session, sessions_meta)
