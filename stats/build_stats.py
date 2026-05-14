@@ -118,7 +118,7 @@ def aggregate_games(rows: list[dict]) -> tuple[list[dict], list[dict]]:
         })
 
         for r in game_rows:
-            raw = r["country"].strip().split(":", 1)[0].lower()
+            raw = r["country"].strip().lower()
             # GeoGuessr uses 'uk' for the UK; emit ISO 'GB' so downstream code
             # can treat the JSON as pure ISO 3166-1 alpha-2.
             code = "GB" if raw == "uk" else raw.upper()

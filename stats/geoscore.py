@@ -25,6 +25,7 @@ STARTING_HP = 6000
 STARTING_MULT = 1.0
 MULT_STEP = 0.5
 SHARED_MULT_START_ROUND = 5
+GAME_MODES = ("move", "no-move")
 CSV_FILE = Path(__file__).resolve().parent / "games.csv"
 SESSIONS_FILE = Path(__file__).resolve().parent / "sessions.json"
 SHARED_MULT_CUTOFF = date(2026, 4, 17)
@@ -68,7 +69,7 @@ def shared_mult_for_round(round_num: int) -> float:
 
 
 COLUMNS = [
-    "session", "game_id",
+    "session", "game_id", "mode",
     "my_elo_before", "opp_elo", "elo_delta", "my_elo_after", "won",
     "total_rounds", "final_my_hp", "final_opp_hp",
     "round_num", "country", "my_score", "opp_score",
@@ -147,19 +148,29 @@ def country_label(code: str) -> str:
     code = code.strip().lower()
     if code == "uk":
         return f"United Kingdom ({code})"
-    if ":" in code:
-        cc, sub = code.split(":", 1)
-        country_obj = pycountry.countries.get(alpha_2=cc.upper())
-        sub_obj = pycountry.subdivisions.get(code=f"{cc.upper()}-{sub.upper()}")
-        parts = [o.name for o in (country_obj, sub_obj) if o]
-        base = " / ".join(parts) if parts else code
-        return f"{base} ({code})"
     obj = pycountry.countries.get(alpha_2=code.upper())
     return f"{obj.name if obj else code} ({code})"
 
 
+def normalize_country_code(code: str) -> str:
+    code = code.strip().lower()
+    if code.startswith("us:"):
+        return "us"
+    return code
+
+
+def us_state_inputs() -> set[str]:
+    out: set[str] = set()
+    for sd in pycountry.subdivisions:
+        if sd.country_code == "US" and sd.type in ("State", "District"):
+            state_code = sd.code.split("-", 1)[1].lower()
+            out.add(state_code)
+            out.add(sd.name.lower())
+    return out
+
+
 def known_countries_from_rows(rows: list[dict]) -> set[str]:
-    return {r["country"].strip().lower() for r in rows if r.get("country")}
+    return {normalize_country_code(r["country"]) for r in rows if r.get("country")}
 
 
 def print_round_help() -> None:
@@ -172,6 +183,8 @@ def print_round_help() -> None:
     print("  d 3              supprimer le round 3")
     print("  g 3              revenir au round 3 (supprime les suivants)")
     print("  elo 1234         corriger l'ELO adversaire")
+    print("  nm               marquer la partie en no-move")
+    print("  m                remettre la partie en move")
     print("  s                afficher le recapitulatif")
     print("  b                revenir a l'ELO adversaire")
     print("  q                abandonner la partie")
@@ -233,7 +246,10 @@ def parse_round_input(raw: str) -> ParsedRound:
 
 
 def resolve_country(country: str) -> str | None:
-    country = country.lower()
+    country = country.strip().lower()
+    if country.startswith("us:") or country in us_state_inputs():
+        print(c("  Les états US ne sont plus saisis séparément. Utilise 'us'.", C.RED))
+        return None
     if is_valid_country(country):
         return country
 
@@ -243,15 +259,9 @@ def resolve_country(country: str) -> str | None:
         if obj:
             country_names_map[obj.name.lower()] = code
 
-    from countries import US_STATES
-    for state_code in US_STATES:
-        state_obj = pycountry.subdivisions.get(code=f"US-{state_code.upper()}")
-        if state_obj:
-            country_names_map[state_obj.name.lower()] = f"us:{state_code}"
-
     matches = difflib.get_close_matches(country, country_names_map.keys(), n=1, cutoff=0.6)
     if not matches:
-        print(c(f"  Code pays/etat inconnu et aucun match trouve pour: {country!r}", C.RED))
+        print(c(f"  Code pays inconnu et aucun match trouve pour: {country!r}", C.RED))
         return None
 
     matched_name = matches[0]
@@ -347,16 +357,27 @@ def ask_elo_result(prompt: str, current_elo: int) -> tuple[int, int] | str | Non
         return delta, new_elo
 
 
+def normalize_game_mode(raw: str) -> str | None:
+    mode = raw.strip().lower().replace("_", "-")
+    if mode in ("", "m", "move"):
+        return "move"
+    if mode in ("n", "nm", "no", "nomove", "no-move"):
+        return "no-move"
+    return None
+
+
 def play_rounds(
     known_countries: set[str],
     opp_elo: int,
     rounds: list[Round] | None = None,
     *,
     shared_mult: bool = False,
-) -> tuple[list[Round], int] | str | None:
+    game_mode: str = "move",
+) -> tuple[list[Round], int, str] | str | None:
     if rounds is None:
         rounds = []
     current_opp_elo = opp_elo
+    current_game_mode = game_mode
     while True:
         history = compute_state(rounds, shared_mult=shared_mult)
         if history:
@@ -369,14 +390,14 @@ def play_rounds(
             my_mult, opp_mult = STARTING_MULT, STARTING_MULT
 
         if (my_hp <= 0 or opp_hp <= 0) and rounds:
-            return rounds, current_opp_elo
+            return rounds, current_opp_elo, current_game_mode
 
         round_num = len(rounds) + 1
         prompt = (
             f"{c(f'R{round_num}', C.BOLD, C.BCYAN)} "
             f"[{c(my_hp, hp_color(my_hp))}-{c(opp_hp, hp_color(opp_hp))}] "
             f"{c(fmt_mult(my_mult), C.YELLOW)}/{c(fmt_mult(opp_mult), C.YELLOW)} "
-            f"{c(f'(opp: {current_opp_elo})', C.DIM)} "
+            f"{c(f'(opp: {current_opp_elo}, {current_game_mode})', C.DIM)} "
             f"{c('> ', C.BCYAN)}"
         )
         try:
@@ -395,6 +416,14 @@ def play_rounds(
             continue
         if cmd in ("s", "show", "recap"):
             print_rounds_summary(rounds, current_opp_elo, shared_mult=shared_mult)
+            continue
+        if cmd in ("nm", "no-move", "nomove"):
+            current_game_mode = "no-move"
+            print(c("  Mode: no-move", C.CYAN))
+            continue
+        if cmd in ("m", "move"):
+            current_game_mode = "move"
+            print(c("  Mode: move", C.CYAN))
             continue
         if cmd in ("u", "undo"):
             if rounds:
@@ -502,31 +531,16 @@ def play_game(
     print(c("\n--- Nouvelle partie ---", C.BOLD, C.BCYAN))
     mode = "commun" if shared_mult else "individuel"
     print(c(f"Multiplicateur: {mode}", C.DIM))
+    game_mode = "move"
+    print(c("Mode: move (commande nm pour no-move)", C.DIM))
     my_elo = default_my_elo
 
     while True:
         # 1. Mon ELO
-        if my_elo is None or (default_my_elo is not None and my_elo == default_my_elo):
-            if default_my_elo is not None:
-                try:
-                    raw = input(f"Mon ELO [{c(default_my_elo, C.CYAN)}] {c('(q=annuler)', C.DIM)}: ").strip()
-                except EOFError:
-                    return None
-                if not raw:
-                    my_elo = default_my_elo
-                elif raw.lower() in ("q", "quit"):
-                    return None
-                else:
-                    try:
-                        my_elo = int(raw)
-                    except ValueError:
-                        print(c("  Nombre invalide.", C.RED))
-                        my_elo = None
-                        continue
-            else:
-                res = ask_int(f"Mon ELO {c('(q=annuler)', C.DIM)}: ", allow_abort=True)
-                if res is None: return None
-                my_elo = res
+        if my_elo is None:
+            res = ask_int(f"Mon ELO {c('(q=annuler)', C.DIM)}: ", allow_abort=True)
+            if res is None: return None
+            my_elo = res
 
         # 2. ELO adversaire
         res = ask_int(f"ELO adversaire {c('(u=retour)', C.DIM)}: ", allow_abort=True, allow_undo=True)
@@ -540,14 +554,20 @@ def play_game(
         rounds_list: list[Round] = []
         current_opp_elo = opp_elo
         while True:
-            res_rounds = play_rounds(known_countries, current_opp_elo, rounds_list, shared_mult=shared_mult)
+            res_rounds = play_rounds(
+                known_countries,
+                current_opp_elo,
+                rounds_list,
+                shared_mult=shared_mult,
+                game_mode=game_mode,
+            )
             if res_rounds is None:
                 print(c("Partie abandonnee (non sauvegardee).", C.YELLOW))
                 return None
             if res_rounds == "back":
                 print(c("Retour a l'ELO adversaire.", C.YELLOW))
                 break
-            rounds_list, current_opp_elo = res_rounds
+            rounds_list, current_opp_elo, game_mode = res_rounds
 
             history = compute_state(rounds_list, shared_mult=shared_mult)
             final_my = history[-1]["my_hp"]
@@ -587,6 +607,7 @@ def play_game(
                 rows.append({
                     "session": session,
                     "game_id": game_id,
+                    "mode": game_mode,
                     "my_elo_before": my_elo,
                     "opp_elo": current_opp_elo,
                     "elo_delta": delta,
@@ -614,7 +635,11 @@ def load_rows() -> list[dict]:
     if not CSV_FILE.exists():
         return []
     with CSV_FILE.open(encoding="utf-8") as f:
-        return list(csv.DictReader(f))
+        rows = list(csv.DictReader(f))
+    for r in rows:
+        r["mode"] = normalize_game_mode(r.get("mode", "")) or "move"
+        r["country"] = normalize_country_code(r.get("country", ""))
+    return rows
 
 
 def load_sessions_meta() -> dict:
@@ -827,7 +852,7 @@ def recompute_derived_columns(rows: list[dict], sessions_meta: dict) -> int:
         session = game_rows[0]["session"]
         rounds = [
             Round(
-                country=r["country"],
+                country=normalize_country_code(r["country"]),
                 my_score=int(r["my_score"]),
                 opp_score=int(r["opp_score"]),
             )
