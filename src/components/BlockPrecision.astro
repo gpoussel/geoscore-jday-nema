@@ -8,6 +8,7 @@ interface Props { games: Game[]; sessions: Session[]; aggregateBySession?: boole
 const { games, sessions, aggregateBySession = false } = Astro.props;
 
 const fmtDate = (iso: string) => { const [, m, d] = iso.split("-"); return `${d}/${m}`; };
+const fmtSessionLabel = (date: string, time: string) => time ? `${date} · ${time}` : date;
 
 type PrecPoint =
   | { kind: "game"; myAcc: number; advAcc: number; gameNum: number }
@@ -22,7 +23,7 @@ const precData: PrecPoint[] = aggregateBySession
           kind: "session" as const,
           myAcc: sg.reduce((acc, g) => acc + g.myAcc, 0) / sg.length,
           advAcc: sg.reduce((acc, g) => acc + g.advAcc, 0) / sg.length,
-          label: `${fmtDate(s.date)} · ${s.time}`,
+          label: fmtSessionLabel(fmtDate(s.date), s.time),
           games: sg.length,
         };
       })
@@ -225,6 +226,7 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
   const winColor = cssVar("--win");
   const lossColor = cssVar("--loss");
   const accent = cssVar("--accent");
+  const sessionLabel = (b: { date: string; time: string }) => b.time ? `${b.date} · ${b.time}` : b.date;
 
   function ensureTooltipEl(container: HTMLElement) {
     let el = container.querySelector<HTMLDivElement>(".prec-tooltip");
@@ -328,7 +330,7 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
         ctx.font = '500 9px "JetBrains Mono", monospace';
         ctx.textAlign = "left";
         const xs = boundaries.map((b: any) => scales.x.getPixelForValue(b.idx));
-        const widths = boundaries.map((b: any) => ctx.measureText(`${b.date} · ${b.time}`).width);
+        const widths = boundaries.map((b: any) => ctx.measureText(sessionLabel(b)).width);
         let crowded = false;
         for (let i = 0; i < boundaries.length - 1; i++) {
           if (xs[i] + widths[i] + 8 > xs[i + 1]) { crowded = true; break; }
@@ -347,7 +349,7 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
           const b = boundaries[i];
           const tx = xs[i] + 4 + widths[i] > chartArea.right ? xs[i] - 4 - widths[i] : xs[i] + 4;
           ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-          ctx.fillText(`${b.date} · ${b.time}`, tx, chartArea.top - 4);
+          ctx.fillText(sessionLabel(b), tx, chartArea.top - 4);
         };
         const hovered = chart.$sessionHovered ?? -1;
         if (crowded) {

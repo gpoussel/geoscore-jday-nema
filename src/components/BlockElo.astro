@@ -240,6 +240,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
   const winColor = cssVar("--win");
   const lossColor = cssVar("--loss");
   const accent = cssVar("--accent");
+  const sessionLabel = (b: { date: string; time: string }) => b.time ? `${b.date} · ${b.time}` : b.date;
 
   const highLowPlugin = {
     id: "highLow",
@@ -563,7 +564,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
         ctx.font = '500 9px "JetBrains Mono", monospace';
         ctx.textAlign = "left";
         const xs = boundaries.map((b: any) => scales.x.getPixelForValue(b.idx));
-        const widths = boundaries.map((b: any) => ctx.measureText(`${b.date} · ${b.time}`).width);
+        const widths = boundaries.map((b: any) => ctx.measureText(sessionLabel(b)).width);
         let crowded = false;
         for (let i = 0; i < boundaries.length - 1; i++) {
           if (xs[i] + widths[i] + 8 > xs[i + 1]) { crowded = true; break; }
@@ -582,7 +583,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
           const b = boundaries[i];
           const tx = xs[i] + 4 + widths[i] > chartArea.right ? xs[i] - 4 - widths[i] : xs[i] + 4;
           ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-          ctx.fillText(`${b.date} · ${b.time}`, tx, chartArea.top - 4);
+          ctx.fillText(sessionLabel(b), tx, chartArea.top - 4);
         };
         const hovered = chart.$sessionHovered ?? -1;
         if (crowded) {
