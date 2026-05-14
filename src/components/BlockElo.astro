@@ -620,8 +620,14 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
         datasets: [
           {
             data: elos,
-            borderColor: "rgba(255,255,255,0.4)",
-            borderWidth: 1.5,
+            borderColor: "rgba(255,255,255,0.35)",
+            borderWidth: 2,
+            segment: {
+              borderColor: (c: any) => {
+                const idx = c.p1DataIndex;
+                return data[idx]?.won ? winColor : lossColor;
+              },
+            },
             tension: 0,
             fill: true,
             backgroundColor: (c: any) => {
@@ -634,8 +640,8 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
             },
             pointRadius: (c: any) => (c.dataIndex === highIdx || c.dataIndex === lowIdx ? emphPt : basePt),
             pointHoverRadius: hoverPt,
-            pointBackgroundColor: (c: any) => (data[c.dataIndex].won ? winColor : lossColor),
-            pointHoverBackgroundColor: (c: any) => (data[c.dataIndex].won ? winColor : lossColor),
+            pointBackgroundColor: "rgba(255,255,255,0.55)",
+            pointHoverBackgroundColor: "rgba(255,255,255,0.85)",
             pointBorderColor: (c: any) => (c.dataIndex === highIdx || c.dataIndex === lowIdx ? "white" : "transparent"),
             pointHoverBorderColor: (c: any) => (c.dataIndex === highIdx || c.dataIndex === lowIdx ? "white" : "transparent"),
             pointBorderWidth: 2,
