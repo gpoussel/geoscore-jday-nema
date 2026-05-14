@@ -536,18 +536,6 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
         if (!boundaries.length) return;
         const { ctx, chartArea, scales } = chart;
         ctx.save();
-        const STRIP_W = 80;
-        const STRIP_H = 4;
-        for (const b of weekStarts) {
-          const x = scales.x.getPixelForValue(b.idx);
-          const w = Math.min(STRIP_W, chartArea.right - x);
-          if (w <= 0) continue;
-          const grad = ctx.createLinearGradient(x, 0, x + w, 0);
-          grad.addColorStop(0, `color-mix(in oklch, ${accent} 45%, transparent)`);
-          grad.addColorStop(1, `color-mix(in oklch, ${accent} 0%, transparent)`);
-          ctx.fillStyle = grad;
-          ctx.fillRect(x, chartArea.top, w, STRIP_H);
-        }
         ctx.font = '600 10px "JetBrains Mono", monospace';
         ctx.textAlign = "left";
         let topLaneRight = -Infinity;

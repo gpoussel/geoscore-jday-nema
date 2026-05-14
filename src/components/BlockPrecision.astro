@@ -39,18 +39,6 @@ const boundaries = aggregateBySession
       })
       .filter((b): b is { idx: number; date: string; time: string; weekKey: string } => b !== null);
 
-const weekStartIdxs = (() => {
-  if (aggregateBySession) {
-    const sessionsWithGames = sessions.filter((s) => games.some((g) => g.session === s.id));
-    return sessionsWithGames
-      .map((s, i) => (i === 0 || s.weekKey !== sessionsWithGames[i - 1].weekKey ? i : -1))
-      .filter((i) => i >= 0);
-  }
-  return boundaries
-    .map((b, i) => (i === 0 || b.weekKey !== boundaries[i - 1].weekKey ? b.idx : -1))
-    .filter((i) => i >= 0);
-})();
-
 const avgMe = games.length ? games.reduce((s, g) => s + g.myAcc, 0) / games.length : 0;
 const avgAdv = games.length ? games.reduce((s, g) => s + g.advAcc, 0) / games.length : 0;
 
@@ -81,7 +69,6 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
           <canvas></canvas>
           <script type="application/json" class="prec-data" is:inline set:html={JSON.stringify(precData)} />
           <script type="application/json" class="session-boundaries" is:inline set:html={JSON.stringify(boundaries)} />
-          <script type="application/json" class="week-starts" is:inline set:html={JSON.stringify(weekStartIdxs)} />
         </div>
         <div class="prec-legend">
           <span><i class="sw sw-win"></i> Duo · moy. {avgMe.toFixed(1).replace(".", ",")}%</span>
@@ -232,7 +219,6 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
   const cssVar = (n: string) => getComputedStyle(document.body).getPropertyValue(n).trim();
   const winColor = cssVar("--win");
   const lossColor = cssVar("--loss");
-  const accent = cssVar("--accent");
   const sessionLabel = (b: { date: string; time: string }) => b.time ? `${b.date} · ${b.time}` : b.date;
 
   function ensureTooltipEl(container: HTMLElement) {
@@ -284,10 +270,6 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
     const boundaries = boundariesEl?.textContent
       ? (JSON.parse(boundariesEl.textContent) as { idx: number; date: string; time: string; weekKey: string }[])
       : [];
-    const weekStartsEl = el.querySelector<HTMLScriptElement>(".week-starts");
-    const weekStarts = weekStartsEl?.textContent
-      ? (JSON.parse(weekStartsEl.textContent) as number[])
-      : [];
     const allAcc = data.flatMap((d) => [d.myAcc, d.advAcc]);
     const minP = Math.max(0, Math.floor(Math.min(...allAcc) / 5) * 5);
     const maxP = Math.min(100, Math.ceil(Math.max(...allAcc) / 5) * 5);
@@ -319,20 +301,6 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
       beforeDatasetsDraw(chart: any) {
         const { ctx, chartArea, scales } = chart;
         ctx.save();
-        if (weekStarts.length) {
-          const STRIP_W = 80;
-          const STRIP_H = 4;
-          for (const idx of weekStarts) {
-            const x = scales.x.getPixelForValue(idx);
-            const w = Math.min(STRIP_W, chartArea.right - x);
-            if (w <= 0) continue;
-            const grad = ctx.createLinearGradient(x, 0, x + w, 0);
-            grad.addColorStop(0, `color-mix(in oklch, ${accent} 45%, transparent)`);
-            grad.addColorStop(1, `color-mix(in oklch, ${accent} 0%, transparent)`);
-            ctx.fillStyle = grad;
-            ctx.fillRect(x, chartArea.top, w, STRIP_H);
-          }
-        }
         if (!boundaries.length) { ctx.restore(); return; }
         ctx.font = '500 9px "JetBrains Mono", monospace';
         ctx.textAlign = "left";
