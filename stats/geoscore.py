@@ -159,16 +159,6 @@ def normalize_country_code(code: str) -> str:
     return code
 
 
-def us_state_inputs() -> set[str]:
-    out: set[str] = set()
-    for sd in pycountry.subdivisions:
-        if sd.country_code == "US" and sd.type in ("State", "District"):
-            state_code = sd.code.split("-", 1)[1].lower()
-            out.add(state_code)
-            out.add(sd.name.lower())
-    return out
-
-
 def known_countries_from_rows(rows: list[dict]) -> set[str]:
     return {normalize_country_code(r["country"]) for r in rows if r.get("country")}
 
@@ -246,10 +236,7 @@ def parse_round_input(raw: str) -> ParsedRound:
 
 
 def resolve_country(country: str) -> str | None:
-    country = country.strip().lower()
-    if country.startswith("us:") or country in us_state_inputs():
-        print(c("  Les états US ne sont plus saisis séparément. Utilise 'us'.", C.RED))
-        return None
+    country = normalize_country_code(country)
     if is_valid_country(country):
         return country
 
