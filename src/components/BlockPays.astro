@@ -4,7 +4,7 @@ import CardHead from "./ui/CardHead.astro";
 import BlockHead from "./ui/BlockHead.astro";
 import Flag from "./ui/Flag.astro";
 import { countryName } from "../lib/country";
-import type { CountryStat, Distribution } from "../types";
+import type { CountryStat, Distribution, FinalCountryStat } from "../types";
 import { geoNaturalEarth1, geoPath } from "d3-geo";
 import { feature } from "topojson-client";
 import type { Topology } from "topojson-specification";
@@ -32,8 +32,12 @@ const featureCode = (f: Feature<Geometry, GeoJsonProperties>): string => {
   return id ? countriesLib.numericToAlpha2(id) ?? "" : "";
 };
 
-interface Props { countryStats: Record<string, CountryStat>; distributions: Distribution[]; }
-const { countryStats, distributions } = Astro.props;
+interface Props {
+  countryStats: Record<string, CountryStat>;
+  finalCountryStats: Record<string, FinalCountryStat>;
+  distributions: Distribution[];
+}
+const { countryStats, finalCountryStats, distributions } = Astro.props;
 
 type Entry = [string, CountryStat];
 const seenEntries: Entry[] = Object.entries(countryStats).filter(([, s]) => s.seen >= 1);
@@ -59,11 +63,39 @@ const flopByAccTrusted = [...trustedEntries].sort((a, b) => a[1].acc - b[1].acc)
 const topByScore  = [...seenEntries].sort((a, b) => b[1].score - a[1].score).slice(0, 10);
 const flopByScore = [...seenEntries].sort((a, b) => a[1].score - b[1].score).slice(0, 10);
 const topBySeen   = [...seenEntries].sort((a, b) => b[1].seen - a[1].seen).slice(0, 40);
+const nameOf = countryName;
+
+type FinalEntry = [string, FinalCountryStat];
+const finalEntries: FinalEntry[] = Object.entries(finalCountryStats);
+type FinalRateEntry = {
+  code: string;
+  count: number;
+  seen: number;
+  rate: number;
+};
+const FINAL_MIN_SEEN = 5;
+const rankFinalCountries = (kind: "wins" | "losses"): FinalRateEntry[] => {
+  const all = finalEntries
+    .map(([code, s]) => {
+      const count = s[kind];
+      const seen = countryStats[code]?.seen ?? s.total;
+      return { code, count, seen, rate: seen > 0 ? count / seen : 0 };
+    })
+    .filter((s) => s.count > 0 && s.seen > 0);
+  const trusted = all.filter((s) => s.seen >= FINAL_MIN_SEEN);
+  return (trusted.length >= 5 ? trusted : all)
+    .sort((a, b) => b.rate - a.rate || b.count - a.count || b.seen - a.seen || nameOf(a.code).localeCompare(nameOf(b.code)))
+    .slice(0, 5);
+};
+const topFinalWins = rankFinalCountries("wins");
+const topFinalLosses = rankFinalCountries("losses");
 
 const fmtBalance = (n: number) => {
   const r = Math.round(n);
   return `${r >= 0 ? "+" : "−"}${Math.abs(r).toLocaleString("fr-FR")}`;
 };
+
+const fmtRate = (n: number) => `${Math.round(n * 100)}%`;
 
 const DEV_NEUTRAL = 5;
 type DevDisplay = { text: string; tone: "up" | "down" | "flat" | "na" };
@@ -75,11 +107,19 @@ const fmtDeviation = (d: number | null): DevDisplay => {
   return { text: `▼−${Math.abs(r)}%`, tone: "down" };
 };
 
-const nameOf = countryName;
 ---
 
 <section class="block">
-  <BlockHead title="Pays">
+  <BlockHead
+    title="Pays"
+    help={[
+      "La carte et les Top/Flop utilisent tous les rounds de la période active.",
+      "Précision : moyenne des scores du duo sur le pays, divisés par 50.",
+      "Score : moyenne de la différence duo - adversaire sur le pays.",
+      "Occurrence : apparitions observées, comparées à la distribution attendue de la carte jouée.",
+      "Pays de victoire/défaite : pays du dernier round de la partie, pondéré par les apparitions du pays.",
+    ]}
+  >
     <div class="metric-bar">
       <span class="label">Classer par</span>
       <div class="toggle">
@@ -291,6 +331,48 @@ const nameOf = countryName;
             ))}
           </ol>
         </div>
+    </Card>
+  </div>
+
+  <div class="finish-row">
+    <Card class="card-finish">
+      <div class="topflop">
+        <div class="tf-title">
+          Top 5<span class="tf-sub">pays de victoire</span>
+        </div>
+        <ol class="tf-list">
+          {topFinalWins.map((s, i) => (
+            <li>
+              <span class="tf-rank">{i + 1}</span>
+              <Flag code={s.code} class="tf-flag" />
+              <span class="tf-name">{nameOf(s.code)}</span>
+              <span class="tf-app">×{s.count}/{s.seen}</span>
+              <span class="tf-val tf-win">{fmtRate(s.rate)}</span>
+            </li>
+          ))}
+          {topFinalWins.length === 0 && <li class="tf-empty">Aucune victoire sur la période</li>}
+        </ol>
+      </div>
+    </Card>
+
+    <Card class="card-finish">
+      <div class="topflop">
+        <div class="tf-title">
+          Flop 5<span class="tf-sub">pays de défaite</span>
+        </div>
+        <ol class="tf-list">
+          {topFinalLosses.map((s, i) => (
+            <li>
+              <span class="tf-rank">{i + 1}</span>
+              <Flag code={s.code} class="tf-flag" />
+              <span class="tf-name">{nameOf(s.code)}</span>
+              <span class="tf-app">×{s.count}/{s.seen}</span>
+              <span class="tf-val tf-loss">{fmtRate(s.rate)}</span>
+            </li>
+          ))}
+          {topFinalLosses.length === 0 && <li class="tf-empty">Aucune défaite sur la période</li>}
+        </ol>
+      </div>
     </Card>
   </div>
 </section>
@@ -536,6 +618,12 @@ const nameOf = countryName;
     grid-template-columns: 1fr 1fr;
     gap: var(--gap);
   }
+  .finish-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap);
+    margin-top: var(--gap);
+  }
 
   .metric-bar {
     display: flex; align-items: center; gap: 12px;
@@ -702,6 +790,12 @@ const nameOf = countryName;
     background: var(--bg-2); border-radius: 6px;
     font-family: var(--mono); font-size: 12px;
   }
+  .tf-list li.tf-empty {
+    display: block;
+    color: var(--fg-2);
+    font-family: var(--sans);
+    font-size: 12px;
+  }
   .tf-rank { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--fg-2); }
   .tf-list :global(.tf-flag) {
     width: 24px; height: 18px;
@@ -723,6 +817,7 @@ const nameOf = countryName;
   .tf-dev-na   { color: var(--fg-3); opacity: 0.5; }
 
   @media (max-width: 1024px) {
-    .tf-row { grid-template-columns: 1fr; }
+    .tf-row,
+    .finish-row { grid-template-columns: 1fr; }
   }
 </style>

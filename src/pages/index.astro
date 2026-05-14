@@ -5,7 +5,7 @@ import playersData from "../data/players.json";
 import distributionsData from "../data/distributions.json";
 import bannerData from "../data/banner.json";
 import type {
-  CountryStat, Distribution, DistributionsFile, Game, MapAssignment, PlayersFile, Round, Stats,
+  CountryStat, Distribution, DistributionsFile, FinalCountryStat, Game, MapAssignment, PlayersFile, Round, Stats,
 } from "../types";
 import TeamCard from "../components/TeamCard.astro";
 import PeriodToggle from "../components/PeriodToggle.astro";
@@ -121,6 +121,7 @@ type View = {
   rounds: Round[];
   sessions: Stats["sessions"];
   countryStats: Record<string, CountryStat>;
+  finalCountryStats: Record<string, FinalCountryStat>;
   distributions: Distribution[];
   kpis: { games: number; winRate: number; eloNet: number; elo: number; avgAcc: number };
 };
@@ -177,6 +178,17 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
     };
   }
 
+  const finalCountryStats: Record<string, FinalCountryStat> = {};
+  for (const g of games) {
+    const finalRound = [...(roundsByGame[g.id] ?? [])].sort((a, b) => b.roundNum - a.roundNum)[0];
+    if (!finalRound) continue;
+    const k = finalRound.country;
+    if (!finalCountryStats[k]) finalCountryStats[k] = { wins: 0, losses: 0, total: 0 };
+    finalCountryStats[k].total++;
+    if (g.won) finalCountryStats[k].wins++;
+    else finalCountryStats[k].losses++;
+  }
+
   const wins = games.filter((g) => g.won).length;
   const eloNet = games.reduce((s, g) => s + g.eloDelta, 0);
   const avgAcc = games.length ? games.reduce((s, g) => s + g.myAcc, 0) / games.length : 0;
@@ -190,6 +202,7 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
     rounds,
     sessions,
     countryStats,
+    finalCountryStats,
     distributions: viewDistributions,
     kpis: {
       games: games.length,
@@ -307,7 +320,7 @@ const ogImage = `${baseUrl}og.png`;
           <KpiRow {...v.kpis} />
           <BlockElo games={v.games} sessions={v.sessions} rankByWeek={rankByWeek} />
           <BlockPrecision games={v.games} sessions={v.sessions} aggregateBySession={key !== "week"} />
-          <BlockPays countryStats={v.countryStats} distributions={v.distributions} />
+          <BlockPays countryStats={v.countryStats} finalCountryStats={v.finalCountryStats} distributions={v.distributions} />
           <BlockRecords games={v.games} rounds={v.rounds} />
           <BlockSessions sessions={v.sessions} players={players} rankByWeek={rankByWeek} />
         </div>

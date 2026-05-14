@@ -65,7 +65,14 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
 ---
 
 <section class="block">
-  <BlockHead title="Précision" />
+  <BlockHead
+    title="Précision"
+    help={[
+      "Chaque score GeoGuessr est converti en précision avec score / 50.",
+      "La courbe compare la moyenne du duo et celle des adversaires, par partie ou par session selon la période.",
+      "La distribution regroupe les rounds par tranche de score du duo ; les parfaits sont les scores à 5000.",
+    ]}
+  />
   <div class="grid">
     <Card class="card-prec">
       <CardHead eyebrow="Duo vs Adversaires" />

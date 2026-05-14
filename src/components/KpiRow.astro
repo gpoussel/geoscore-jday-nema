@@ -11,18 +11,28 @@ const { games, winRate, eloNet, avgAcc } = Astro.props;
 ---
 
 <div class="kpi-row">
-  <Kpi label="Parties jouées" value={games} />
+  <Kpi
+    label="Parties jouées"
+    value={games}
+    help={["Nombre de parties de duel incluses dans la période active."]}
+  />
   <Kpi
     label="Win-rate"
     value={`${winRate}%`}
     tone={winRate >= 50 ? "win" : "loss"}
+    help={["Parties gagnées / parties jouées sur la période active.", "Le résultat est arrondi au pourcentage entier."]}
   />
   <Kpi
     label="ELO net"
     value={`${eloNet >= 0 ? "+" : ""}${eloNet}`}
     tone={eloNet >= 0 ? "win" : "loss"}
+    help={["Somme des variations d'ELO de toutes les parties de la période active."]}
   />
-  <Kpi label="Précision moy." value={`${avgAcc.toFixed(1).replace(".", ",")}%`} />
+  <Kpi
+    label="Précision moy."
+    value={`${avgAcc.toFixed(1).replace(".", ",")}%`}
+    help={["Moyenne des précisions du duo par partie.", "La précision d'une partie est la moyenne des scores du duo divisés par 50."]}
+  />
 </div>
 
 <style>

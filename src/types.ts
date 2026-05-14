@@ -115,3 +115,9 @@ export type CountryStat = {
   expectedShare: number;
   deviation: number | null;
 };
+
+export type FinalCountryStat = {
+  wins: number;
+  losses: number;
+  total: number;
+};

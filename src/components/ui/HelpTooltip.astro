@@ -1,0 +1,103 @@
+---
+interface Props {
+  label?: string;
+  lines: string[];
+  align?: "left" | "center" | "right";
+}
+const { label = "Méthode de calcul", lines, align = "center" } = Astro.props;
+---
+
+<span class:list={["help", `align-${align}`]}>
+  <button class="help-btn" type="button" aria-label={label}>
+    ?
+  </button>
+  <span class="help-pop" role="tooltip">
+    <b>{label}</b>
+    {lines.map((line) => <span>{line}</span>)}
+  </span>
+</span>
+
+<style>
+  .help {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    z-index: 5;
+  }
+  .help-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-2);
+    color: var(--fg-2);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 20px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    cursor: help;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .help-btn:hover,
+  .help-btn:focus-visible {
+    color: var(--fg-0);
+    border-color: var(--border-hi);
+    background: var(--card);
+    outline: none;
+  }
+  .help-pop {
+    position: absolute;
+    top: calc(100% + 10px);
+    width: min(320px, calc(100vw - 32px));
+    padding: 12px 14px;
+    border: 1px solid var(--border-hi);
+    border-radius: 8px;
+    background: oklch(0.17 0.015 60 / 0.98);
+    box-shadow: 0 18px 45px oklch(0 0 0 / 0.35);
+    color: var(--fg-1);
+    font-family: var(--sans);
+    font-size: 12px;
+    line-height: 1.45;
+    text-transform: none;
+    letter-spacing: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .align-left .help-pop { left: 0; }
+  .align-center .help-pop {
+    left: 50%;
+    transform: translate(-50%, -4px);
+  }
+  .align-right .help-pop { right: 0; }
+  .help-pop b {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--fg-0);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+  }
+  .help-pop span {
+    display: block;
+  }
+  .help-pop span + span {
+    margin-top: 6px;
+  }
+  .help:hover .help-pop,
+  .help:focus-within .help-pop {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  .help.align-center:hover .help-pop,
+  .help.align-center:focus-within .help-pop {
+    transform: translate(-50%, 0);
+  }
+</style>

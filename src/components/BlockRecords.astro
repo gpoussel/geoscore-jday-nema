@@ -87,7 +87,16 @@ const tiles: {
 ---
 
 <section class="block">
-  <BlockHead title="Records" emphasis="faits d'armes" />
+  <BlockHead
+    title="Records"
+    emphasis="faits d'armes"
+    help={[
+      "Coup parfait : plus gros différentiel positif sur un round gagné par le duo.",
+      "Belle saucisse : plus gros différentiel négatif sur un round gagné par l'adversaire.",
+      "Les séries comptent les victoires ou défaites consécutives dans l'ordre des parties affichées.",
+      "La plus longue partie est celle avec le plus grand nombre de rounds.",
+    ]}
+  />
   <div class="grid">
     {tiles.map((t) => (
       <div class:list={["tile", `tone-${t.tone}`]}>

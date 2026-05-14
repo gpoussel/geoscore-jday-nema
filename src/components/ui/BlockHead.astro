@@ -1,15 +1,19 @@
 ---
+import HelpTooltip from "./HelpTooltip.astro";
+
 interface Props {
   title: string;
   emphasis?: string;
+  help?: string[];
 }
-const { title, emphasis } = Astro.props;
+const { title, emphasis, help } = Astro.props;
 ---
 
 <div class="block-head">
   <h2 class="block-title">
     {title}
     {emphasis && <> <em>&amp; {emphasis}</em></>}
+    {help && <HelpTooltip lines={help} />}
   </h2>
   <slot />
 </div>
@@ -29,6 +33,14 @@ const { title, emphasis } = Astro.props;
     font-weight: 400;
     flex: 1;
     min-width: 0;
+    display: flex;
+    align-items: baseline;
+    column-gap: 18px;
+    row-gap: 8px;
+    flex-wrap: wrap;
+  }
+  .block-title :global(.help) {
+    align-self: center;
   }
   .block-title em { font-style: italic; color: var(--fg-2); }
 </style>

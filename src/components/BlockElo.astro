@@ -47,7 +47,15 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
 ---
 
 <section class="block">
-  <BlockHead title="ELO" emphasis="résultats" />
+  <BlockHead
+    title="ELO"
+    emphasis="résultats"
+    help={[
+      "La courbe trace l'ELO après chaque partie de la période active.",
+      "Le bilan compte les victoires et défaites de ces mêmes parties.",
+      "Les marges sont classées selon les PV restants du vainqueur : serrée, propre ou écrasante.",
+    ]}
+  />
   <div class="grid">
     <Card class="card-elo">
       <CardHead eyebrow="Évolution" />

@@ -17,7 +17,15 @@ const formatDate = (raw: string) => {
 ---
 
 <section class="block">
-  <BlockHead title="Sessions" emphasis="replays" />
+  <BlockHead
+    title="Sessions"
+    emphasis="replays"
+    help={[
+      "Une session regroupe les parties jouées sur un même créneau.",
+      "L'ELO affiché va de l'ELO avant la première partie à l'ELO après la dernière partie de la session.",
+      "Le score de session compte victoires, défaites et nombre total de parties ; les liens pointent vers les VOD disponibles.",
+    ]}
+  />
   <div class="timeline">
     {sessions.map((s) => {
       const isPending = s.games === 0;
