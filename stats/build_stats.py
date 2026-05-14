@@ -64,6 +64,46 @@ def load_json(path: Path, default):
         return json.load(f)
 
 
+def validate_game_id_sequence(rows: list[dict]) -> None:
+    """Fail fast when game_id blocks are not strictly sequential in CSV order."""
+    previous_gid: str | None = None
+    seen: dict[str, int] = {}
+    expected = 1
+    errors: list[str] = []
+
+    for line_no, row in enumerate(rows, start=2):
+        gid = row.get("game_id", "")
+        if gid == previous_gid:
+            continue
+
+        if gid in seen:
+            errors.append(
+                f"line {line_no}: game_id {gid!r} reappears after first block at line {seen[gid]}"
+            )
+
+        try:
+            int(gid)
+        except ValueError:
+            errors.append(f"line {line_no}: game_id {gid!r} is not numeric")
+        else:
+            wanted = f"{expected:04d}"
+            if gid != wanted:
+                errors.append(f"line {line_no}: expected game_id {wanted}, got {gid!r}")
+            expected += 1
+
+        seen.setdefault(gid, line_no)
+        previous_gid = gid
+
+    if errors:
+        details = "\n  - ".join(errors[:20])
+        extra = "" if len(errors) <= 20 else f"\n  - ... {len(errors) - 20} more"
+        raise SystemExit(
+            "Inconsistent game_id numbering in stats/games.csv:\n"
+            f"  - {details}{extra}\n"
+            "Run geoscore.py's renumbering flow or fix the CSV before rebuilding stats."
+        )
+
+
 def aggregate_games(rows: list[dict]) -> tuple[list[dict], list[dict]]:
     """Group CSV rows by game_id. Returns (games, rounds)."""
     by_game: dict[str, list[dict]] = defaultdict(list)
@@ -223,6 +263,8 @@ def main() -> None:
 
     with CSV_FILE.open(encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
+
+    validate_game_id_sequence(rows)
 
     unknown = defaultdict(list)
     for r in rows:
