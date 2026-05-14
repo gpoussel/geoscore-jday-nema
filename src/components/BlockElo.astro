@@ -52,6 +52,12 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
     <Card class="card-elo">
       <CardHead eyebrow="Évolution" />
       <div class="elo-chart" data-high-idx={highIdx} data-low-idx={lowIdx}>
+        <button class="elo-zoom-back" type="button" aria-label="Revenir au zoom précédent" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 7 4 12l5 5" />
+            <path d="M20 12H4" />
+          </svg>
+        </button>
         <canvas></canvas>
         <script type="application/json" class="elo-data" is:inline set:html={JSON.stringify(eloData)} />
         <script type="application/json" class="session-boundaries" is:inline set:html={JSON.stringify(boundaries)} />
@@ -108,6 +114,34 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
 
   .elo-chart { position: relative; flex: 1 1 0; min-height: 260px; }
   .elo-chart canvas { display: block; }
+  .elo-chart.zoomed canvas { cursor: grab; }
+  .elo-chart.panning canvas { cursor: grabbing; }
+  .elo-zoom-back {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 3;
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--border-hi);
+    border-radius: 6px;
+    background: color-mix(in oklch, var(--bg-1) 86%, transparent);
+    color: var(--fg-1);
+    cursor: pointer;
+  }
+  .elo-zoom-back[hidden] { display: none; }
+  .elo-zoom-back:hover { color: var(--fg-0); border-color: var(--fg-2); }
+  .elo-zoom-back svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
   .elo-chart :global(.elo-tooltip) {
     position: absolute;
     pointer-events: none;
@@ -265,6 +299,163 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
       el.style.top = Math.max(8, y - 70) + "px";
       el.style.opacity = "1";
     };
+  }
+
+  function setupWheelZoom(el: HTMLElement, chart: any, pointCount: number) {
+    if (!el.closest('[data-view="all"]') || pointCount < 3) return;
+
+    const backBtn = el.querySelector<HTMLButtonElement>(".elo-zoom-back");
+    const canvas = el.querySelector<HTMLCanvasElement>("canvas");
+    if (!canvas) return;
+
+    const history: { min?: number; max?: number }[] = [];
+    const xScale = () => chart.scales.x;
+    const fullMin = 0;
+    const fullMax = pointCount - 1;
+    const minWindow = Math.min(12, pointCount);
+    let panStart: { x: number; min: number; max: number } | null = null;
+
+    const currentWindow = () => ({
+      min: chart.options.scales.x.min as number | undefined,
+      max: chart.options.scales.x.max as number | undefined,
+    });
+
+    const pointerX = (e: MouseEvent | PointerEvent | WheelEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      return e.clientX - rect.left;
+    };
+
+    const pointerY = (e: MouseEvent | PointerEvent | WheelEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      return e.clientY - rect.top;
+    };
+
+    const isInChartArea = (x: number, y: number) => {
+      const area = chart.chartArea;
+      return area && x >= area.left && x <= area.right && y >= area.top && y <= area.bottom;
+    };
+
+    const isZoomed = () => (
+      typeof chart.options.scales.x.min === "number" &&
+      typeof chart.options.scales.x.max === "number"
+    );
+
+    const syncBackButton = () => {
+      if (backBtn) backBtn.hidden = history.length === 0;
+      el.classList.toggle("zoomed", isZoomed());
+    };
+
+    const setWindow = (min: number, max: number) => {
+      const span = Math.max(minWindow - 1, max - min);
+      let nextMin = Math.max(fullMin, Math.min(min, fullMax - span));
+      let nextMax = Math.min(fullMax, nextMin + span);
+      if (nextMax - nextMin < minWindow - 1) {
+        nextMax = fullMax;
+        nextMin = Math.max(fullMin, nextMax - (minWindow - 1));
+      }
+      if (nextMin <= fullMin && nextMax >= fullMax) {
+        delete chart.options.scales.x.min;
+        delete chart.options.scales.x.max;
+        chart.update("none");
+        syncBackButton();
+        return;
+      }
+      chart.options.scales.x.min = Math.round(nextMin);
+      chart.options.scales.x.max = Math.round(nextMax);
+      chart.update("none");
+      el.classList.toggle("zoomed", true);
+    };
+
+    const reset = (remember = true) => {
+      if (remember) history.push(currentWindow());
+      delete chart.options.scales.x.min;
+      delete chart.options.scales.x.max;
+      chart.update("none");
+      syncBackButton();
+    };
+
+    const restore = (state: { min?: number; max?: number }) => {
+      if (typeof state.min === "number" && typeof state.max === "number") {
+        chart.options.scales.x.min = state.min;
+        chart.options.scales.x.max = state.max;
+      } else {
+        delete chart.options.scales.x.min;
+        delete chart.options.scales.x.max;
+      }
+      chart.update("none");
+      syncBackButton();
+    };
+
+    el.addEventListener("wheel", (e) => {
+      if (document.body.dataset.period !== "all") return;
+      const scale = xScale();
+      const area = chart.chartArea;
+      const x = pointerX(e);
+      const y = pointerY(e);
+      if (!scale || !area || !isInChartArea(x, y)) return;
+
+      e.preventDefault();
+      const currentMin = Number.isFinite(scale.min) ? scale.min : fullMin;
+      const currentMax = Number.isFinite(scale.max) ? scale.max : fullMax;
+      const currentSpan = currentMax - currentMin;
+      const factor = e.deltaY < 0 ? 0.82 : 1.22;
+      const nextSpan = Math.min(fullMax - fullMin, Math.max(minWindow - 1, currentSpan * factor));
+      const rawCenter = scale.getValueForPixel(x);
+      const center = Number.isFinite(rawCenter) ? rawCenter : (currentMin + currentMax) / 2;
+      const ratio = currentSpan > 0 ? (center - currentMin) / currentSpan : 0.5;
+      history.push(currentWindow());
+      if (history.length > 20) history.shift();
+      setWindow(center - nextSpan * ratio, center + nextSpan * (1 - ratio));
+      syncBackButton();
+    }, { passive: false });
+
+    canvas.addEventListener("pointerdown", (e) => {
+      if (document.body.dataset.period !== "all" || !isZoomed()) return;
+      const x = pointerX(e);
+      const y = pointerY(e);
+      if (!isInChartArea(x, y)) return;
+
+      e.preventDefault();
+      history.push(currentWindow());
+      if (history.length > 20) history.shift();
+      panStart = {
+        x,
+        min: chart.options.scales.x.min as number,
+        max: chart.options.scales.x.max as number,
+      };
+      el.classList.add("panning");
+      canvas.setPointerCapture(e.pointerId);
+      syncBackButton();
+    });
+
+    canvas.addEventListener("pointermove", (e) => {
+      if (!panStart) return;
+      const scale = xScale();
+      const area = chart.chartArea;
+      if (!scale || !area) return;
+      const span = panStart.max - panStart.min;
+      const dx = pointerX(e) - panStart.x;
+      const shift = -(dx / Math.max(1, area.right - area.left)) * span;
+      setWindow(panStart.min + shift, panStart.max + shift);
+    });
+
+    const stopPan = (e: PointerEvent) => {
+      if (!panStart) return;
+      panStart = null;
+      el.classList.remove("panning");
+      if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
+      syncBackButton();
+    };
+
+    canvas.addEventListener("pointerup", stopPan);
+    canvas.addEventListener("pointercancel", stopPan);
+
+    backBtn?.addEventListener("click", () => {
+      const previous = history.pop();
+      if (previous) restore(previous);
+    });
+
+    el.addEventListener("dblclick", () => reset());
   }
 
   const charts: { el: HTMLElement; chart: any }[] = [];
@@ -452,6 +643,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
     });
 
     charts.push({ el, chart });
+    setupWheelZoom(el, chart, data.length);
   });
 
   // Inactive view starts at display:none → canvas has 0 size. Re-fit on period toggle.
