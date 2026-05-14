@@ -37,7 +37,7 @@ stats/sessions.json ┘                                                         
 
 - `games.csv` holds one row per round.
 - `sessions.json` is the only session-level metadata (date, time, VOD links).
-- `src/data/players.json` is the source of truth for player identity and `duoRanks`, keyed by ISO `weekKey` (`YYYY-Www`). The latest played week drives the rank shown at the top of the page, and each session's week rank selects the matching map distribution.
+- `src/data/players.json` is the source of truth for player identity and `duoRanks`, keyed by ISO `weekKey` (`YYYY-Www`). Only weeks with at least one VOD or recorded game should be listed. The latest played week drives the rank shown at the top of the page, and each session's week rank selects the matching map distribution.
 - Per-game precision (`myAcc`, `advAcc`) is **computed in the web layer** as `score / 50` (linear mapping of 0–5000 pts to 0–100%). The JSON does not carry them.
 
 ## Commands

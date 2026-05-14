@@ -20,7 +20,7 @@ import BlockSessions from "../components/BlockSessions.astro";
 import { rankDivision, rankLabel } from "../lib/ranks";
 
 const stats = statsData as Stats;
-const { duoRank: legacyDuoRank, duoRanks = {}, players } = playersData as PlayersFile;
+const { duoRanks, players } = playersData as PlayersFile;
 const { maps, assignments } = distributionsData as DistributionsFile;
 
 const precision = (s: number) => s / 50;
@@ -37,8 +37,18 @@ const enrichedGames: Game[] = stats.games.map((g) => {
 
 const rankByWeek: Record<string, string> = {};
 const weeksWithGames = [...new Set(stats.sessions.filter((s) => s.games > 0).map((s) => s.weekKey))].sort();
+const weeksWithVodOrGames = new Set(
+  stats.sessions
+    .filter((s) => s.games > 0 || s.vods.length > 0)
+    .map((s) => s.weekKey),
+);
+for (const weekKey of Object.keys(duoRanks)) {
+  if (!weeksWithVodOrGames.has(weekKey)) {
+    throw new Error(`Unexpected duo rank for week ${weekKey}: no VOD or game exists for that week`);
+  }
+}
 for (const weekKey of weeksWithGames) {
-  const rank = duoRanks[weekKey] ?? (Object.keys(duoRanks).length === 0 ? legacyDuoRank : undefined);
+  const rank = duoRanks[weekKey];
   if (!rank) throw new Error(`Missing duo rank for week ${weekKey} in src/data/players.json`);
   rankByWeek[weekKey] = rank;
 }
@@ -47,7 +57,7 @@ const latestSession = [...stats.sessions]
   .filter((s) => s.games > 0)
   .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))
   .at(-1);
-const currentDuoRank = latestSession ? rankByWeek[latestSession.weekKey] : legacyDuoRank;
+const currentDuoRank = latestSession ? rankByWeek[latestSession.weekKey] : undefined;
 if (!currentDuoRank) throw new Error("Missing current duo rank in src/data/players.json");
 
 const mapsById = new Map(maps.map((m) => [m.id, m]));

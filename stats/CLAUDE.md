@@ -33,7 +33,7 @@ After editing `games.csv` / `sessions.json` by hand, rerun `build_stats.py` — 
 
 Sessions are identified by `<yy>W<iso_week>.<num>` (ISO 8601 year + week), e.g. `26W16.05` = ISO year 2026, week 16, session 5. This string is the key in `sessions.json` and the value of the `session` column in `games.csv`. `build_stats.py:parse_session_id` splits it into `year`, `week`, and `num`, and emits `weekKey` as `YYYY-Www` for frontend week grouping. `geoscore.py` defaults the ISO year/week prompt to today's ISO year/week, or to the previous session's values if any. Do not add new data using the old `<iso_week>.<num>` format.
 
-`sessions.json` stores **only metadata** (`date`, `time`, `vods`) — never game data. The duo's rank history lives in `../src/data/players.json` (alongside the two player entries, under `duoRanks`, keyed by ISO `weekKey`). Players and ranks are hand-maintained, not generated.
+`sessions.json` stores **only metadata** (`date`, `time`, `vods`) — never game data. The duo's rank history lives in `../src/data/players.json` (alongside the two player entries, under `duoRanks`, keyed by ISO `weekKey`). Only weeks with at least one VOD or recorded game should be listed. Players and ranks are hand-maintained, not generated.
 
 ## Data gotchas
 

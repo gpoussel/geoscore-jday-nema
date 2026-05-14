@@ -18,12 +18,13 @@ const startingElo = sortedByDate[0]?.eloBefore ?? 0;
 const eloNet = currentElo - startingElo;
 const sessions = stats.sessions.length;
 const weeks = new Set(games.map((g) => g.weekKey ?? `${g.year ?? ""}-W${String(g.week).padStart(2, "0")}`)).size;
-const rankByWeek = playersFile.duoRanks ?? {};
+const rankByWeek = playersFile.duoRanks;
+if (!rankByWeek) throw new Error("Missing duoRanks in src/data/players.json");
 const latestSession = [...stats.sessions]
   .filter((s) => s.games > 0)
   .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))
   .at(-1);
-const duoRank = latestSession ? (rankByWeek[latestSession.weekKey] ?? playersFile.duoRank) : playersFile.duoRank;
+const duoRank = latestSession ? rankByWeek[latestSession.weekKey] : undefined;
 if (!duoRank) throw new Error("Missing current duo rank in src/data/players.json");
 const players = Object.values(playersFile.players).map((p) => p.name);
 
