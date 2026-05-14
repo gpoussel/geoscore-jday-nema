@@ -542,15 +542,24 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
         }
         ctx.font = '600 10px "JetBrains Mono", monospace';
         ctx.textAlign = "left";
+        let topLaneRight = -Infinity;
+        let bottomLaneRight = -Infinity;
         for (const b of rankMarkers) {
           const x = scales.x.getPixelForValue(b.idx);
+          if (x < chartArea.left || x > chartArea.right) continue;
           const label = b.rank;
           const textW = ctx.measureText(label).width;
           const padX = 7;
           const pillW = textW + padX * 2;
           const pillH = 18;
           const px = Math.min(Math.max(chartArea.left, x + 4), chartArea.right - pillW);
-          const py = chartArea.top + 8;
+          const gap = 6;
+          const collidesTop = px < topLaneRight + gap;
+          const collidesBottom = px < bottomLaneRight + gap;
+          const useBottomLane = collidesTop && (!collidesBottom || bottomLaneRight <= topLaneRight);
+          const py = chartArea.top + (useBottomLane ? 30 : 8);
+          if (useBottomLane) bottomLaneRight = px + pillW;
+          else topLaneRight = px + pillW;
           ctx.fillStyle = "rgba(58, 232, 189, 0.14)";
           ctx.strokeStyle = "rgba(58, 232, 189, 0.45)";
           ctx.lineWidth = 1;
