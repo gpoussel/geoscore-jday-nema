@@ -28,7 +28,8 @@ SHARED_MULT_START_ROUND = 5
 GAME_MODES = ("move", "no-move")
 CSV_FILE = Path(__file__).resolve().parent / "games.csv"
 SESSIONS_FILE = Path(__file__).resolve().parent / "sessions.json"
-SHARED_MULT_CUTOFF = date(2026, 4, 17)
+INDIVIDUAL_MULT_START_SESSION = "26W14.03"
+INDIVIDUAL_MULT_START_FALLBACK_DATE = date(2026, 4, 1)
 
 
 class C:
@@ -137,6 +138,13 @@ def compute_state(rounds: list[Round], *, shared_mult: bool = False) -> list[dic
             "my_mult": my_mult, "opp_mult": opp_mult,
         })
     return history
+
+
+def result_from_elo_or_hp(elo_delta: int, final_my_hp: int, final_opp_hp: int) -> bool:
+    """Use the observed ranked result when available, then fall back to HP."""
+    if elo_delta != 0:
+        return elo_delta > 0
+    return final_my_hp > final_opp_hp
 
 
 def fmt_mult(m: float) -> str:
@@ -559,8 +567,8 @@ def play_game(
             history = compute_state(rounds_list, shared_mult=shared_mult)
             final_my = history[-1]["my_hp"]
             final_opp = history[-1]["opp_hp"]
-            won = final_my > 0
-            if won:
+            hp_won = final_my > final_opp
+            if hp_won:
                 verdict = c("VICTOIRE", C.BOLD, C.BGREEN)
             else:
                 verdict = c("DEFAITE", C.BOLD, C.BRED)
@@ -588,6 +596,7 @@ def play_game(
                 return None
 
             delta, new_elo = res_elo
+            won = result_from_elo_or_hp(delta, final_my, final_opp)
 
             rows = []
             for i, (r, s) in enumerate(zip(rounds_list, history), start=1):
@@ -672,28 +681,18 @@ def session_date_from_meta(session: str, sessions_meta: dict) -> date | None:
 
 
 def uses_shared_mult(session: str, sessions_meta: dict) -> bool:
-    session_date = session_date_from_meta(session, sessions_meta)
-    if session_date is not None:
-        return session_date < SHARED_MULT_CUTOFF
-
     try:
-        year, week, _ = parse_sid(session)
+        return parse_sid(session) < parse_sid(INDIVIDUAL_MULT_START_SESSION)
     except ValueError:
-        return False
+        session_date = session_date_from_meta(session, sessions_meta)
+        if session_date is not None:
+            return session_date < INDIVIDUAL_MULT_START_FALLBACK_DATE
 
-    week_start = date.fromisocalendar(year, week, 1)
-    week_end = date.fromisocalendar(year, week, 7)
-    if week_end < SHARED_MULT_CUTOFF:
-        return True
-    if week_start >= SHARED_MULT_CUTOFF:
+        print(c(
+            f"Session/date invalide pour {session}: multiplicateur individuel utilise par defaut.",
+            C.YELLOW,
+        ))
         return False
-
-    print(c(
-        f"Date absente pour {session}: semaine a cheval sur le 17/04, "
-        "multiplicateur individuel utilise par defaut.",
-        C.YELLOW,
-    ))
-    return False
 
 
 def next_game_id(rows: list[dict]) -> int:
@@ -751,18 +750,25 @@ def previous_elo_before_session(rows: list[dict], sid: str) -> int | None:
 def _renumber_game_ids(rows: list[dict]) -> None:
     """Reassign zero-padded sequential game_ids by CSV position.
 
-    All rows sharing the same input game_id end up with the same new id.
+    Each contiguous block sharing the same game identity gets the same new id.
     After this pass, sorting games by id is equivalent to sorting by CSV
     order — which is chronological since sessions are contiguous and
     ordered by (year, week, num).
     """
-    mapping: dict[str, str] = {}
+    identity_fields = (
+        "session", "game_id", "mode", "my_elo_before", "opp_elo",
+        "elo_delta", "my_elo_after", "won", "total_rounds",
+    )
+    previous: tuple[str, ...] | None = None
+    current = "0000"
+    n = 0
     for r in rows:
-        old = r["game_id"]
-        if old not in mapping:
-            mapping[old] = f"{len(mapping) + 1:04d}"
-    for r in rows:
-        r["game_id"] = mapping[r["game_id"]]
+        identity = tuple(r[field] for field in identity_fields)
+        if identity != previous:
+            n += 1
+            current = f"{n:04d}"
+            previous = identity
+        r["game_id"] = current
 
 
 def _assign_unique_pending_game_id(new_rows: list[dict], existing: list[dict]) -> None:
@@ -848,7 +854,7 @@ def recompute_derived_columns(rows: list[dict], sessions_meta: dict) -> int:
         history = compute_state(rounds, shared_mult=uses_shared_mult(session, sessions_meta))
         final_my = history[-1]["my_hp"]
         final_opp = history[-1]["opp_hp"]
-        won = final_my > 0
+        won = result_from_elo_or_hp(int(game_rows[0]["elo_delta"]), final_my, final_opp)
 
         for i, (r, s) in enumerate(zip(game_rows, history), start=1):
             updates = {

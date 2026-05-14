@@ -3,7 +3,7 @@ import Card from "./ui/Card.astro";
 import CardHead from "./ui/CardHead.astro";
 import BlockHead from "./ui/BlockHead.astro";
 import type { Game, Session } from "../types";
-import { rankLabel } from "../lib/ranks";
+import { rankShortLabel } from "../lib/ranks";
 
 interface Props { games: Game[]; sessions: Session[]; rankByWeek: Record<string, string>; }
 const { games, sessions, rankByWeek } = Astro.props;
@@ -12,7 +12,7 @@ const fmtDate = (iso: string) => { const [, m, d] = iso.split("-"); return `${d}
 const boundaries = sessions
   .map((s) => {
     const idx = games.findIndex((g) => g.session === s.id);
-    return idx < 0 ? null : { idx, date: fmtDate(s.date), time: s.time, weekKey: s.weekKey, rank: rankLabel(rankByWeek[s.weekKey]) };
+    return idx < 0 ? null : { idx, date: fmtDate(s.date), time: s.time, weekKey: s.weekKey, rank: rankShortLabel(rankByWeek[s.weekKey]) };
   })
   .filter((b): b is { idx: number; date: string; time: string; weekKey: string; rank: string } => b !== null);
 
