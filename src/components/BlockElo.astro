@@ -244,17 +244,29 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
   const highLowPlugin = {
     id: "highLow",
     afterDatasetsDraw(chart: any, _args: any, opts: any) {
-      const { ctx } = chart;
+      const { ctx, chartArea } = chart;
       const meta = chart.getDatasetMeta(0);
       const vals = chart.data.datasets[0].data as number[];
       const draw = (idx: number, label: string, dy: number) => {
         const pt = meta.data[idx];
-        if (!pt) return;
+        if (!pt || !chartArea) return;
+        const text = `${label} ${vals[idx]}`;
+        const pad = 4;
         ctx.save();
         ctx.font = '600 10px "JetBrains Mono", monospace';
+        const textW = ctx.measureText(text).width;
+        let x = pt.x;
+        let align: CanvasTextAlign = "center";
+        if (x - textW / 2 < chartArea.left + pad) {
+          x = chartArea.left + pad;
+          align = "left";
+        } else if (x + textW / 2 > chartArea.right - pad) {
+          x = chartArea.right - pad;
+          align = "right";
+        }
         ctx.fillStyle = "white";
-        ctx.textAlign = "center";
-        ctx.fillText(`${label} ${vals[idx]}`, pt.x, pt.y + dy);
+        ctx.textAlign = align;
+        ctx.fillText(text, x, pt.y + dy);
         ctx.restore();
       };
       if (opts.highIdx >= 0) draw(opts.highIdx, "MAX", -12);
