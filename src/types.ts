@@ -72,15 +72,30 @@ export type PlayersFile = {
   players: Players;
 };
 
-export type Distribution = {
-  map: string;
+export type MapDistribution = {
+  id: string;
+  name: string;
   source: string;
-  from?: string;
-  to?: string;
-  counts: Record<string, number>;
+  counts?: Record<string, number>;
+  countsFromMapId?: string;
 };
 
-export type DistributionsFile = { distributions: Distribution[] };
+export type MapAssignment = {
+  division: string;
+  mapId: string;
+  from?: string;
+  to?: string;
+};
+
+export type Distribution = MapDistribution & {
+  counts: Record<string, number>;
+  assignment: MapAssignment;
+};
+
+export type DistributionsFile = {
+  maps: MapDistribution[];
+  assignments: MapAssignment[];
+};
 
 export type Stats = {
   generatedAt: string;

@@ -5,7 +5,7 @@ import playersData from "../data/players.json";
 import distributionsData from "../data/distributions.json";
 import bannerData from "../data/banner.json";
 import type {
-  CountryStat, Distribution, DistributionsFile, Game, PlayersFile, Round, Stats,
+  CountryStat, Distribution, DistributionsFile, Game, MapAssignment, PlayersFile, Round, Stats,
 } from "../types";
 import TeamCard from "../components/TeamCard.astro";
 import PeriodToggle from "../components/PeriodToggle.astro";
@@ -20,7 +20,7 @@ import BlockSessions from "../components/BlockSessions.astro";
 
 const stats = statsData as Stats;
 const { duoRank, players } = playersData as PlayersFile;
-const { distributions } = distributionsData as DistributionsFile;
+const { maps, assignments } = distributionsData as DistributionsFile;
 
 const precision = (s: number) => s / 50;
 
@@ -34,12 +34,26 @@ const enrichedGames: Game[] = stats.games.map((g) => {
   return { ...g, myAcc, advAcc };
 });
 
+const divisionKey = (rank: string) => rank.trim().split(/\s+/)[0].toLowerCase();
+const currentDivision = divisionKey(duoRank);
+const mapsById = new Map(maps.map((m) => [m.id, m]));
+const distributionFor = (assignment: MapAssignment): Distribution => {
+  const map = mapsById.get(assignment.mapId);
+  if (!map) throw new Error(`Unknown map id in distribution assignment: ${assignment.mapId}`);
+  const counts = map.counts ?? (map.countsFromMapId ? mapsById.get(map.countsFromMapId)?.counts : undefined);
+  if (!counts) throw new Error(`No country distribution counts for map id: ${map.id}`);
+  return { ...map, counts, assignment };
+};
+const activeDistributions = assignments
+  .filter((a) => a.division.toLowerCase() === currentDivision)
+  .map(distributionFor);
+
 const distTotals = new Map<Distribution, number>(
-  distributions.map((d) => [d, Object.values(d.counts).reduce((s, n) => s + n, 0)]),
+  activeDistributions.map((d) => [d, Object.values(d.counts).reduce((s, n) => s + n, 0)]),
 );
 
 const distFor = (date: string): Distribution | undefined =>
-  distributions.find((d) => (!d.from || date >= d.from) && (!d.to || date <= d.to));
+  activeDistributions.find((d) => (!d.assignment.from || date >= d.assignment.from) && (!d.assignment.to || date <= d.assignment.to));
 
 const distBySession = new Map<string, Distribution>();
 for (const s of stats.sessions) {
@@ -119,7 +133,7 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
   const avgAcc = games.length ? games.reduce((s, g) => s + g.myAcc, 0) / games.length : 0;
 
   const viewDistributions = [...new Set(sessions.map((s) => distBySession.get(s.id)).filter((d): d is Distribution => Boolean(d)))].sort((a, b) =>
-    (a.from ?? "0000-00-00").localeCompare(b.from ?? "0000-00-00"),
+    (a.assignment.from ?? "0000-00-00").localeCompare(b.assignment.from ?? "0000-00-00"),
   );
 
   return {
