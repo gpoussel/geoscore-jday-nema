@@ -18,8 +18,50 @@ const startingElo = sortedByDate[0]?.eloBefore ?? 0;
 const eloNet = currentElo - startingElo;
 const sessions = stats.sessions.length;
 const weeks = new Set(games.map((g) => g.weekKey ?? `${g.year ?? ""}-W${String(g.week).padStart(2, "0")}`)).size;
-const { duoRank } = playersFile;
+const rankByWeek = playersFile.duoRanks ?? {};
+const latestSession = [...stats.sessions]
+  .filter((s) => s.games > 0)
+  .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))
+  .at(-1);
+const duoRank = latestSession ? (rankByWeek[latestSession.weekKey] ?? playersFile.duoRank) : playersFile.duoRank;
+if (!duoRank) throw new Error("Missing current duo rank in src/data/players.json");
 const players = Object.values(playersFile.players).map((p) => p.name);
+
+const rankLabels = {
+  champion: "Champion",
+  master_i: "Master I",
+  master_ii: "Master II",
+  gold_i: "Gold I",
+  gold_ii: "Gold II",
+  gold_iii: "Gold III",
+  silver_i: "Silver I",
+  silver_ii: "Silver II",
+  silver_iii: "Silver III",
+  bronze: "Bronze",
+};
+const normalizeRank = (rank) => rank.trim().toLowerCase().replace(/-/g, "_").replace(/\s+/g, " ");
+const rankLabel = (rank) => {
+  const normalized = normalizeRank(rank);
+  const key = {
+    "master 1": "master_i",
+    "master i": "master_i",
+    "master 2": "master_ii",
+    "master ii": "master_ii",
+    "gold 1": "gold_i",
+    "gold i": "gold_i",
+    "gold 2": "gold_ii",
+    "gold ii": "gold_ii",
+    "gold 3": "gold_iii",
+    "gold iii": "gold_iii",
+    "silver 1": "silver_i",
+    "silver i": "silver_i",
+    "silver 2": "silver_ii",
+    "silver ii": "silver_ii",
+    "silver 3": "silver_iii",
+    "silver iii": "silver_iii",
+  }[normalized] ?? normalized;
+  return rankLabels[key] ?? rank;
+};
 
 const fmtSigned = (n) => (n >= 0 ? `+${n}` : `${n}`);
 
@@ -111,7 +153,7 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
           font-size="13" font-weight="600" fill="#a89dc8" letter-spacing="3">RANG DUO</text>
     <rect x="20" y="62" width="220" height="6" rx="3" fill="url(#rankGrad)"/>
     <text x="20" y="130" font-family="'Instrument Serif', Georgia, serif"
-          font-style="italic" font-size="60" font-weight="400" fill="#ffffff">${duoRank}</text>
+          font-style="italic" font-size="60" font-weight="400" fill="#ffffff">${rankLabel(duoRank)}</text>
     <text x="20" y="160" font-family="'Geist', Arial, sans-serif"
           font-size="16" font-weight="500" fill="#a89dc8">objectif Champion</text>
   </g>

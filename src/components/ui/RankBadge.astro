@@ -1,23 +1,24 @@
 ---
+import { rankIcon, rankLabel } from "../../lib/ranks";
+
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-const RANK_ICONS: Record<string, string> = {
-  "Master 1": `${base}/ranks/master1.webp`,
-};
 
 interface Props {
   rank: string;
 }
 const { rank } = Astro.props;
-const icon = RANK_ICONS[rank];
+const label = rankLabel(rank);
+const iconFile = rankIcon(rank);
+const icon = iconFile ? `${base}/ranks/${iconFile}` : undefined;
 ---
 
-<div class="rank" title={rank}>
+<div class="rank" title={label}>
   {icon ? (
-    <img class="icon" src={icon} alt={rank} />
+    <img class="icon" src={icon} alt={label} />
   ) : (
-    <span class="text">{rank}</span>
+    <span class="text">{label}</span>
   )}
-  <span class="tooltip">{rank}</span>
+  <span class="tooltip">{label}</span>
 </div>
 
 <style>

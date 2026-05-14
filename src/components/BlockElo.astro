@@ -3,17 +3,18 @@ import Card from "./ui/Card.astro";
 import CardHead from "./ui/CardHead.astro";
 import BlockHead from "./ui/BlockHead.astro";
 import type { Game, Session } from "../types";
+import { rankLabel } from "../lib/ranks";
 
-interface Props { games: Game[]; sessions: Session[]; }
-const { games, sessions } = Astro.props;
+interface Props { games: Game[]; sessions: Session[]; rankByWeek: Record<string, string>; }
+const { games, sessions, rankByWeek } = Astro.props;
 
 const fmtDate = (iso: string) => { const [, m, d] = iso.split("-"); return `${d}/${m}`; };
 const boundaries = sessions
   .map((s) => {
     const idx = games.findIndex((g) => g.session === s.id);
-    return idx < 0 ? null : { idx, date: fmtDate(s.date), time: s.time, weekKey: s.weekKey };
+    return idx < 0 ? null : { idx, date: fmtDate(s.date), time: s.time, weekKey: s.weekKey, rank: rankLabel(rankByWeek[s.weekKey]) };
   })
-  .filter((b): b is { idx: number; date: string; time: string; weekKey: string } => b !== null);
+  .filter((b): b is { idx: number; date: string; time: string; weekKey: string; rank: string } => b !== null);
 
 const elos = games.map((g) => g.elo);
 const highIdx = games.length ? elos.indexOf(Math.max(...elos)) : -1;
@@ -276,9 +277,10 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
     const data = JSON.parse(dataEl.textContent) as Pt[];
     if (!data.length) return;
     const boundaries = boundariesEl?.textContent
-      ? (JSON.parse(boundariesEl.textContent) as { idx: number; date: string; time: string; weekKey: string }[])
+      ? (JSON.parse(boundariesEl.textContent) as { idx: number; date: string; time: string; weekKey: string; rank: string }[])
       : [];
     const weekStarts = boundaries.filter((b, i) => i === 0 || b.weekKey !== boundaries[i - 1].weekKey);
+    const rankMarkers = weekStarts.filter((b, i) => i === 0 || b.rank !== weekStarts[i - 1].rank);
     const highIdx = Number(el.dataset.highIdx);
     const lowIdx = Number(el.dataset.lowIdx);
     const elos = data.map((d) => d.elo);
@@ -333,6 +335,27 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
           grad.addColorStop(1, `color-mix(in oklch, ${accent} 0%, transparent)`);
           ctx.fillStyle = grad;
           ctx.fillRect(x, chartArea.top, w, STRIP_H);
+        }
+        ctx.font = '600 10px "JetBrains Mono", monospace';
+        ctx.textAlign = "left";
+        for (const b of rankMarkers) {
+          const x = scales.x.getPixelForValue(b.idx);
+          const label = b.rank;
+          const textW = ctx.measureText(label).width;
+          const padX = 7;
+          const pillW = textW + padX * 2;
+          const pillH = 18;
+          const px = Math.min(Math.max(chartArea.left, x + 4), chartArea.right - pillW);
+          const py = chartArea.top + 8;
+          ctx.fillStyle = "rgba(58, 232, 189, 0.14)";
+          ctx.strokeStyle = "rgba(58, 232, 189, 0.45)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.roundRect(px, py, pillW, pillH, 6);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = "rgba(255,255,255,0.88)";
+          ctx.fillText(label, px + padX, py + 12);
         }
         ctx.font = '500 9px "JetBrains Mono", monospace';
         ctx.textAlign = "left";
@@ -402,7 +425,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
         responsive: true,
         maintainAspectRatio: false,
         animation: false,
-        layout: { padding: { top: 16 } },
+        layout: { padding: { top: 34 } },
         interaction: { intersect: false, mode: "index" },
         scales: {
           x: { display: false },

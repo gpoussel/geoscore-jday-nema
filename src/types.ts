@@ -68,7 +68,8 @@ export type Session = {
 export type Players = Record<string, Player>;
 
 export type PlayersFile = {
-  duoRank: string;
+  duoRank?: string;
+  duoRanks?: Record<string, string>;
   players: Players;
 };
 

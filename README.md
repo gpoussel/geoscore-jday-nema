@@ -17,7 +17,7 @@ Static dashboard tracking the [JDay](https://www.twitch.tv/misterjday) × [Néma
     │   └── ui/                reusable primitives (Kpi, Card, Flag, …)
     ├── data/
     │   ├── stats.json         generated — don't edit by hand
-    │   ├── players.json       hand-maintained player identity (names, socials) + duoRank
+    │   ├── players.json       hand-maintained player identity (names, socials) + weekly duo ranks
     │   └── world.ts           simplified country overrides
     ├── lib/country.ts         country-name helpers (i18n-iso-countries + fr)
     ├── pages/index.astro      single-page dashboard
@@ -36,8 +36,8 @@ stats/sessions.json ┘                                                         
 ```
 
 - `games.csv` holds one row per round.
-- `sessions.json` is the only session-level metadata (date, time, rank, VOD links).
-- `src/data/players.json` is the source of truth for player identity — never regenerated from Python.
+- `sessions.json` is the only session-level metadata (date, time, VOD links).
+- `src/data/players.json` is the source of truth for player identity and `duoRanks`, keyed by ISO `weekKey` (`YYYY-Www`). The latest played week drives the rank shown at the top of the page, and each session's week rank selects the matching map distribution.
 - Per-game precision (`myAcc`, `advAcc`) is **computed in the web layer** as `score / 50` (linear mapping of 0–5000 pts to 0–100%). The JSON does not carry them.
 
 ## Commands

@@ -17,9 +17,10 @@ import BlockPrecision from "../components/BlockPrecision.astro";
 import BlockPays from "../components/BlockPays.astro";
 import BlockRecords from "../components/BlockRecords.astro";
 import BlockSessions from "../components/BlockSessions.astro";
+import { rankDivision, rankLabel } from "../lib/ranks";
 
 const stats = statsData as Stats;
-const { duoRank, players } = playersData as PlayersFile;
+const { duoRank: legacyDuoRank, duoRanks = {}, players } = playersData as PlayersFile;
 const { maps, assignments } = distributionsData as DistributionsFile;
 
 const precision = (s: number) => s / 50;
@@ -34,8 +35,21 @@ const enrichedGames: Game[] = stats.games.map((g) => {
   return { ...g, myAcc, advAcc };
 });
 
-const divisionKey = (rank: string) => rank.trim().split(/\s+/)[0].toLowerCase();
-const currentDivision = divisionKey(duoRank);
+const rankByWeek: Record<string, string> = {};
+const weeksWithGames = [...new Set(stats.sessions.filter((s) => s.games > 0).map((s) => s.weekKey))].sort();
+for (const weekKey of weeksWithGames) {
+  const rank = duoRanks[weekKey] ?? (Object.keys(duoRanks).length === 0 ? legacyDuoRank : undefined);
+  if (!rank) throw new Error(`Missing duo rank for week ${weekKey} in src/data/players.json`);
+  rankByWeek[weekKey] = rank;
+}
+
+const latestSession = [...stats.sessions]
+  .filter((s) => s.games > 0)
+  .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))
+  .at(-1);
+const currentDuoRank = latestSession ? rankByWeek[latestSession.weekKey] : legacyDuoRank;
+if (!currentDuoRank) throw new Error("Missing current duo rank in src/data/players.json");
+
 const mapsById = new Map(maps.map((m) => [m.id, m]));
 const distributionFor = (assignment: MapAssignment): Distribution => {
   const map = mapsById.get(assignment.mapId);
@@ -44,22 +58,39 @@ const distributionFor = (assignment: MapAssignment): Distribution => {
   if (!counts) throw new Error(`No country distribution counts for map id: ${map.id}`);
   return { ...map, counts, assignment };
 };
-const activeDistributions = assignments
-  .filter((a) => a.division.toLowerCase() === currentDivision)
-  .map(distributionFor);
+const distributionsByAssignment = new Map<MapAssignment, Distribution>();
+const distForAssignment = (assignment: MapAssignment): Distribution => {
+  let d = distributionsByAssignment.get(assignment);
+  if (!d) {
+    d = distributionFor(assignment);
+    distributionsByAssignment.set(assignment, d);
+  }
+  return d;
+};
 
 const distTotals = new Map<Distribution, number>(
-  activeDistributions.map((d) => [d, Object.values(d.counts).reduce((s, n) => s + n, 0)]),
+  assignments.map((a) => {
+    const d = distForAssignment(a);
+    return [d, Object.values(d.counts).reduce((s, n) => s + n, 0)] as const;
+  }),
 );
 
-const distFor = (date: string): Distribution | undefined =>
-  activeDistributions.find((d) => (!d.assignment.from || date >= d.assignment.from) && (!d.assignment.to || date <= d.assignment.to));
+const distFor = (date: string, rank: string): Distribution | undefined => {
+  const division = rankDivision(rank);
+  const assignment = assignments.find((a) =>
+    a.division.toLowerCase() === division &&
+    (!a.from || date >= a.from) &&
+    (!a.to || date <= a.to)
+  );
+  return assignment ? distForAssignment(assignment) : undefined;
+};
 
 const distBySession = new Map<string, Distribution>();
 for (const s of stats.sessions) {
   if (s.games === 0) continue;
-  const d = distFor(s.date);
-  if (!d) throw new Error(`No distribution covers session ${s.id} (date ${s.date})`);
+  const rank = rankByWeek[s.weekKey];
+  const d = distFor(s.date, rank);
+  if (!d) throw new Error(`No ${rank} distribution covers session ${s.id} (date ${s.date})`);
   distBySession.set(s.id, d);
 }
 
@@ -204,7 +235,7 @@ const currentElo = allView.kpis.elo;
 const playerNames = Object.values(players).map((p) => p.name).join(" × ");
 const ogTitle = "Road to Champion · JDay & Néma";
 const ogDescription =
-  `Stats GeoGuessr Duels du duo ${playerNames} (${duoRank}) — ${allView.kpis.games} parties, ` +
+  `Stats GeoGuessr Duels du duo ${playerNames} (${rankLabel(currentDuoRank)}) — ${allView.kpis.games} parties, ` +
   `${allView.kpis.winRate}% de victoires, ELO ${currentElo}.`;
 const siteOrigin = String(Astro.site ?? "").replace(/\/+$/, "");
 const basePath = `/${import.meta.env.BASE_URL.replace(/^\/+|\/+$/g, "")}/`;
@@ -249,14 +280,14 @@ const ogImage = `${baseUrl}og.png`;
     <StickyHeader periods={periods} activeKey={activePeriod} />
     <div class="app">
       <header class="header">
-        <TeamCard players={players} duoRank={duoRank} />
+        <TeamCard players={players} duoRank={currentDuoRank} />
         <PeriodToggle periods={periods} activeKey={activePeriod} />
       </header>
 
       {periods.map(({ key, view: v }) => (
         <div data-view={key} class="view">
           <KpiRow {...v.kpis} />
-          <BlockElo games={v.games} sessions={v.sessions} />
+          <BlockElo games={v.games} sessions={v.sessions} rankByWeek={rankByWeek} />
           <BlockPrecision games={v.games} sessions={v.sessions} aggregateBySession={key !== "week"} />
           <BlockPays countryStats={v.countryStats} distributions={v.distributions} />
           <BlockRecords games={v.games} rounds={v.rounds} />

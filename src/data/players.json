@@ -1,5 +1,25 @@
 {
-  "duoRank": "Master 1",
+  "duoRank": "master_i",
+  "duoRanks": {
+    "2025-W52": "master_i",
+    "2026-W02": "master_i",
+    "2026-W05": "master_i",
+    "2026-W06": "master_i",
+    "2026-W07": "master_i",
+    "2026-W08": "master_i",
+    "2026-W09": "master_i",
+    "2026-W10": "master_i",
+    "2026-W11": "master_i",
+    "2026-W12": "master_i",
+    "2026-W13": "master_i",
+    "2026-W14": "master_i",
+    "2026-W15": "master_i",
+    "2026-W16": "master_i",
+    "2026-W17": "master_i",
+    "2026-W18": "master_i",
+    "2026-W19": "master_i",
+    "2026-W20": "master_i"
+  },
   "players": {
     "jday": {
       "name": "JDay",
