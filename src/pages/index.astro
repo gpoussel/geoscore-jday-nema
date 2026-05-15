@@ -193,7 +193,12 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
   const eloNet = games.reduce((s, g) => s + g.eloDelta, 0);
   const avgAcc = games.length ? games.reduce((s, g) => s + g.myAcc, 0) / games.length : 0;
 
-  const viewDistributions = [...new Set(sessions.map((s) => distBySession.get(s.id)).filter((d): d is Distribution => Boolean(d)))].sort((a, b) =>
+  const viewDistributionsByMap = new Map<string, Distribution>();
+  for (const s of sessions) {
+    const d = distBySession.get(s.id);
+    if (d && !viewDistributionsByMap.has(d.id)) viewDistributionsByMap.set(d.id, d);
+  }
+  const viewDistributions = [...viewDistributionsByMap.values()].sort((a, b) =>
     (a.assignment.from ?? "0000-00-00").localeCompare(b.assignment.from ?? "0000-00-00"),
   );
 
