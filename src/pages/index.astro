@@ -324,7 +324,7 @@ const ogImage = `${baseUrl}og.png`;
         <div data-view={key} class="view">
           <KpiRow {...v.kpis} />
           <BlockElo games={v.games} sessions={v.sessions} rankByWeek={rankByWeek} />
-          <BlockPrecision games={v.games} sessions={v.sessions} aggregateBySession={key !== "week"} />
+          <BlockPrecision games={v.games} rounds={v.rounds} sessions={v.sessions} aggregateMode={key === "all" ? "week" : "game"} />
           <BlockPays countryStats={v.countryStats} finalCountryStats={v.finalCountryStats} distributions={v.distributions} />
           <BlockRecords games={v.games} rounds={v.rounds} />
           <BlockSessions sessions={v.sessions} players={players} rankByWeek={rankByWeek} />

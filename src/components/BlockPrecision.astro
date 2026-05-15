@@ -2,45 +2,74 @@
 import Card from "./ui/Card.astro";
 import CardHead from "./ui/CardHead.astro";
 import BlockHead from "./ui/BlockHead.astro";
-import type { Game, Session } from "../types";
+import type { Game, Round, Session } from "../types";
+import { countryName } from "../lib/country";
 
-interface Props { games: Game[]; sessions: Session[]; aggregateBySession?: boolean; }
-const { games, sessions, aggregateBySession = false } = Astro.props;
+interface Props { games: Game[]; rounds: Round[]; sessions: Session[]; aggregateMode?: "game" | "week"; }
+const { games, rounds, sessions, aggregateMode = "game" } = Astro.props;
 
 const fmtDate = (iso: string) => { const [, m, d] = iso.split("-"); return `${d}/${m}`; };
 const fmtSessionLabel = (date: string, time: string) => time ? `${date} · ${time}` : date;
 
-type PrecPoint =
-  | { kind: "game"; myAcc: number; advAcc: number; gameNum: number }
-  | { kind: "session"; myAcc: number; advAcc: number; label: string; games: number };
+const CONTINENTS: Record<string, string[]> = {
+  europe: ["al", "ad", "at", "be", "ba", "bg", "by", "ch", "cy", "cz", "de", "dk", "ee", "es", "fi", "fo", "fr", "gb", "uk", "gg", "gi", "gr", "hr", "hu", "ie", "im", "is", "it", "je", "li", "lt", "lu", "lv", "mc", "md", "me", "mk", "mt", "nl", "no", "pl", "pt", "ro", "rs", "ru", "se", "si", "sk", "sm", "ua", "va", "xk"],
+  africa: ["ao", "bf", "bi", "bj", "bw", "cd", "cf", "cg", "ci", "cm", "cv", "dj", "dz", "eg", "eh", "er", "et", "ga", "gh", "gm", "gn", "gq", "gw", "ke", "km", "lr", "ls", "ly", "ma", "mg", "ml", "mr", "mu", "mw", "mz", "na", "ne", "ng", "re", "rw", "sc", "sd", "sh", "sl", "sn", "so", "ss", "st", "sz", "td", "tg", "tn", "tz", "ug", "yt", "za", "zm", "zw"],
+  asia: ["ae", "af", "am", "az", "bd", "bh", "bn", "bt", "cn", "ge", "hk", "id", "il", "in", "iq", "ir", "jo", "jp", "kg", "kh", "kp", "kr", "kw", "kz", "la", "lb", "lk", "mm", "mn", "mo", "mv", "my", "np", "om", "ph", "pk", "ps", "qa", "sa", "sg", "sy", "th", "tj", "tl", "tm", "tr", "tw", "uz", "vn", "ye"],
+  americas: ["ag", "ai", "ar", "aw", "bb", "bl", "bm", "bo", "bq", "br", "bs", "bz", "ca", "cl", "co", "cr", "cu", "cw", "dm", "do", "ec", "fk", "gd", "gf", "gl", "gp", "gt", "gy", "hn", "ht", "jm", "kn", "ky", "lc", "mf", "mq", "ms", "mx", "ni", "pa", "pe", "pm", "pr", "py", "sr", "sv", "sx", "tc", "tt", "us", "uy", "vc", "ve", "vg", "vi"],
+  oceania: ["as", "au", "ck", "fj", "fm", "gu", "ki", "mh", "mp", "nc", "nf", "nr", "nu", "nz", "pf", "pg", "pn", "pw", "sb", "tk", "to", "tv", "um", "vu", "wf", "ws"],
+};
+const continentOf = (code: string) =>
+  Object.entries(CONTINENTS).find(([, codes]) => codes.includes(code.toLowerCase()))?.[0] ?? "other";
+const continentLabels: Record<string, string> = {
+  world: "Monde",
+  europe: "Europe",
+  africa: "Afrique",
+  asia: "Asie",
+  americas: "Amériques",
+  oceania: "Océanie",
+  other: "Autres",
+};
 
-const precData: PrecPoint[] = aggregateBySession
+const gameOrder = new Map(games.map((g, i) => [g.id, i]));
+const gameById = new Map(games.map((g) => [g.id, g]));
+const sessionById = new Map(sessions.map((s) => [s.id, s]));
+const sortedRounds = [...rounds].sort((a, b) =>
+  (gameOrder.get(a.gameId) ?? 0) - (gameOrder.get(b.gameId) ?? 0) || a.roundNum - b.roundNum
+);
+const precData = sortedRounds.map((r, i) => {
+  const game = gameById.get(r.gameId);
+  const session = game ? sessionById.get(game.session) : undefined;
+  const code = r.country.toLowerCase();
+  return {
+    x: i,
+    gameId: r.gameId,
+    gameNum: game?.gameNum ?? Number(r.gameId),
+    roundNum: r.roundNum,
+    country: code,
+    countryName: countryName(code),
+    continent: continentOf(code),
+    weekKey: game?.weekKey ?? "",
+    sessionLabel: session ? fmtSessionLabel(fmtDate(session.date), session.time) : "",
+    myScore: r.myScore,
+    oppScore: r.oppScore,
+  };
+});
+
+const boundaries = aggregateMode === "game"
   ? sessions
-      .map((s) => {
-        const sg = games.filter((g) => g.session === s.id);
-        if (!sg.length) return null;
-        return {
-          kind: "session" as const,
-          myAcc: sg.reduce((acc, g) => acc + g.myAcc, 0) / sg.length,
-          advAcc: sg.reduce((acc, g) => acc + g.advAcc, 0) / sg.length,
-          label: fmtSessionLabel(fmtDate(s.date), s.time),
-          games: sg.length,
-        };
-      })
-      .filter((p): p is Extract<PrecPoint, { kind: "session" }> => p !== null)
-  : games.map((g, i) => ({ kind: "game" as const, myAcc: g.myAcc, advAcc: g.advAcc, gameNum: i + 1 }));
-
-const boundaries = aggregateBySession
-  ? []
-  : sessions
       .map((s) => {
         const idx = games.findIndex((g) => g.session === s.id);
         return idx < 0 ? null : { idx, date: fmtDate(s.date), time: s.time, weekKey: s.weekKey };
       })
-      .filter((b): b is { idx: number; date: string; time: string; weekKey: string } => b !== null);
+      .filter((b): b is { idx: number; date: string; time: string; weekKey: string } => b !== null)
+  : [];
 
-const avgMe = games.length ? games.reduce((s, g) => s + g.myAcc, 0) / games.length : 0;
-const avgAdv = games.length ? games.reduce((s, g) => s + g.advAcc, 0) / games.length : 0;
+const avgRoundMe = precData.length ? precData.reduce((s, r) => s + r.myScore, 0) / precData.length : 0;
+const avgRoundAdv = precData.length ? precData.reduce((s, r) => s + r.oppScore, 0) / precData.length : 0;
+const countries = [...new Map(precData.map((r) => [r.country, r.countryName])).entries()]
+  .sort((a, b) => a[1].localeCompare(b[1], "fr"));
+const continents = Object.entries(continentLabels)
+  .filter(([id]) => id === "world" || precData.some((r) => r.continent === id));
 
 const buckets = [0, 0, 0, 0, 0];
 games.forEach((g) => g.roundBuckets.forEach((v, i) => { buckets[i] += v; }));
@@ -57,7 +86,10 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
     title="Précision"
     help={[
       "Chaque score GeoGuessr est converti en précision avec score / 50.",
-      "La courbe compare la moyenne du duo et celle des adversaires, par partie ou par session selon la période.",
+      aggregateMode === "week"
+        ? "La courbe compare les moyennes hebdomadaires du duo et des adversaires, avec un filtre par continent ou pays."
+        : "La courbe compare les moyennes par partie du duo et des adversaires, avec un filtre par continent ou pays.",
+      "Les axes restent fixes : un filtre rare laisse des espaces sur la timeline, et l'échelle verticale reste 0-5000.",
       "La distribution regroupe les rounds par tranche de score du duo ; les parfaits sont les scores à 5000.",
     ]}
   />
@@ -65,14 +97,31 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
     <Card class="card-prec">
       <CardHead eyebrow="Duo vs Adversaires" />
       <div class="prec-chart">
-        <div class="prec-canvas">
+        <div class="prec-controls">
+          <label>
+            <span>Zone</span>
+            <select class="prec-zone">
+              <option value="world">Monde</option>
+              <optgroup label="Continents">
+                {continents.filter(([id]) => id !== "world").map(([id, label]) => (
+                  <option value={`continent:${id}`}>{label}</option>
+                ))}
+              </optgroup>
+              <optgroup label="Pays">
+                {countries.map(([code, name]) => <option value={`country:${code}`}>{name}</option>)}
+              </optgroup>
+            </select>
+          </label>
+          <span class="prec-count"><b data-prec-count>{precData.length}</b> rounds</span>
+        </div>
+        <div class="prec-canvas" data-aggregate={aggregateMode}>
           <canvas></canvas>
           <script type="application/json" class="prec-data" is:inline set:html={JSON.stringify(precData)} />
           <script type="application/json" class="session-boundaries" is:inline set:html={JSON.stringify(boundaries)} />
         </div>
         <div class="prec-legend">
-          <span><i class="sw sw-win"></i> Duo · moy. {avgMe.toFixed(1).replace(".", ",")}%</span>
-          <span><i class="sw sw-loss"></i> Adversaires · moy. {avgAdv.toFixed(1).replace(".", ",")}%</span>
+          <span><i class="sw sw-win"></i> Duo · moy. <b data-avg-me>{Math.round(avgRoundMe).toLocaleString("fr-FR")}</b></span>
+          <span><i class="sw sw-loss"></i> Adversaires · moy. <b data-avg-adv>{Math.round(avgRoundAdv).toLocaleString("fr-FR")}</b></span>
         </div>
       </div>
     </Card>
@@ -120,7 +169,45 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
   .grid :global(.card-histo) { display: flex; flex-direction: column; }
 
   .prec-chart { display: flex; flex-direction: column; gap: 12px; height: 100%; }
-  .prec-canvas { position: relative; flex: 1 1 0; min-height: 220px; }
+  .prec-controls {
+    display: flex;
+    align-items: end;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .prec-controls label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: min(100%, 240px);
+  }
+  .prec-controls label span,
+  .prec-count {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--fg-2);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .prec-controls select {
+    height: 32px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-2);
+    color: var(--fg-0);
+    font: 500 12px var(--sans);
+    padding: 0 10px;
+  }
+  .prec-count {
+    height: 32px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .prec-count b { color: var(--fg-0); font-size: 12px; }
+  .prec-canvas { position: relative; flex: 1 1 0; min-height: 360px; }
   .prec-canvas canvas { display: block; }
   .prec-canvas :global(.prec-tooltip) {
     position: absolute;
@@ -149,6 +236,7 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
     font-family: var(--sans); font-size: 13px; color: var(--fg-1);
   }
   .prec-legend span { display: flex; align-items: center; gap: 8px; }
+  .prec-legend b { color: var(--fg-0); font-weight: 600; }
   .sw { width: 14px; height: 3px; display: inline-block; border-radius: 2px; }
   .sw-win { background: var(--win); }
   .sw-loss { background: var(--loss); }
@@ -212,14 +300,41 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
 
   Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip);
 
-  type Pt =
-    | { kind: "game"; myAcc: number; advAcc: number; gameNum: number }
-    | { kind: "session"; myAcc: number; advAcc: number; label: string; games: number };
+  type Pt = {
+    x: number;
+    gameId: string;
+    gameNum: number;
+    roundNum: number;
+    country: string;
+    countryName: string;
+    continent: string;
+    weekKey: string;
+    sessionLabel: string;
+    myScore: number;
+    oppScore: number;
+  };
+  type SeriesPoint = {
+    x: number;
+    myScore: number;
+    oppScore: number;
+    count: number;
+    label: string;
+    point?: Pt;
+  };
+  type ChartPoint = {
+    x: number;
+    y: number;
+    score: number;
+    opponentScore: number;
+    point: SeriesPoint;
+  };
 
   const cssVar = (n: string) => getComputedStyle(document.body).getPropertyValue(n).trim();
   const winColor = cssVar("--win");
   const lossColor = cssVar("--loss");
   const sessionLabel = (b: { date: string; time: string }) => b.time ? `${b.date} · ${b.time}` : b.date;
+  const SCORE_MAX = 5000;
+  const fmtScore = (n: number) => Math.round(n).toLocaleString("fr-FR");
 
   function ensureTooltipEl(container: HTMLElement) {
     let el = container.querySelector<HTMLDivElement>(".prec-tooltip");
@@ -231,7 +346,7 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
     return el;
   }
 
-  function makeExternalTooltip(points: Pt[]) {
+  function makeExternalTooltip() {
     return (context: any) => {
       const { chart, tooltip } = context;
       const container = chart.canvas.parentNode as HTMLElement;
@@ -240,15 +355,15 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
         el.style.opacity = "0";
         return;
       }
-      const idx = tooltip.dataPoints[0].dataIndex as number;
-      const g = points[idx];
-      const header = g.kind === "session"
-        ? `${g.label} · ${g.games} ${g.games > 1 ? "parties" : "partie"}`
-        : `Partie #${g.gameNum}`;
+      const raw = tooltip.dataPoints[0].raw as ChartPoint;
+      const g = raw.point;
+      const header = g.label;
       el.innerHTML =
         `<div class="pth">${header}</div>` +
-        `<div class="ptl"><span class="sw sw-win"></span> Duo <b>${g.myAcc.toFixed(1).replace(".", ",")}%</b></div>` +
-        `<div class="ptl"><span class="sw sw-loss"></span> Adv. <b>${g.advAcc.toFixed(1).replace(".", ",")}%</b></div>`;
+        (g.point?.sessionLabel ? `<div class="ptl">${g.point.sessionLabel}</div>` : "") +
+        (g.count > 1 ? `<div class="ptl">${g.count.toLocaleString("fr-FR")} rounds</div>` : "") +
+        `<div class="ptl"><span class="sw sw-win"></span> Duo <b>${fmtScore(g.myScore)}</b></div>` +
+        `<div class="ptl"><span class="sw sw-loss"></span> Adv. <b>${fmtScore(g.oppScore)}</b></div>`;
       const w = container.clientWidth;
       const x = tooltip.caretX;
       const y = tooltip.caretY;
@@ -258,21 +373,91 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
     };
   }
 
-  const charts: { chart: any }[] = [];
+  const charts: { chart: any; update: () => void }[] = [];
 
-  document.querySelectorAll<HTMLElement>(".prec-canvas").forEach((el) => {
-    const dataEl = el.querySelector<HTMLScriptElement>(".prec-data");
-    const boundariesEl = el.querySelector<HTMLScriptElement>(".session-boundaries");
-    const canvas = el.querySelector<HTMLCanvasElement>("canvas");
+  document.querySelectorAll<HTMLElement>(".prec-chart").forEach((root) => {
+    const canvasWrap = root.querySelector<HTMLElement>(".prec-canvas");
+    const dataEl = root.querySelector<HTMLScriptElement>(".prec-data");
+    const boundariesEl = root.querySelector<HTMLScriptElement>(".session-boundaries");
+    const canvas = root.querySelector<HTMLCanvasElement>("canvas");
+    const zoneSelect = root.querySelector<HTMLSelectElement>(".prec-zone");
+    const countEl = root.querySelector<HTMLElement>("[data-prec-count]");
+    const avgMeEl = root.querySelector<HTMLElement>("[data-avg-me]");
+    const avgAdvEl = root.querySelector<HTMLElement>("[data-avg-adv]");
     if (!dataEl || !canvas || !dataEl.textContent) return;
     const data = JSON.parse(dataEl.textContent) as Pt[];
     if (!data.length) return;
-    const boundaries = boundariesEl?.textContent
+    const aggregateMode = canvasWrap?.dataset.aggregate === "week" ? "week" : "game";
+    const rawBoundaries = boundariesEl?.textContent
       ? (JSON.parse(boundariesEl.textContent) as { idx: number; date: string; time: string; weekKey: string }[])
       : [];
-    const allAcc = data.flatMap((d) => [d.myAcc, d.advAcc]);
-    const minP = Math.max(0, Math.floor(Math.min(...allAcc) / 5) * 5);
-    const maxP = Math.min(100, Math.ceil(Math.max(...allAcc) / 5) * 5);
+    const boundaries = aggregateMode === "week" ? [] : rawBoundaries;
+    const weekKeys = [...new Set(data.map((p) => p.weekKey).filter(Boolean))].sort();
+    const weekIndex = new Map(weekKeys.map((key, i) => [key, i]));
+    const gameKeys = [...new Set(data.map((p) => p.gameId))];
+    const gameIndex = new Map(gameKeys.map((key, i) => [key, i]));
+    const maxX = Math.max(0, (aggregateMode === "week" ? weekKeys.length : gameKeys.length) - 1);
+    const asGameSeries = (points: Pt[]): SeriesPoint[] => {
+      const groups = new Map<string, { my: number; opp: number; count: number; sample: Pt }>();
+      for (const p of points) {
+        const g = groups.get(p.gameId) ?? { my: 0, opp: 0, count: 0, sample: p };
+        g.my += p.myScore;
+        g.opp += p.oppScore;
+        g.count++;
+        groups.set(p.gameId, g);
+      }
+      return [...groups.entries()]
+        .sort((a, b) => (gameIndex.get(a[0]) ?? 0) - (gameIndex.get(b[0]) ?? 0))
+        .map(([gameId, g]) => ({
+          x: gameIndex.get(gameId) ?? 0,
+          myScore: g.my / g.count,
+          oppScore: g.opp / g.count,
+          count: g.count,
+          label: `Partie #${g.sample.gameNum}`,
+          point: g.sample,
+        }));
+    };
+    const asWeekSeries = (points: Pt[]): SeriesPoint[] => {
+      const groups = new Map<string, { my: number; opp: number; count: number }>();
+      for (const p of points) {
+        if (!p.weekKey) continue;
+        const g = groups.get(p.weekKey) ?? { my: 0, opp: 0, count: 0 };
+        g.my += p.myScore;
+        g.opp += p.oppScore;
+        g.count++;
+        groups.set(p.weekKey, g);
+      }
+      return [...groups.entries()]
+        .sort((a, b) => (weekIndex.get(a[0]) ?? 0) - (weekIndex.get(b[0]) ?? 0))
+        .map(([weekKey, g]) => ({
+          x: weekIndex.get(weekKey) ?? 0,
+          myScore: g.my / g.count,
+          oppScore: g.opp / g.count,
+          count: g.count,
+          label: `Semaine ${weekKey}`,
+        }));
+    };
+    const toSeries = (points: Pt[]) => aggregateMode === "week" ? asWeekSeries(points) : asGameSeries(points);
+    const toMyPoint = (p: SeriesPoint): ChartPoint => ({ x: p.x, y: p.myScore, score: p.myScore, opponentScore: p.oppScore, point: p });
+    const toOppPoint = (p: SeriesPoint): ChartPoint => ({ x: p.x, y: p.oppScore, score: p.oppScore, opponentScore: p.myScore, point: p });
+    const currentFilter = () => {
+      const raw = zoneSelect?.value ?? "world";
+      if (raw.startsWith("country:")) return { kind: "country", value: raw.slice("country:".length) };
+      if (raw.startsWith("continent:")) return { kind: "continent", value: raw.slice("continent:".length) };
+      return { kind: "world", value: "world" };
+    };
+    const filtered = () => {
+      const { kind, value } = currentFilter();
+      if (kind === "country") return data.filter((p) => p.country === value);
+      if (kind === "continent") return data.filter((p) => p.continent === value);
+      return data;
+    };
+    const syncStats = (points: Pt[]) => {
+      const n = points.length;
+      if (countEl) countEl.textContent = n.toLocaleString("fr-FR");
+      if (avgMeEl) avgMeEl.textContent = n ? fmtScore(points.reduce((s, p) => s + p.myScore, 0) / n) : "—";
+      if (avgAdvEl) avgAdvEl.textContent = n ? fmtScore(points.reduce((s, p) => s + p.oppScore, 0) / n) : "—";
+    };
 
     const sessionMarkersPlugin = {
       id: "sessionMarkers",
@@ -340,15 +525,14 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
       type: "line",
       plugins: [sessionMarkersPlugin],
       data: {
-        labels: data.map((_, i) => String(i + 1)),
         datasets: [
           {
             label: "Duo",
-            data: data.map((d) => d.myAcc),
+            data: toSeries(data).map(toMyPoint),
             borderColor: winColor,
             borderWidth: 2.5,
             tension: 0,
-            pointRadius: 2.5,
+            pointRadius: (ctx: any) => (ctx.raw ? 2 : 0),
             pointHoverRadius: 5,
             pointBackgroundColor: winColor,
             pointBorderColor: "transparent",
@@ -356,7 +540,7 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
           },
           {
             label: "Adv.",
-            data: data.map((d) => d.advAcc),
+            data: toSeries(data).map(toOppPoint),
             borderColor: lossColor,
             borderWidth: 2,
             borderDash: [4, 3],
@@ -373,32 +557,56 @@ const perfectShare = buckets[4] ? (perfects / buckets[4]) * 100 : 0;
         responsive: true,
         maintainAspectRatio: false,
         animation: false,
-        layout: { padding: { top: 16 } },
+        parsing: false,
+        layout: { padding: { top: 16, right: 8 } },
         interaction: { intersect: false, mode: "index" },
         scales: {
-          x: { display: false },
+          x: {
+            type: "linear",
+            min: 0,
+            max: maxX,
+            grid: { color: "rgba(255,255,255,0.025)" },
+            border: { display: false },
+            ticks: {
+              color: "rgba(255,255,255,0.3)",
+              font: { family: "JetBrains Mono, monospace", size: 9 },
+              maxTicksLimit: 8,
+              callback: (v) => aggregateMode === "week" ? (weekKeys[Number(v)] ?? "") : `P${Number(v) + 1}`,
+            },
+          },
           y: {
-            min: minP,
-            max: maxP,
+            min: 0,
+            max: SCORE_MAX,
             grid: { color: "rgba(255,255,255,0.04)" },
             border: { display: false },
             ticks: {
               color: "rgba(255,255,255,0.3)",
               font: { family: "JetBrains Mono, monospace", size: 9 },
-              stepSize: 10,
+              stepSize: 1000,
               padding: 6,
-              callback: (v) => `${v}%`,
+              callback: (v) => fmtScore(Number(v)),
             },
           },
         },
         plugins: {
           legend: { display: false },
-          tooltip: { enabled: false, external: makeExternalTooltip(data) },
+          tooltip: { enabled: false, external: makeExternalTooltip() },
         },
       },
     });
 
-    charts.push({ chart });
+    const update = () => {
+      const points = filtered();
+      const series = toSeries(points);
+      syncStats(points);
+      chart.data.datasets[0].data = series.map(toMyPoint);
+      chart.data.datasets[1].data = series.map(toOppPoint);
+      chart.update("none");
+    };
+    zoneSelect?.addEventListener("change", update);
+    update();
+
+    charts.push({ chart, update });
   });
 
   document.querySelectorAll<HTMLButtonElement>(".period-bar .btn").forEach((btn) => {
