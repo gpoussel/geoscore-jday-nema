@@ -60,12 +60,6 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
     <Card class="card-elo">
       <CardHead eyebrow="Évolution" />
       <div class="elo-chart" data-high-idx={highIdx} data-low-idx={lowIdx}>
-        <button class="elo-zoom-back" type="button" aria-label="Revenir au zoom précédent" hidden>
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M9 7 4 12l5 5" />
-            <path d="M20 12H4" />
-          </svg>
-        </button>
         <canvas></canvas>
         <script type="application/json" class="elo-data" is:inline set:html={JSON.stringify(eloData)} />
         <script type="application/json" class="session-boundaries" is:inline set:html={JSON.stringify(boundaries)} />
@@ -124,32 +118,6 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
   .elo-chart canvas { display: block; }
   .elo-chart.zoomed canvas { cursor: grab; }
   .elo-chart.panning canvas { cursor: grabbing; }
-  .elo-zoom-back {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    z-index: 3;
-    width: 28px;
-    height: 28px;
-    display: grid;
-    place-items: center;
-    border: 1px solid var(--border-hi);
-    border-radius: 6px;
-    background: color-mix(in oklch, var(--bg-1) 86%, transparent);
-    color: var(--fg-1);
-    cursor: pointer;
-  }
-  .elo-zoom-back[hidden] { display: none; }
-  .elo-zoom-back:hover { color: var(--fg-0); border-color: var(--fg-2); }
-  .elo-zoom-back svg {
-    width: 16px;
-    height: 16px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
   .elo-chart :global(.elo-tooltip) {
     position: absolute;
     pointer-events: none;
@@ -325,21 +293,14 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
   function setupWheelZoom(el: HTMLElement, chart: any, pointCount: number) {
     if (!el.closest('[data-view="all"]') || pointCount < 3) return;
 
-    const backBtn = el.querySelector<HTMLButtonElement>(".elo-zoom-back");
     const canvas = el.querySelector<HTMLCanvasElement>("canvas");
     if (!canvas) return;
 
-    const history: { min?: number; max?: number }[] = [];
     const xScale = () => chart.scales.x;
     const fullMin = 0;
     const fullMax = pointCount - 1;
     const minWindow = Math.min(12, pointCount);
     let panStart: { x: number; min: number; max: number } | null = null;
-
-    const currentWindow = () => ({
-      min: chart.options.scales.x.min as number | undefined,
-      max: chart.options.scales.x.max as number | undefined,
-    });
 
     const pointerX = (e: MouseEvent | PointerEvent | WheelEvent) => {
       const rect = canvas.getBoundingClientRect();
@@ -361,8 +322,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
       typeof chart.options.scales.x.max === "number"
     );
 
-    const syncBackButton = () => {
-      if (backBtn) backBtn.hidden = history.length === 0;
+    const syncZoomState = () => {
       el.classList.toggle("zoomed", isZoomed());
     };
 
@@ -378,7 +338,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
         delete chart.options.scales.x.min;
         delete chart.options.scales.x.max;
         chart.update("none");
-        syncBackButton();
+        syncZoomState();
         return;
       }
       chart.options.scales.x.min = Math.round(nextMin);
@@ -387,24 +347,11 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
       el.classList.toggle("zoomed", true);
     };
 
-    const reset = (remember = true) => {
-      if (remember) history.push(currentWindow());
+    const reset = () => {
       delete chart.options.scales.x.min;
       delete chart.options.scales.x.max;
       chart.update("none");
-      syncBackButton();
-    };
-
-    const restore = (state: { min?: number; max?: number }) => {
-      if (typeof state.min === "number" && typeof state.max === "number") {
-        chart.options.scales.x.min = state.min;
-        chart.options.scales.x.max = state.max;
-      } else {
-        delete chart.options.scales.x.min;
-        delete chart.options.scales.x.max;
-      }
-      chart.update("none");
-      syncBackButton();
+      syncZoomState();
     };
 
     el.addEventListener("wheel", (e) => {
@@ -424,10 +371,8 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
       const rawCenter = scale.getValueForPixel(x);
       const center = Number.isFinite(rawCenter) ? rawCenter : (currentMin + currentMax) / 2;
       const ratio = currentSpan > 0 ? (center - currentMin) / currentSpan : 0.5;
-      history.push(currentWindow());
-      if (history.length > 20) history.shift();
       setWindow(center - nextSpan * ratio, center + nextSpan * (1 - ratio));
-      syncBackButton();
+      syncZoomState();
     }, { passive: false });
 
     canvas.addEventListener("pointerdown", (e) => {
@@ -437,8 +382,6 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
       if (!isInChartArea(x, y)) return;
 
       e.preventDefault();
-      history.push(currentWindow());
-      if (history.length > 20) history.shift();
       panStart = {
         x,
         min: chart.options.scales.x.min as number,
@@ -446,7 +389,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
       };
       el.classList.add("panning");
       canvas.setPointerCapture(e.pointerId);
-      syncBackButton();
+      syncZoomState();
     });
 
     canvas.addEventListener("pointermove", (e) => {
@@ -465,16 +408,11 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
       panStart = null;
       el.classList.remove("panning");
       if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
-      syncBackButton();
+      syncZoomState();
     };
 
     canvas.addEventListener("pointerup", stopPan);
     canvas.addEventListener("pointercancel", stopPan);
-
-    backBtn?.addEventListener("click", () => {
-      const previous = history.pop();
-      if (previous) restore(previous);
-    });
 
     el.addEventListener("dblclick", () => reset());
   }
