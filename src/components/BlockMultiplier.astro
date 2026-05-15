@@ -1,15 +1,16 @@
 ---
 import BlockHead from "./ui/BlockHead.astro";
 import Card from "./ui/Card.astro";
-import type { Game, Round } from "../types";
+import type { Game, Round, Session } from "../types";
 
-interface Props { games: Game[]; rounds: Round[]; }
-const { games, rounds } = Astro.props;
+interface Props { games: Game[]; rounds: Round[]; sessions: Session[]; }
+const { games, rounds, sessions } = Astro.props;
 
 const STARTING_HP = 6000;
 const STARTING_MULT = 1;
 const MULT_STEP = 0.5;
 const SHARED_MULT_START_ROUND = 5;
+const INDIVIDUAL_MULT_START_DATE = "2026-04-01";
 
 type Team = "me" | "opp";
 type Outcome = Team | "tie";
@@ -27,6 +28,8 @@ const fmtPct = (n: number, total: number) =>
   total ? `${Math.round((n / total) * 100).toLocaleString("fr-FR")}%` : "—";
 
 const fmtSigned = (n: number) => `${n >= 0 ? "+" : ""}${n.toLocaleString("fr-FR")}`;
+const fmtSignedDecimal = (n: number) =>
+  `${n >= 0 ? "+" : ""}${n.toLocaleString("fr-FR", { maximumFractionDigits: 1 })}`;
 
 const sharedMultForRound = (roundNum: number) =>
   roundNum < SHARED_MULT_START_ROUND
@@ -76,6 +79,11 @@ const isRandomSteal = (r: Round) => {
 };
 
 const gameOrder = new Map(games.map((g, i) => [g.id, i]));
+const sessionById = new Map(sessions.map((s) => [s.id, s]));
+const actualRuleForGame = (g: Game): Rule => {
+  const session = sessionById.get(g.session);
+  return session && session.date && session.date < INDIVIDUAL_MULT_START_DATE ? "old" : "new";
+};
 const roundsByGame = new Map<string, Round[]>();
 for (const r of rounds) {
   if (!gameOrder.has(r.gameId)) continue;
@@ -101,13 +109,24 @@ const summarize = (items: Simulation[]) => {
   return { wins, losses, ties };
 };
 
-const oldSummary = summarize(simulations.map((s) => s.old));
-const newSummary = summarize(simulations.map((s) => s.current));
-const observedWins = games.filter((g) => g.won).length;
-const total = games.length;
+const summarizeComparison = (rule: Rule) => {
+  const scoped = simulations.filter((s) => actualRuleForGame(s.game) !== rule);
+  const projected = scoped.map((s) => rule === "old" ? s.old : s.current);
+  const summary = summarize(projected);
+  const observed = scoped.filter((s) => s.game.won).length;
+  const roundDelta = scoped.length
+    ? projected.reduce((sum, s, i) => sum + s.roundsPlayed - scoped[i].game.rounds, 0) / scoped.length
+    : 0;
+  return {
+    ...summary,
+    total: scoped.length,
+    delta: summary.wins - observed,
+    roundDelta,
+  };
+};
 
-const oldExtraWins = oldSummary.wins - observedWins;
-const newExtraWins = newSummary.wins - observedWins;
+const oldComparison = summarizeComparison("old");
+const newComparison = summarizeComparison("new");
 
 const randomSteals = rounds
   .filter((r) => gameOrder.has(r.gameId) && r.winner !== "tie" && isRandomSteal(r))
@@ -119,22 +138,16 @@ const stealDuoPct = stealTotal ? (randomForMe.length / stealTotal) * 100 : 0;
 
 const rows = [
   {
-    label: "Ancien calcul partout",
+    label: "Ancien calcul sur les nouvelles parties",
     sub: "multiplicateur commun",
-    wins: oldSummary.wins,
-    losses: oldSummary.losses,
-    ties: oldSummary.ties,
-    delta: oldExtraWins,
+    ...oldComparison,
   },
   {
-    label: "Nouveau calcul partout",
+    label: "Nouveau calcul sur les anciennes parties",
     sub: "multiplicateur individuel",
-    wins: newSummary.wins,
-    losses: newSummary.losses,
-    ties: newSummary.ties,
-    delta: newExtraWins,
+    ...newComparison,
   },
-];
+].filter((row) => row.total > 0);
 ---
 
 <section class="block">
@@ -152,28 +165,30 @@ const rows = [
     <Card class="sim-card">
       <div class="sim-head">
         <span>Résultats simulés</span>
-        <b>{total.toLocaleString("fr-FR")} parties</b>
+        <b>règle alternative</b>
       </div>
       <div class="sim-rows">
         {rows.map((row) => (
           <div class="sim-row">
             <div>
               <b>{row.label}</b>
-              <span>{row.sub}</span>
+              <span>{row.sub} · {row.total.toLocaleString("fr-FR")} parties</span>
             </div>
             <div class="sim-metric tone-win">
               <b>{row.wins.toLocaleString("fr-FR")}</b>
-              <span>{fmtPct(row.wins, total)} V</span>
+              <span>{fmtPct(row.wins, row.total)} V</span>
             </div>
             <div class="sim-metric tone-loss">
               <b>{row.losses.toLocaleString("fr-FR")}</b>
               <span>D</span>
             </div>
-            {(row.delta !== 0 || row.ties > 0) ? (
-              <div class="sim-delta" class:list={[row.delta >= 0 ? "positive" : "negative"]}>
+            {(row.delta !== 0 || row.ties > 0 || Math.abs(row.roundDelta) >= 0.05) ? (
+              <div class="sim-delta" class:list={[row.delta > 0 && "positive", row.delta < 0 && "negative"]}>
                 {row.delta !== 0 && `${fmtSigned(row.delta)} V vs réel`}
-                {row.delta !== 0 && row.ties > 0 && <span> · </span>}
+                {row.delta !== 0 && (row.ties > 0 || Math.abs(row.roundDelta) >= 0.05) && <span> · </span>}
                 {row.ties > 0 && <span>{row.ties.toLocaleString("fr-FR")} N</span>}
+                {row.ties > 0 && Math.abs(row.roundDelta) >= 0.05 && <span> · </span>}
+                {Math.abs(row.roundDelta) >= 0.05 && <span>{fmtSignedDecimal(row.roundDelta)} R/partie</span>}
               </div>
             ) : (
               <div class="sim-delta empty-delta" aria-hidden="true"></div>
@@ -223,8 +238,8 @@ const rows = [
   .sim-rows { display: grid; gap: 12px; }
   .sim-row {
     display: grid;
-    grid-template-columns: minmax(180px, 1fr) minmax(90px, 0.4fr) minmax(70px, 0.32fr) minmax(110px, 0.45fr);
-    gap: 14px; align-items: center;
+    grid-template-columns: minmax(220px, 1fr) max-content max-content;
+    gap: 10px 18px; align-items: start;
     padding: 16px;
     border: 1px solid var(--border);
     border-radius: calc(var(--radius) * 0.75);
@@ -245,11 +260,13 @@ const rows = [
   .tone-win b, .tone-win { color: var(--win); }
   .tone-loss b, .tone-loss { color: var(--loss); }
   .sim-delta {
-    justify-self: end;
+    grid-column: 1 / -1;
+    justify-self: start;
     font-family: var(--mono); font-size: 12px;
     padding: 7px 10px; border-radius: 999px;
     background: var(--bg-1); color: var(--fg-2);
-    white-space: nowrap;
+    white-space: normal;
+    max-width: 100%;
   }
   .sim-delta.positive { color: var(--win); background: var(--win-soft); }
   .sim-delta.negative { color: var(--loss); background: var(--loss-soft); }
