@@ -14,6 +14,7 @@ import Banner from "../components/Banner.astro";
 import KpiRow from "../components/KpiRow.astro";
 import BlockElo from "../components/BlockElo.astro";
 import BlockPrecision from "../components/BlockPrecision.astro";
+import BlockMultiplier from "../components/BlockMultiplier.astro";
 import BlockPays from "../components/BlockPays.astro";
 import BlockRecords from "../components/BlockRecords.astro";
 import BlockSessions from "../components/BlockSessions.astro";
@@ -325,6 +326,7 @@ const ogImage = `${baseUrl}og.png`;
           <KpiRow {...v.kpis} />
           <BlockElo games={v.games} sessions={v.sessions} rankByWeek={rankByWeek} />
           <BlockPrecision games={v.games} rounds={v.rounds} sessions={v.sessions} aggregateMode={key === "all" ? "week" : "game"} />
+          <BlockMultiplier games={v.games} rounds={v.rounds} />
           <BlockPays countryStats={v.countryStats} finalCountryStats={v.finalCountryStats} distributions={v.distributions} />
           <BlockRecords games={v.games} rounds={v.rounds} />
           <BlockSessions sessions={v.sessions} players={players} rankByWeek={rankByWeek} />

@@ -1,0 +1,336 @@
+---
+import BlockHead from "./ui/BlockHead.astro";
+import Card from "./ui/Card.astro";
+import type { Game, Round } from "../types";
+
+interface Props { games: Game[]; rounds: Round[]; }
+const { games, rounds } = Astro.props;
+
+const STARTING_HP = 6000;
+const STARTING_MULT = 1;
+const MULT_STEP = 0.5;
+const SHARED_MULT_START_ROUND = 5;
+
+type Team = "me" | "opp";
+type Outcome = Team | "tie";
+type Rule = "old" | "new";
+
+type Simulation = {
+  gameId: string;
+  winner: Outcome;
+  myHp: number;
+  oppHp: number;
+  roundsPlayed: number;
+};
+
+const fmtPct = (n: number, total: number) =>
+  total ? `${Math.round((n / total) * 100).toLocaleString("fr-FR")}%` : "—";
+
+const fmtSigned = (n: number) => `${n >= 0 ? "+" : ""}${n.toLocaleString("fr-FR")}`;
+
+const sharedMultForRound = (roundNum: number) =>
+  roundNum < SHARED_MULT_START_ROUND
+    ? STARTING_MULT
+    : STARTING_MULT + (roundNum - SHARED_MULT_START_ROUND + 1) * MULT_STEP;
+
+const roundDamage = (delta: number, mult: number) => Math.floor(Math.abs(delta) * mult + 0.5);
+
+const simulateGame = (gameId: string, rs: Round[], rule: Rule): Simulation => {
+  let myHp = STARTING_HP;
+  let oppHp = STARTING_HP;
+  let myMult = STARTING_MULT;
+  let oppMult = STARTING_MULT;
+  let roundsPlayed = 0;
+
+  for (const r of rs) {
+    roundsPlayed = r.roundNum;
+    const delta = r.myScore - r.oppScore;
+
+    if (rule === "old") {
+      const mult = sharedMultForRound(r.roundNum);
+      if (delta > 0) oppHp = Math.max(0, oppHp - roundDamage(delta, mult));
+      else if (delta < 0) myHp = Math.max(0, myHp - roundDamage(delta, mult));
+    } else if (delta > 0) {
+      oppHp = Math.max(0, oppHp - roundDamage(delta, myMult));
+      myMult += MULT_STEP;
+    } else if (delta < 0) {
+      myHp = Math.max(0, myHp - roundDamage(delta, oppMult));
+      oppMult += MULT_STEP;
+    } else {
+      myMult += MULT_STEP;
+      oppMult += MULT_STEP;
+    }
+
+    if (myHp === 0 || oppHp === 0) break;
+  }
+
+  const winner: Outcome = myHp === oppHp ? "tie" : myHp > oppHp ? "me" : "opp";
+  return { gameId, winner, myHp, oppHp, roundsPlayed };
+};
+
+const randomThreshold = (score: number) => 5 * Math.pow(2, (5000 - Math.min(5000, score)) / 500);
+const isRandomSteal = (r: Round) => {
+  const gap = Math.abs(r.myScore - r.oppScore);
+  if (gap === 0) return false;
+  return gap <= randomThreshold(Math.max(r.myScore, r.oppScore));
+};
+
+const gameOrder = new Map(games.map((g, i) => [g.id, i]));
+const roundsByGame = new Map<string, Round[]>();
+for (const r of rounds) {
+  if (!gameOrder.has(r.gameId)) continue;
+  const bucket = roundsByGame.get(r.gameId) ?? [];
+  bucket.push(r);
+  roundsByGame.set(r.gameId, bucket);
+}
+for (const rs of roundsByGame.values()) rs.sort((a, b) => a.roundNum - b.roundNum);
+
+const simulations = games.map((g) => {
+  const rs = roundsByGame.get(g.id) ?? [];
+  return {
+    game: g,
+    old: simulateGame(g.id, rs, "old"),
+    current: simulateGame(g.id, rs, "new"),
+  };
+});
+
+const summarize = (items: Simulation[]) => {
+  const wins = items.filter((s) => s.winner === "me").length;
+  const losses = items.filter((s) => s.winner === "opp").length;
+  const ties = items.filter((s) => s.winner === "tie").length;
+  return { wins, losses, ties };
+};
+
+const oldSummary = summarize(simulations.map((s) => s.old));
+const newSummary = summarize(simulations.map((s) => s.current));
+const observedWins = games.filter((g) => g.won).length;
+const total = games.length;
+
+const oldExtraWins = oldSummary.wins - observedWins;
+const newExtraWins = newSummary.wins - observedWins;
+
+const randomSteals = rounds
+  .filter((r) => gameOrder.has(r.gameId) && r.winner !== "tie" && isRandomSteal(r))
+  .sort((a, b) => (gameOrder.get(a.gameId)! - gameOrder.get(b.gameId)!) || a.roundNum - b.roundNum);
+const randomForMe = randomSteals.filter((r) => r.winner === "me");
+const randomForOpp = randomSteals.filter((r) => r.winner === "opp");
+const stealTotal = randomSteals.length;
+const stealDuoPct = stealTotal ? (randomForMe.length / stealTotal) * 100 : 0;
+
+const rows = [
+  {
+    label: "Ancien calcul partout",
+    sub: "multiplicateur commun",
+    wins: oldSummary.wins,
+    losses: oldSummary.losses,
+    ties: oldSummary.ties,
+    delta: oldExtraWins,
+  },
+  {
+    label: "Nouveau calcul partout",
+    sub: "multiplicateur individuel",
+    wins: newSummary.wins,
+    losses: newSummary.losses,
+    ties: newSummary.ties,
+    delta: newExtraWins,
+  },
+];
+---
+
+<section class="block">
+  <BlockHead
+    title="Multiplicateur"
+    help={[
+      "Ancien calcul : multiplicateur commun, x1 de R1 à R4 puis +0,5 par round à partir de R5.",
+      "Nouveau calcul : chaque équipe augmente son propre multiplicateur quand elle gagne un round.",
+      "La simulation s'arrête dès qu'une équipe tombe à 0 PV. Sinon, les PV restants départagent la partie à la fin des rounds connus.",
+      "Un multiplicateur subtilisé est un round gagné avec un écart inférieur au seuil 5 pts à 5000, 10 à 4500, 20 à 4000, en doublant tous les 500 pts sous 5000.",
+    ]}
+  />
+
+  <div class="grid">
+    <Card class="sim-card">
+      <div class="sim-head">
+        <span>Résultats simulés</span>
+        <b>{total.toLocaleString("fr-FR")} parties</b>
+      </div>
+      <div class="sim-rows">
+        {rows.map((row) => (
+          <div class="sim-row">
+            <div>
+              <b>{row.label}</b>
+              <span>{row.sub}</span>
+            </div>
+            <div class="sim-metric tone-win">
+              <b>{row.wins.toLocaleString("fr-FR")}</b>
+              <span>{fmtPct(row.wins, total)} V</span>
+            </div>
+            <div class="sim-metric tone-loss">
+              <b>{row.losses.toLocaleString("fr-FR")}</b>
+              <span>D</span>
+            </div>
+            {(row.delta !== 0 || row.ties > 0) ? (
+              <div class="sim-delta" class:list={[row.delta >= 0 ? "positive" : "negative"]}>
+                {row.delta !== 0 && `${fmtSigned(row.delta)} V vs réel`}
+                {row.delta !== 0 && row.ties > 0 && <span> · </span>}
+                {row.ties > 0 && <span>{row.ties.toLocaleString("fr-FR")} N</span>}
+              </div>
+            ) : (
+              <div class="sim-delta empty-delta" aria-hidden="true"></div>
+            )}
+          </div>
+        ))}
+      </div>
+    </Card>
+
+    <Card class="steal-card">
+      <span class="eyebrow">Multiplicateur subtilisé</span>
+      <div class="steal-chart">
+        <div
+          class="pie"
+          style={`--duo:${stealDuoPct}; --opp:${100 - stealDuoPct};`}
+          aria-label={`${randomForMe.length} vols pour le duo, ${randomForOpp.length} pour les adversaires`}
+        >
+          <div class="pie-hole">
+            <b>{fmtPct(randomForMe.length, stealTotal)}</b>
+            <span>duo</span>
+          </div>
+        </div>
+        <div class="pie-copy">
+          <span>Rounds gagnés dans le seuil “très faible avance”.</span>
+          <b>{stealTotal ? `${randomForMe.length.toLocaleString("fr-FR")} duo · ${randomForOpp.length.toLocaleString("fr-FR")} adversaires` : "Aucun round"}</b>
+        </div>
+      </div>
+    </Card>
+  </div>
+</section>
+
+<style>
+  .block { margin-top: calc(var(--gap) * 2.5); }
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(360px, 0.65fr);
+    gap: var(--gap);
+  }
+  .sim-card, .steal-card { min-height: 300px; }
+  .sim-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 16px; margin-bottom: 20px;
+    font-family: var(--sans); color: var(--fg-2);
+    font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .sim-head b { color: var(--fg-0); font-family: var(--mono); font-size: 12px; }
+  .sim-rows { display: grid; gap: 12px; }
+  .sim-row {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) minmax(90px, 0.4fr) minmax(70px, 0.32fr) minmax(110px, 0.45fr);
+    gap: 14px; align-items: center;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) * 0.75);
+    background: color-mix(in oklch, var(--card-hi) 55%, transparent);
+  }
+  .sim-row > div:first-child { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .sim-row > div:first-child b { font-size: 15px; font-weight: 600; color: var(--fg-0); }
+  .sim-row > div:first-child span { font-size: 12px; color: var(--fg-2); }
+  .sim-metric { display: flex; flex-direction: column; gap: 2px; align-items: flex-end; }
+  .sim-metric b {
+    font-family: var(--serif); font-style: italic;
+    font-size: 42px; line-height: 0.9; font-weight: 400;
+  }
+  .sim-metric span {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--fg-2); letter-spacing: 0.04em;
+  }
+  .tone-win b, .tone-win { color: var(--win); }
+  .tone-loss b, .tone-loss { color: var(--loss); }
+  .sim-delta {
+    justify-self: end;
+    font-family: var(--mono); font-size: 12px;
+    padding: 7px 10px; border-radius: 999px;
+    background: var(--bg-1); color: var(--fg-2);
+    white-space: nowrap;
+  }
+  .sim-delta.positive { color: var(--win); background: var(--win-soft); }
+  .sim-delta.negative { color: var(--loss); background: var(--loss-soft); }
+  .sim-delta.empty-delta {
+    padding: 0;
+    background: transparent;
+  }
+  .eyebrow {
+    display: block; font-size: 11px; color: var(--fg-2);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px;
+  }
+  .steal-chart {
+    padding-top: 14px;
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 22px;
+    align-items: center;
+  }
+  .pie {
+    width: 150px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background:
+      conic-gradient(
+        var(--win) 0 calc(var(--duo) * 1%),
+        var(--loss) 0 100%
+      );
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+  .pie-hole {
+    width: 92px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 2px;
+  }
+  .pie-hole b {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 34px;
+    line-height: 0.9;
+    font-weight: 400;
+    color: var(--win);
+  }
+  .pie-hole span {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg-2);
+  }
+  .pie-copy {
+    display: grid;
+    gap: 8px;
+    color: var(--fg-2);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  .pie-copy b {
+    color: var(--loss);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  @media (max-width: 1100px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 720px) {
+    .sim-row {
+      grid-template-columns: 1fr 1fr;
+    }
+    .sim-row > div:first-child, .sim-delta { grid-column: 1 / -1; }
+    .sim-metric { align-items: flex-start; }
+    .sim-delta { justify-self: start; }
+    .steal-chart { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+  }
+</style>
