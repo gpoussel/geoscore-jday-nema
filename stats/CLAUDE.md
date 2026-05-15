@@ -54,7 +54,9 @@ Picking a past `yyWweek.num` resumes that session: new games get inserted in `ga
 
 After each insert, `save_rows` renumbers every `game_id` sequentially by CSV position (zero-padded 4 digits, e.g. `0042`). That keeps the invariant **`game_id` ordering ≡ chronological ordering**, so inserting into a past session shifts the ids of all later games upward.
 
-During round entry, `h` prints inline help. Useful navigation commands are `s` for a recap, `u` to undo the last round, `b` to return to the opponent ELO prompt, `e <round> ...` to edit a previous round, `d <round>` to delete a round, and `g <round>` to truncate the game back to that round.
+During round entry, `h` prints inline help. Useful navigation commands are `s` for a recap, `u` to undo the last round, `b` to return to the opponent ELO prompt, `i <round|end> ...` to insert a forgotten round, `e <round> ...` to edit a previous round, `d <round>` to delete a round, and `g <round>` to truncate the game back to that round.
+
+At the final ELO prompt, `r` returns to round editing without deleting the last round. This is useful for inserting a forgotten earlier round with `i 3 fr 5000 4200`; enter `ok` in the round editor to go back to the final ELO prompt.
 
 At the final ELO prompt, a signed value (`+25`, `-18`) is treated as an ELO delta, while an unsigned value (`1248`) is treated as the new absolute ELO. The CSV still stores both `elo_delta` and `my_elo_after`.
 

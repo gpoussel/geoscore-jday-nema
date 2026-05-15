@@ -177,6 +177,8 @@ def print_round_help() -> None:
     print("  4850 4200 fr     meme chose, pays a la fin")
     print("  fr 5000          egalite 5000-5000")
     print("  u                annuler le dernier round")
+    print("  i 3 fr 5000 4200 inserer un round avant le round 3")
+    print("  i end fr 5000    inserer un round a la fin")
     print("  e 3 fr 5000 4200 modifier le round 3")
     print("  d 3              supprimer le round 3")
     print("  g 3              revenir au round 3 (supprime les suivants)")
@@ -284,6 +286,8 @@ def parse_round_index(raw: str, rounds: list[Round], *, allow_end: bool = False)
     if not rounds and not allow_end:
         print(c("  Aucun round saisi.", C.DIM))
         return None
+    if allow_end and raw.strip().lower() in ("end", "fin", "+"):
+        return len(rounds)
     try:
         idx = int(raw)
     except ValueError:
@@ -336,6 +340,8 @@ def ask_elo_result(prompt: str, current_elo: int) -> tuple[int, int] | str | Non
         low = raw.lower()
         if low in ("u", "undo"):
             return "undo"
+        if low in ("r", "rounds", "edit", "rounds-edit"):
+            return "rounds"
         try:
             value = int(raw)
         except ValueError:
@@ -368,6 +374,7 @@ def play_rounds(
     *,
     shared_mult: bool = False,
     game_mode: str = "move",
+    allow_finished_edit: bool = False,
 ) -> tuple[list[Round], int, str] | str | None:
     if rounds is None:
         rounds = []
@@ -384,12 +391,13 @@ def play_rounds(
             my_hp, opp_hp = STARTING_HP, STARTING_HP
             my_mult, opp_mult = STARTING_MULT, STARTING_MULT
 
-        if (my_hp <= 0 or opp_hp <= 0) and rounds:
+        if (my_hp <= 0 or opp_hp <= 0) and rounds and not allow_finished_edit:
             return rounds, current_opp_elo, current_game_mode
 
         round_num = len(rounds) + 1
+        round_label = "R*" if (my_hp <= 0 or opp_hp <= 0) and rounds else f"R{round_num}"
         prompt = (
-            f"{c(f'R{round_num}', C.BOLD, C.BCYAN)} "
+            f"{c(round_label, C.BOLD, C.BCYAN)} "
             f"[{c(my_hp, hp_color(my_hp))}-{c(opp_hp, hp_color(opp_hp))}] "
             f"{c(fmt_mult(my_mult), C.YELLOW)}/{c(fmt_mult(opp_mult), C.YELLOW)} "
             f"{c(f'(opp: {current_opp_elo}, {current_game_mode})', C.DIM)} "
@@ -406,6 +414,8 @@ def play_rounds(
             return None
         if cmd in ("b", "back", "retour"):
             return "back"
+        if allow_finished_edit and cmd in ("ok", "done", "fin", "valider"):
+            return rounds, current_opp_elo, current_game_mode
         if cmd in ("h", "help", "?"):
             print_round_help()
             continue
@@ -429,6 +439,28 @@ def play_rounds(
             continue
 
         parts = raw.split()
+        if parts and parts[0].lower() in ("i", "ins", "insert", "insert-before", "ajout"):
+            if len(parts) < 4:
+                print(c("  Format: i <round|end> <pays score score>", C.RED))
+                continue
+            idx = parse_round_index(parts[1], rounds, allow_end=True)
+            if idx is None:
+                continue
+            try:
+                parsed = parse_round_input(" ".join(parts[2:]))
+            except ValueError as exc:
+                print(c(f"  {exc}", C.RED))
+                continue
+            country = resolve_country(parsed.country)
+            if country is None or not confirm_new_country(country, known_countries):
+                continue
+            was_end = idx == len(rounds)
+            rounds.insert(idx, Round(country=country, my_score=parsed.my_score, opp_score=parsed.opp_score))
+            where = "fin" if was_end else f"avant R{idx + 1}"
+            print(c(f"  Insere R{idx + 1} ({where}): {parsed.my_score}-{parsed.opp_score} {country}", C.CYAN))
+            print_rounds_summary(rounds, current_opp_elo, shared_mult=shared_mult)
+            continue
+
         if parts and parts[0].lower() in ("d", "del", "delete", "suppr"):
             if len(parts) != 2:
                 print(c("  Format: d <round>", C.RED))
@@ -580,7 +612,7 @@ def play_game(
             )
 
             res_elo = ask_elo_result(
-                f"Delta ELO ou nouvel ELO (ex: +25, -18, {my_elo + 25}) {c('(u=retour)', C.DIM)}: ",
+                f"Delta ELO ou nouvel ELO (ex: +25, -18, {my_elo + 25}) {c('(u=undo, r=rounds)', C.DIM)}: ",
                 my_elo,
             )
             if res_elo == "undo":
@@ -591,6 +623,24 @@ def play_game(
                 else:
                     print(c("  (rien a annuler)", C.DIM))
                     break # back to ELO adversaire prompt
+            if res_elo == "rounds":
+                print(c("Retour a l'edition des rounds. Commande ok pour revenir a l'ELO.", C.YELLOW))
+                res_rounds = play_rounds(
+                    known_countries,
+                    current_opp_elo,
+                    rounds_list,
+                    shared_mult=shared_mult,
+                    game_mode=game_mode,
+                    allow_finished_edit=True,
+                )
+                if res_rounds is None:
+                    print(c("Partie abandonnee (non sauvegardee).", C.YELLOW))
+                    return None
+                if res_rounds == "back":
+                    print(c("Retour a l'ELO adversaire.", C.YELLOW))
+                    break
+                rounds_list, current_opp_elo, game_mode = res_rounds
+                continue
             if res_elo is None:
                 print(c("Partie abandonnee (non sauvegardee).", C.YELLOW))
                 return None
