@@ -726,6 +726,11 @@
         "platform": "twitch",
         "player": "jday",
         "url": "https://www.twitch.tv/videos/2771043503"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=L1fuYxdhQCY"
       }
     ]
   },
@@ -742,6 +747,27 @@
         "platform": "twitch",
         "player": "jday",
         "url": "https://www.twitch.tv/videos/2771665566"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=ma6AAGttg6I"
+      }
+    ]
+  },
+  "26W21.01": {
+    "date": "2026-05-18",
+    "time": "13h",
+    "vods": [
+      {
+        "platform": "twitch",
+        "player": "nema",
+        "url": "https://www.twitch.tv/videos/2774865233?t=3h48m59s"
+      },
+      {
+        "platform": "twitch",
+        "player": "jday",
+        "url": "https://www.twitch.tv/videos/2774931919"
       }
     ]
   }
