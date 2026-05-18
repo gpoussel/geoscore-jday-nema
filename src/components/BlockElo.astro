@@ -16,12 +16,9 @@ const boundaries = sessions
   })
   .filter((b): b is { idx: number; date: string; time: string; weekKey: string; rank: string } => b !== null);
 
-const elos = games.map((g) => g.elo);
-const highIdx = games.length ? elos.indexOf(Math.max(...elos)) : -1;
-const lowIdx = games.length ? elos.indexOf(Math.min(...elos)) : -1;
-
 const eloData = games.map((g) => ({
   elo: g.elo,
+  eloBefore: g.eloBefore,
   eloDelta: g.eloDelta,
   won: g.won,
   rounds: g.rounds,
@@ -52,6 +49,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
     emphasis="résultats"
     help={[
       "La courbe trace l'ELO après chaque partie de la période active.",
+      "Le premier point de la courbe correspond à l'ELO initial avant la première partie affichée.",
       "Le bilan compte les victoires et défaites de ces mêmes parties.",
       "Les marges sont classées selon les PV restants du vainqueur : serrée, propre ou écrasante.",
     ]}
@@ -59,7 +57,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
   <div class="grid">
     <Card class="card-elo">
       <CardHead eyebrow="Évolution" />
-      <div class="elo-chart" data-high-idx={highIdx} data-low-idx={lowIdx}>
+      <div class="elo-chart">
         <canvas></canvas>
         <script type="application/json" class="elo-data" is:inline set:html={JSON.stringify(eloData)} />
         <script type="application/json" class="session-boundaries" is:inline set:html={JSON.stringify(boundaries)} />
@@ -210,7 +208,10 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
 
   Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip);
 
-  type Pt = { elo: number; eloDelta: number; won: boolean; rounds: number; myAcc: number };
+  type GamePt = { elo: number; eloBefore: number; eloDelta: number; won: boolean; rounds: number; myAcc: number };
+  type PlotPt =
+    | { initial: true; elo: number }
+    | ({ initial?: false } & GamePt);
 
   const cssVar = (n: string) => getComputedStyle(document.body).getPropertyValue(n).trim();
   const winColor = cssVar("--win");
@@ -263,7 +264,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
     return el;
   }
 
-  function makeExternalTooltip(points: Pt[]) {
+  function makeExternalTooltip(points: PlotPt[]) {
     return (context: any) => {
       const { chart, tooltip } = context;
       const container = chart.canvas.parentNode as HTMLElement;
@@ -274,10 +275,23 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
       }
       const idx = tooltip.dataPoints[0].dataIndex as number;
       const g = points[idx];
+      if (!g || g.initial) {
+        el.innerHTML =
+          `<div class="etl">Départ</div>` +
+          `<div class="ett" style="color:${accent}">ELO initial</div>` +
+          `<div class="etl">ELO <b>${g?.elo ?? ""}</b></div>`;
+        const w = container.clientWidth;
+        const x = tooltip.caretX;
+        const y = tooltip.caretY;
+        el.style.left = (x < w / 2 ? x + 14 : x - el.offsetWidth - 14) + "px";
+        el.style.top = Math.max(8, y - 70) + "px";
+        el.style.opacity = "1";
+        return;
+      }
       const sign = g.eloDelta > 0 ? "+" : "";
       const color = g.won ? winColor : lossColor;
       el.innerHTML =
-        `<div class="etl">Partie #${idx + 1}</div>` +
+        `<div class="etl">Partie #${idx}</div>` +
         `<div class="ett" style="color:${color}">${g.won ? "Victoire" : "Défaite"} ${sign}${g.eloDelta}</div>` +
         `<div class="etl">ELO <b>${g.elo}</b></div>` +
         `<div class="etl">Rounds <b>${g.rounds}</b> · Préc. <b>${g.myAcc.toFixed(1).replace(".", ",")}%</b></div>`;
@@ -424,17 +438,19 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
     const boundariesEl = el.querySelector<HTMLScriptElement>(".session-boundaries");
     const canvas = el.querySelector<HTMLCanvasElement>("canvas");
     if (!dataEl || !canvas || !dataEl.textContent) return;
-    const data = JSON.parse(dataEl.textContent) as Pt[];
+    const data = JSON.parse(dataEl.textContent) as GamePt[];
     if (!data.length) return;
     const boundaries = boundariesEl?.textContent
       ? (JSON.parse(boundariesEl.textContent) as { idx: number; date: string; time: string; weekKey: string; rank: string }[])
+          .map((b) => ({ ...b, idx: b.idx + 1 }))
       : [];
     const weekStarts = boundaries.filter((b, i) => i === 0 || b.weekKey !== boundaries[i - 1].weekKey);
     const rankMarkers = weekStarts.filter((b, i) => i === 0 || b.rank !== weekStarts[i - 1].rank);
-    const highIdx = Number(el.dataset.highIdx);
-    const lowIdx = Number(el.dataset.lowIdx);
-    const elos = data.map((d) => d.elo);
-    const dense = data.length > 80;
+    const plotData: PlotPt[] = [{ initial: true, elo: data[0].eloBefore }, ...data];
+    const elos = plotData.map((d) => d.elo);
+    const highIdx = elos.indexOf(Math.max(...elos));
+    const lowIdx = elos.indexOf(Math.min(...elos));
+    const dense = plotData.length > 80;
     const basePt = dense ? 1.5 : 2;
     const emphPt = dense ? 2.5 : 4;
     const hoverPt = dense ? 5 : 6;
@@ -542,7 +558,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
       type: "line",
       plugins: [sessionMarkersPlugin],
       data: {
-        labels: data.map((_, i) => String(i + 1)),
+        labels: plotData.map((_, i) => String(i)),
         datasets: [
           {
             data: elos,
@@ -551,7 +567,8 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
             segment: {
               borderColor: (c: any) => {
                 const idx = c.p1DataIndex;
-                return data[idx]?.won ? winColor : lossColor;
+                const point = plotData[idx];
+                return !point || point.initial || point.won ? winColor : lossColor;
               },
             },
             tension: 0,
@@ -598,7 +615,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
         },
         plugins: {
           legend: { display: false },
-          tooltip: { enabled: false, external: makeExternalTooltip(data) },
+          tooltip: { enabled: false, external: makeExternalTooltip(plotData) },
           // @ts-expect-error custom plugin options
           highLow: { highIdx, lowIdx },
         },
@@ -606,7 +623,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
     });
 
     charts.push({ el, chart });
-    setupWheelZoom(el, chart, data.length);
+    setupWheelZoom(el, chart, plotData.length);
   });
 
   // Inactive view starts at display:none → canvas has 0 size. Re-fit on period toggle.
