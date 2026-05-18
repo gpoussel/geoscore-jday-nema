@@ -64,6 +64,10 @@ def load_json(path: Path, default):
         return json.load(f)
 
 
+def csv_bool(value: object) -> bool:
+    return str(value).strip().lower() in ("1", "true", "yes", "y", "oui", "o")
+
+
 def validate_game_id_sequence(rows: list[dict]) -> None:
     """Fail fast when game_id blocks are not strictly sequential in CSV order."""
     previous_gid: str | None = None
@@ -127,7 +131,8 @@ def aggregate_games(rows: list[dict]) -> tuple[list[dict], list[dict]]:
         final_opp_hp = int(head["final_opp_hp"])
         won = head["won"].strip().lower() == "true"
 
-        my_scores = [int(r["my_score"]) for r in game_rows]
+        stat_rows = [r for r in game_rows if not csv_bool(r.get("excluded", False))]
+        my_scores = [int(r["my_score"]) for r in stat_rows]
 
         buckets = [0, 0, 0, 0, 0]
         perfects = 0
@@ -157,7 +162,7 @@ def aggregate_games(rows: list[dict]) -> tuple[list[dict], list[dict]]:
             "finalOppMult": float(last["opp_mult_after"]),
         })
 
-        for r in game_rows:
+        for r in stat_rows:
             raw = r["country"].strip().lower()
             # GeoGuessr uses 'uk' for the UK; emit ISO 'GB' so downstream code
             # can treat the JSON as pure ISO 3166-1 alpha-2.
@@ -278,6 +283,7 @@ def main() -> None:
 
     sessions_meta = load_json(SESSIONS_FILE, {})
 
+    excluded_count = sum(1 for r in rows if csv_bool(r.get("excluded", False)))
     games, rounds = aggregate_games(rows)
 
     for g in games:
@@ -297,7 +303,8 @@ def main() -> None:
 
     OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     OUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"Wrote {OUT_FILE} · {len(games)} games, {len(rounds)} rounds, {len(sessions)} sessions")
+    excluded_msg = f", {excluded_count} excluded" if excluded_count else ""
+    print(f"Wrote {OUT_FILE} · {len(games)} games, {len(rounds)} rounds{excluded_msg}, {len(sessions)} sessions")
 
     regenerate_og_image()
 

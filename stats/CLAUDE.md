@@ -56,9 +56,13 @@ After each insert, `save_rows` renumbers every `game_id` sequentially by CSV pos
 
 During round entry, `h` prints inline help. Useful navigation commands are `s` for a recap, `u` to undo the last round, `b` to return to the opponent ELO prompt, `i <round|end> ...` to insert a forgotten round, `e <round> ...` to edit a previous round, `d <round>` to delete a round, and `g <round>` to truncate the game back to that round.
 
+Prefix or suffix the country code with `!` to keep a round in the CSV/HP flow while excluding it from generated round statistics, e.g. `!fr 4850 4200` or `fr! 4850 4200`. The CSV stores this in the `excluded` column; missing/blank values on older rows are treated as `False`, and `uv run geoscore.py --migrate-schema` materializes that default on every row. `build_stats.py` omits excluded rounds from `stats.json` round aggregates.
+
 At the final ELO prompt, `r` returns to round editing without deleting the last round. This is useful for inserting a forgotten earlier round with `i 3 fr 5000 4200`; enter `ok` in the round editor to go back to the final ELO prompt.
 
 At the final ELO prompt, a signed value (`+25`, `-18`) is treated as an ELO delta, while an unsigned value (`1248`) is treated as the new absolute ELO. The CSV still stores both `elo_delta` and `my_elo_after`.
+
+After a game is saved, the next-game prompt accepts `e` to correct the last saved game's ELO delta/absolute ELO before continuing.
 
 `games.csv` has a `mode` column (`move` by default, or `no-move`). New games are recorded as `move` unless the `nm` command is entered during round input; `m` switches back to `move`. The field is currently ignored by `build_stats.py`.
 

@@ -73,7 +73,7 @@ COLUMNS = [
     "session", "game_id", "mode",
     "my_elo_before", "opp_elo", "elo_delta", "my_elo_after", "won",
     "total_rounds", "final_my_hp", "final_opp_hp",
-    "round_num", "country", "my_score", "opp_score",
+    "round_num", "country", "excluded", "my_score", "opp_score",
     "winner", "damage", "used_mult",
     "my_hp_after", "opp_hp_after", "my_mult_after", "opp_mult_after",
 ]
@@ -84,6 +84,7 @@ class Round:
     country: str
     my_score: int
     opp_score: int
+    excluded: bool = False
 
 
 @dataclass
@@ -91,6 +92,7 @@ class ParsedRound:
     country: str
     my_score: int
     opp_score: int
+    excluded: bool = False
 
 
 def compute_state(rounds: list[Round], *, shared_mult: bool = False) -> list[dict]:
@@ -171,11 +173,22 @@ def known_countries_from_rows(rows: list[dict]) -> set[str]:
     return {normalize_country_code(r["country"]) for r in rows if r.get("country")}
 
 
+def csv_bool(value: object) -> bool:
+    return str(value).strip().lower() in ("1", "true", "yes", "y", "oui", "o")
+
+
+def parse_country_marker(country: str) -> tuple[str, bool]:
+    raw = country.strip().lower()
+    excluded = raw.startswith("!") or raw.endswith("!")
+    return raw.strip("!"), excluded
+
+
 def print_round_help() -> None:
     print(c("Commandes:", C.BOLD, C.BCYAN))
     print("  fr 4850 4200     round duel")
     print("  4850 4200 fr     meme chose, pays a la fin")
     print("  fr 5000          egalite 5000-5000")
+    print("  !fr 4850 4200    round exclu des stats (compte pour les HP)")
     print("  u                annuler le dernier round")
     print("  i 3 fr 5000 4200 inserer un round avant le round 3")
     print("  i end fr 5000    inserer un round a la fin")
@@ -204,8 +217,9 @@ def print_rounds_summary(rounds: list[Round], opp_elo: int, *, shared_mult: bool
             outcome = c("L", C.BRED, C.BOLD)
         else:
             outcome = c("=", C.BYELLOW, C.BOLD)
+        marker = c("!", C.YELLOW, C.BOLD) if r.excluded else " "
         print(
-            f"  {i:>2}. {outcome} {r.country:<6} "
+            f"  {i:>2}. {outcome}{marker} {r.country:<6} "
             f"{r.my_score:>4}-{r.opp_score:<4} "
             f"dmg {s['damage']:>4} @ {fmt_mult(s['used_mult']):<4} "
             f"HP {s['my_hp']:>4}-{s['opp_hp']:<4} "
@@ -242,7 +256,8 @@ def parse_round_input(raw: str) -> ParsedRound:
 
     if not (0 <= my_s <= 5000 and 0 <= opp_s <= 5000):
         raise ValueError("Scores hors bornes (0-5000)")
-    return ParsedRound(country=country, my_score=my_s, opp_score=opp_s)
+    country, excluded = parse_country_marker(country)
+    return ParsedRound(country=country, my_score=my_s, opp_score=opp_s, excluded=excluded)
 
 
 def resolve_country(country: str) -> str | None:
@@ -358,6 +373,51 @@ def ask_elo_result(prompt: str, current_elo: int) -> tuple[int, int] | str | Non
         return delta, new_elo
 
 
+def build_game_rows(
+    *,
+    session: str,
+    game_id: str,
+    game_mode: str,
+    my_elo: int,
+    opp_elo: int,
+    delta: int,
+    new_elo: int,
+    rounds: list[Round],
+    history: list[dict],
+    final_my: int,
+    final_opp: int,
+) -> list[dict]:
+    won = result_from_elo_or_hp(delta, final_my, final_opp)
+    rows = []
+    for i, (r, s) in enumerate(zip(rounds, history), start=1):
+        rows.append({
+            "session": session,
+            "game_id": game_id,
+            "mode": game_mode,
+            "my_elo_before": my_elo,
+            "opp_elo": opp_elo,
+            "elo_delta": delta,
+            "my_elo_after": new_elo,
+            "won": won,
+            "total_rounds": len(rounds),
+            "final_my_hp": final_my,
+            "final_opp_hp": final_opp,
+            "round_num": i,
+            "country": r.country,
+            "excluded": r.excluded,
+            "my_score": r.my_score,
+            "opp_score": r.opp_score,
+            "winner": s["winner"],
+            "damage": s["damage"],
+            "used_mult": s["used_mult"],
+            "my_hp_after": s["my_hp"],
+            "opp_hp_after": s["opp_hp"],
+            "my_mult_after": s["my_mult"],
+            "opp_mult_after": s["opp_mult"],
+        })
+    return rows
+
+
 def normalize_game_mode(raw: str) -> str | None:
     mode = raw.strip().lower().replace("_", "-")
     if mode in ("", "m", "move"):
@@ -433,7 +493,8 @@ def play_rounds(
         if cmd in ("u", "undo"):
             if rounds:
                 last = rounds.pop()
-                print(c(f"  Annule: {last.my_score}-{last.opp_score} {last.country}", C.YELLOW))
+                marker = " !" if last.excluded else ""
+                print(c(f"  Annule: {last.my_score}-{last.opp_score} {last.country}{marker}", C.YELLOW))
             else:
                 print(c("  (rien a annuler)", C.DIM))
             continue
@@ -455,9 +516,15 @@ def play_rounds(
             if country is None or not confirm_new_country(country, known_countries):
                 continue
             was_end = idx == len(rounds)
-            rounds.insert(idx, Round(country=country, my_score=parsed.my_score, opp_score=parsed.opp_score))
+            rounds.insert(idx, Round(
+                country=country,
+                my_score=parsed.my_score,
+                opp_score=parsed.opp_score,
+                excluded=parsed.excluded,
+            ))
             where = "fin" if was_end else f"avant R{idx + 1}"
-            print(c(f"  Insere R{idx + 1} ({where}): {parsed.my_score}-{parsed.opp_score} {country}", C.CYAN))
+            marker = " !" if parsed.excluded else ""
+            print(c(f"  Insere R{idx + 1} ({where}): {parsed.my_score}-{parsed.opp_score} {country}{marker}", C.CYAN))
             print_rounds_summary(rounds, current_opp_elo, shared_mult=shared_mult)
             continue
 
@@ -469,7 +536,8 @@ def play_rounds(
             if idx is None:
                 continue
             removed = rounds.pop(idx)
-            print(c(f"  Supprime R{idx + 1}: {removed.my_score}-{removed.opp_score} {removed.country}", C.YELLOW))
+            marker = " !" if removed.excluded else ""
+            print(c(f"  Supprime R{idx + 1}: {removed.my_score}-{removed.opp_score} {removed.country}{marker}", C.YELLOW))
             print_rounds_summary(rounds, current_opp_elo, shared_mult=shared_mult)
             continue
 
@@ -504,8 +572,15 @@ def play_rounds(
             if country is None or not confirm_new_country(country, known_countries):
                 continue
             old = rounds[idx]
-            rounds[idx] = Round(country=country, my_score=parsed.my_score, opp_score=parsed.opp_score)
-            print(c(f"  Modifie R{idx + 1}: {old.my_score}-{old.opp_score} {old.country} -> {parsed.my_score}-{parsed.opp_score} {country}", C.CYAN))
+            rounds[idx] = Round(
+                country=country,
+                my_score=parsed.my_score,
+                opp_score=parsed.opp_score,
+                excluded=parsed.excluded,
+            )
+            old_marker = " !" if old.excluded else ""
+            marker = " !" if parsed.excluded else ""
+            print(c(f"  Modifie R{idx + 1}: {old.my_score}-{old.opp_score} {old.country}{old_marker} -> {parsed.my_score}-{parsed.opp_score} {country}{marker}", C.CYAN))
             print_rounds_summary(rounds, current_opp_elo, shared_mult=shared_mult)
             continue
 
@@ -527,7 +602,12 @@ def play_rounds(
         if country is None or not confirm_new_country(country, known_countries):
             continue
 
-        rounds.append(Round(country=country, my_score=parsed.my_score, opp_score=parsed.opp_score))
+        rounds.append(Round(
+            country=country,
+            my_score=parsed.my_score,
+            opp_score=parsed.opp_score,
+            excluded=parsed.excluded,
+        ))
         s = compute_state(rounds, shared_mult=shared_mult)[-1]
         if s["winner"] == "me":
             sym_c = c("W", C.BOLD, C.BGREEN)
@@ -540,10 +620,11 @@ def play_rounds(
             dmg_c = c(f"{s['damage']}", C.BYELLOW)
         next_info = f"(next {fmt_mult(s['my_mult'])}/{fmt_mult(s['opp_mult'])})"
         label = country_label(country)
+        stat_info = c(" [hors stats]", C.YELLOW) if parsed.excluded else ""
         print(
             f"  {sym_c} {dmg_c} @ {c(fmt_mult(s['used_mult']), C.YELLOW)}"
             f" -> {c(s['my_hp'], hp_color(s['my_hp']))}-{c(s['opp_hp'], hp_color(s['opp_hp']))}"
-            f" {c(next_info, C.DIM)} {c(f'[{label}]', C.DIM)}"
+            f" {c(next_info, C.DIM)} {c(f'[{label}]', C.DIM)}{stat_info}"
         )
 
 
@@ -618,7 +699,8 @@ def play_game(
             if res_elo == "undo":
                 if rounds_list:
                     last = rounds_list.pop()
-                    print(c(f"  Annule: {last.my_score}-{last.opp_score} {last.country}", C.YELLOW))
+                    marker = " !" if last.excluded else ""
+                    print(c(f"  Annule: {last.my_score}-{last.opp_score} {last.country}{marker}", C.YELLOW))
                     continue
                 else:
                     print(c("  (rien a annuler)", C.DIM))
@@ -646,34 +728,19 @@ def play_game(
                 return None
 
             delta, new_elo = res_elo
-            won = result_from_elo_or_hp(delta, final_my, final_opp)
-
-            rows = []
-            for i, (r, s) in enumerate(zip(rounds_list, history), start=1):
-                rows.append({
-                    "session": session,
-                    "game_id": game_id,
-                    "mode": game_mode,
-                    "my_elo_before": my_elo,
-                    "opp_elo": current_opp_elo,
-                    "elo_delta": delta,
-                    "my_elo_after": new_elo,
-                    "won": won,
-                    "total_rounds": len(rounds_list),
-                    "final_my_hp": final_my,
-                    "final_opp_hp": final_opp,
-                    "round_num": i,
-                    "country": r.country,
-                    "my_score": r.my_score,
-                    "opp_score": r.opp_score,
-                    "winner": s["winner"],
-                    "damage": s["damage"],
-                    "used_mult": s["used_mult"],
-                    "my_hp_after": s["my_hp"],
-                    "opp_hp_after": s["opp_hp"],
-                    "my_mult_after": s["my_mult"],
-                    "opp_mult_after": s["opp_mult"],
-                })
+            rows = build_game_rows(
+                session=session,
+                game_id=game_id,
+                game_mode=game_mode,
+                my_elo=my_elo,
+                opp_elo=current_opp_elo,
+                delta=delta,
+                new_elo=new_elo,
+                rounds=rounds_list,
+                history=history,
+                final_my=final_my,
+                final_opp=final_opp,
+            )
             return rows
 
 
@@ -685,6 +752,7 @@ def load_rows() -> list[dict]:
     for r in rows:
         r["mode"] = normalize_game_mode(r.get("mode", "")) or "move"
         r["country"] = normalize_country_code(r.get("country", ""))
+        r["excluded"] = str(csv_bool(r.get("excluded", False)))
     return rows
 
 
@@ -879,6 +947,56 @@ def save_rows(new_rows: list[dict]) -> None:
     write_all(merged)
 
 
+def correct_last_session_game_elo(session: str) -> int | None:
+    rows = load_rows()
+    last_game_id: str | None = None
+    for r in rows:
+        if r.get("session") == session:
+            last_game_id = r.get("game_id")
+    if last_game_id is None:
+        print(c("  Aucune partie a corriger dans cette session.", C.DIM))
+        return None
+
+    game_rows = [
+        r for r in rows
+        if r.get("session") == session and r.get("game_id") == last_game_id
+    ]
+    if not game_rows:
+        print(c("  Partie introuvable.", C.RED))
+        return None
+
+    head = game_rows[0]
+    try:
+        current_elo = int(head["my_elo_before"])
+        old_delta = int(head["elo_delta"])
+        old_elo = int(head["my_elo_after"])
+        final_my = int(head["final_my_hp"])
+        final_opp = int(head["final_opp_hp"])
+    except (KeyError, ValueError):
+        print(c("  ELO de la derniere partie illisible.", C.RED))
+        return None
+
+    print(
+        c("Correction derniere partie: ", C.BOLD, C.BCYAN)
+        + f"{last_game_id}, ELO {current_elo} -> {old_elo} ({old_delta:+d}), "
+        + f"HP {final_my}-{final_opp}"
+    )
+    res = ask_elo_result("Nouveau delta ELO ou nouvel ELO: ", current_elo)
+    if res is None or res in ("undo", "rounds"):
+        print(c("  Correction annulee.", C.YELLOW))
+        return None
+
+    delta, new_elo = res
+    won = result_from_elo_or_hp(delta, final_my, final_opp)
+    for r in game_rows:
+        r["elo_delta"] = delta
+        r["my_elo_after"] = new_elo
+        r["won"] = won
+    write_all(rows)
+    print(c(f"  ELO corrige: {current_elo} -> {new_elo} ({delta:+d})", C.GREEN))
+    return new_elo
+
+
 def recompute_derived_columns(rows: list[dict], sessions_meta: dict) -> int:
     by_game: dict[str, list[dict]] = {}
     order: list[str] = []
@@ -898,6 +1016,7 @@ def recompute_derived_columns(rows: list[dict], sessions_meta: dict) -> int:
                 country=normalize_country_code(r["country"]),
                 my_score=int(r["my_score"]),
                 opp_score=int(r["opp_score"]),
+                excluded=csv_bool(r.get("excluded", False)),
             )
             for r in game_rows
         ]
@@ -931,6 +1050,12 @@ def recompute_derived_columns(rows: list[dict], sessions_meta: dict) -> int:
 
 def main() -> None:
     enable_ansi()
+    if any(arg == "--migrate-schema" for arg in sys.argv[1:]):
+        rows = load_rows()
+        write_all(rows)
+        print(c(f"Schema CSV migre: {len(rows)} ligne(s), excluded=False par defaut.", C.GREEN))
+        return
+
     if any(arg == "--fix-multipliers" for arg in sys.argv[1:]):
         sessions_meta = load_sessions_meta()
         rows = load_rows()
@@ -943,6 +1068,7 @@ def main() -> None:
         print(f"{c('GeoScore', C.BOLD, C.BCYAN)} - enregistrement rapide de parties GeoGuessr Duels")
         print("\nUsage:")
         print("  uv run geoscore.py")
+        print("  uv run geoscore.py --migrate-schema")
         print("  uv run geoscore.py --fix-multipliers")
         print("\nSaisie des rounds:")
         print_round_help()
@@ -1022,9 +1148,20 @@ def main() -> None:
             next_elo = rows[-1]["my_elo_after"]
             next_id += 1
             print(c(f"Sauvegarde. {total} partie(s) cette session.\n", C.GREEN))
-        try:
-            again = input(f"{c('[Entree]', C.BCYAN)}=nouvelle partie, {c('q', C.YELLOW)}=quitter> ").strip().lower()
-        except EOFError:
+        while True:
+            try:
+                again = input(
+                    f"{c('[Entree]', C.BCYAN)}=nouvelle partie, "
+                    f"{c('e', C.YELLOW)}=corriger dernier ELO, "
+                    f"{c('q', C.YELLOW)}=quitter> "
+                ).strip().lower()
+            except EOFError:
+                again = "q"
+            if again in ("e", "elo", "corriger"):
+                corrected_elo = correct_last_session_game_elo(session)
+                if corrected_elo is not None:
+                    next_elo = corrected_elo
+                continue
             break
         if again in ("n", "no", "q", "quit"):
             break
