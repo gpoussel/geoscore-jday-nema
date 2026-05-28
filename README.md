@@ -48,6 +48,7 @@ Regenerate `stats.json`:
 cd stats
 uv run build_stats.py     # PEP 723 inline deps — no `python` prefix
 uv run geoscore.py        # interactive recorder (appends to games.csv)
+uv run geoscore_server.py # local mobile-friendly recorder (http://127.0.0.1:8765)
 ```
 
 Run / build the site:

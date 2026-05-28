@@ -14,6 +14,7 @@ Map distributions live in `../src/data/distributions.json` (hand-maintained, key
 
 ```bash
 uv run geoscore.py       # interactive CLI to record a new GeoGuessr Duels game (appends to games.csv)
+uv run geoscore_server.py # local mobile-friendly recorder on http://127.0.0.1:8765
 uv run build_stats.py    # rebuild ../src/data/stats.json from CSV + sessions.json
 ```
 

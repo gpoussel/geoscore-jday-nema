@@ -770,6 +770,22 @@ def write_all(rows: list[dict]) -> None:
         w.writerows(rows)
 
 
+def regenerate_data() -> bool:
+    """Rebuild frontend stats after games.csv has been durably updated."""
+    try:
+        from build_stats import main as build_stats_main
+
+        build_stats_main()
+    except SystemExit as exc:
+        print(c(f"  Régénération des données échouée : {exc}", C.RED))
+        return False
+    except Exception as exc:
+        print(c(f"  Régénération des données échouée : {exc}", C.RED))
+        return False
+    print(c("  Données régénérées.", C.GREEN))
+    return True
+
+
 def parse_sid(sid: str) -> tuple[int, int, int]:
     long_match = re.fullmatch(r"(\d{2})W(\d{2})\.(\d{2})", sid)
     if long_match:
@@ -993,6 +1009,7 @@ def correct_last_session_game_elo(session: str) -> int | None:
         r["my_elo_after"] = new_elo
         r["won"] = won
     write_all(rows)
+    regenerate_data()
     print(c(f"  ELO corrige: {current_elo} -> {new_elo} ({delta:+d})", C.GREEN))
     return new_elo
 
@@ -1144,6 +1161,7 @@ def main() -> None:
         )
         if rows:
             save_rows(rows)
+            regenerate_data()
             total += 1
             next_elo = rows[-1]["my_elo_after"]
             next_id += 1
