@@ -223,10 +223,6 @@ def parse_rounds(payload: dict, *, allow_new_countries: bool) -> list[geoscore.R
 
 def game_preview(payload: dict, *, allow_new_countries: bool = True) -> dict:
     session = session_from_payload(payload)
-    my_elo = int_field(payload, "myElo")
-    opp_elo = int_field(payload, "oppElo")
-    if my_elo is None or opp_elo is None:
-        raise ApiError("ELO requis")
     mode = geoscore.normalize_game_mode(str(payload.get("mode") or "move"))
     if mode is None:
         raise ApiError("Mode invalide")
@@ -721,7 +717,7 @@ async function refreshContext(keepGame = true) {
 
 async function refreshPreview() {
   renderRounds();
-  if (!state.rounds.length || !$("myElo").value || !$("oppElo").value) {
+  if (!state.rounds.length) {
     $("hp").textContent = "6000-6000";
     $("verdict").textContent = "-";
     setStatus("roundStatus", "");
@@ -780,7 +776,7 @@ $("correctLoss").onclick = () => {
 $("addRound").onclick = async () => {
   try {
     state.rounds.push(readRoundForm());
-    state.selected = state.rounds.length - 1;
+    state.selected = -1;
     clearRoundForm();
     await refreshPreview();
     if (!state.preview?.finished) focusCountry();
@@ -790,6 +786,7 @@ $("updateRound").onclick = async () => {
   try {
     if (state.selected < 0) return;
     state.rounds[state.selected] = readRoundForm();
+    state.selected = -1;
     clearRoundForm();
     await refreshPreview();
     if (!state.preview?.finished) focusCountry();
@@ -806,6 +803,15 @@ $("deleteRound").onclick = async () => {
   clearRoundForm();
   await refreshPreview();
 };
+$("oppScore").addEventListener("keydown", (event) => {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  if (state.selected >= 0) {
+    $("updateRound").click();
+  } else {
+    $("addRound").click();
+  }
+});
 $("saveGame").onclick = async () => {
   setStatus("saveStatus", "Enregistrement...", "warn");
   try {
