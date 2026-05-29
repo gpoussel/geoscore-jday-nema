@@ -465,7 +465,7 @@ HTML = r"""<!doctype html>
     @media (min-width: 480px) {
       .summary { grid-template-columns: repeat(3, 1fr); }
       .kpi:last-child { grid-column: auto; }
-      .row-actions { grid-template-columns: repeat(4, 1fr); }
+      .row-actions { grid-template-columns: repeat(5, 1fr); }
     }
     @media (min-width: 700px) {
       main { padding-inline: 18px; }
@@ -519,6 +519,7 @@ HTML = r"""<!doctype html>
       <div class="row-actions">
         <button id="addRound" type="button" class="primary">Ajouter</button>
         <button id="updateRound" type="button">Modifier</button>
+        <button id="insertRound" type="button">Insérer avant</button>
         <button id="undoRound" type="button">Undo</button>
         <button id="deleteRound" type="button" class="danger">Suppr.</button>
       </div>
@@ -706,6 +707,7 @@ function renderRounds() {
   });
   $("roundCount").textContent = state.rounds.length;
   $("updateRound").disabled = state.selected < 0;
+  $("insertRound").disabled = state.selected < 0;
   $("deleteRound").disabled = state.selected < 0;
 }
 
@@ -786,6 +788,16 @@ $("updateRound").onclick = async () => {
   try {
     if (state.selected < 0) return;
     state.rounds[state.selected] = readRoundForm();
+    state.selected = -1;
+    clearRoundForm();
+    await refreshPreview();
+    if (!state.preview?.finished) focusCountry();
+  } catch (err) { setStatus("roundStatus", err.message, "err"); }
+};
+$("insertRound").onclick = async () => {
+  try {
+    if (state.selected < 0) return;
+    state.rounds.splice(state.selected, 0, readRoundForm());
     state.selected = -1;
     clearRoundForm();
     await refreshPreview();
