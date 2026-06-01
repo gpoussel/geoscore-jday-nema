@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T22:10:27",
+  "generatedAt": "2026-06-01T22:29:22",
   "games": [
     {
       "id": "0001",
@@ -23481,7 +23481,7 @@
     },
     {
       "id": "0904",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 1,
       "rounds": 11,
       "won": true,
@@ -23502,12 +23502,12 @@
       "finalMyMult": 5.0,
       "finalOppMult": 2.5,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0905",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 2,
       "rounds": 6,
       "won": false,
@@ -23528,12 +23528,12 @@
       "finalMyMult": 1.5,
       "finalOppMult": 3.5,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0906",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 3,
       "rounds": 4,
       "won": false,
@@ -23554,12 +23554,12 @@
       "finalMyMult": 1.5,
       "finalOppMult": 2.5,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0907",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 4,
       "rounds": 15,
       "won": true,
@@ -23580,12 +23580,12 @@
       "finalMyMult": 5.0,
       "finalOppMult": 4.5,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0908",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 5,
       "rounds": 14,
       "won": true,
@@ -23606,12 +23606,12 @@
       "finalMyMult": 5.5,
       "finalOppMult": 3.5,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0909",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 6,
       "rounds": 6,
       "won": false,
@@ -23632,12 +23632,12 @@
       "finalMyMult": 2.0,
       "finalOppMult": 3.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0910",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 7,
       "rounds": 6,
       "won": true,
@@ -23658,12 +23658,12 @@
       "finalMyMult": 3.0,
       "finalOppMult": 2.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0911",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 8,
       "rounds": 5,
       "won": true,
@@ -23684,12 +23684,12 @@
       "finalMyMult": 3.0,
       "finalOppMult": 1.5,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0912",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 9,
       "rounds": 11,
       "won": true,
@@ -23710,12 +23710,12 @@
       "finalMyMult": 4.0,
       "finalOppMult": 3.5,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0913",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 10,
       "rounds": 11,
       "won": true,
@@ -23736,12 +23736,12 @@
       "finalMyMult": 5.0,
       "finalOppMult": 2.5,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0914",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 11,
       "rounds": 10,
       "won": false,
@@ -23762,12 +23762,12 @@
       "finalMyMult": 4.0,
       "finalOppMult": 3.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0915",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 12,
       "rounds": 14,
       "won": false,
@@ -23788,12 +23788,12 @@
       "finalMyMult": 4.0,
       "finalOppMult": 5.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0916",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 13,
       "rounds": 8,
       "won": false,
@@ -23814,12 +23814,12 @@
       "finalMyMult": 3.0,
       "finalOppMult": 3.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0917",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 14,
       "rounds": 7,
       "won": false,
@@ -23840,12 +23840,12 @@
       "finalMyMult": 2.0,
       "finalOppMult": 3.5,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0918",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 15,
       "rounds": 7,
       "won": true,
@@ -23866,12 +23866,12 @@
       "finalMyMult": 3.5,
       "finalOppMult": 2.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0919",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 16,
       "rounds": 18,
       "won": false,
@@ -23892,12 +23892,12 @@
       "finalMyMult": 4.5,
       "finalOppMult": 7.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0920",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 17,
       "rounds": 12,
       "won": true,
@@ -23918,12 +23918,12 @@
       "finalMyMult": 4.5,
       "finalOppMult": 3.5,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0921",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 18,
       "rounds": 13,
       "won": true,
@@ -23944,12 +23944,12 @@
       "finalMyMult": 5.5,
       "finalOppMult": 3.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0922",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 19,
       "rounds": 9,
       "won": true,
@@ -23970,12 +23970,12 @@
       "finalMyMult": 4.0,
       "finalOppMult": 2.5,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0923",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 20,
       "rounds": 3,
       "won": true,
@@ -23996,12 +23996,12 @@
       "finalMyMult": 2.5,
       "finalOppMult": 1.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0924",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 21,
       "rounds": 11,
       "won": false,
@@ -24022,12 +24022,12 @@
       "finalMyMult": 3.5,
       "finalOppMult": 4.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0925",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 22,
       "rounds": 8,
       "won": false,
@@ -24048,12 +24048,12 @@
       "finalMyMult": 1.5,
       "finalOppMult": 4.5,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0926",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 23,
       "rounds": 8,
       "won": false,
@@ -24074,12 +24074,12 @@
       "finalMyMult": 3.0,
       "finalOppMult": 3.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0927",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 24,
       "rounds": 12,
       "won": true,
@@ -24100,12 +24100,12 @@
       "finalMyMult": 4.0,
       "finalOppMult": 4.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0928",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 25,
       "rounds": 18,
       "won": true,
@@ -24126,12 +24126,12 @@
       "finalMyMult": 6.0,
       "finalOppMult": 5.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0929",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 26,
       "rounds": 11,
       "won": true,
@@ -24152,12 +24152,12 @@
       "finalMyMult": 5.0,
       "finalOppMult": 2.5,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0930",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 27,
       "rounds": 17,
       "won": false,
@@ -24178,12 +24178,12 @@
       "finalMyMult": 4.5,
       "finalOppMult": 6.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0931",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 28,
       "rounds": 7,
       "won": false,
@@ -24204,12 +24204,12 @@
       "finalMyMult": 2.0,
       "finalOppMult": 4.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0932",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 29,
       "rounds": 12,
       "won": false,
@@ -24230,12 +24230,12 @@
       "finalMyMult": 4.0,
       "finalOppMult": 4.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0933",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 30,
       "rounds": 9,
       "won": false,
@@ -24256,12 +24256,12 @@
       "finalMyMult": 3.5,
       "finalOppMult": 3.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0934",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 31,
       "rounds": 10,
       "won": false,
@@ -24282,12 +24282,12 @@
       "finalMyMult": 2.5,
       "finalOppMult": 4.5,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0935",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 32,
       "rounds": 8,
       "won": true,
@@ -24308,12 +24308,12 @@
       "finalMyMult": 4.0,
       "finalOppMult": 2.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0936",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 33,
       "rounds": 5,
       "won": true,
@@ -24334,12 +24334,12 @@
       "finalMyMult": 3.5,
       "finalOppMult": 1.0,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0937",
-      "session": "26W23.01",
+      "session": "26W22.04",
       "gameNum": 34,
       "rounds": 12,
       "won": true,
@@ -24360,13 +24360,13 @@
       "finalMyMult": 4.5,
       "finalOppMult": 3.5,
       "year": 2026,
-      "week": 23,
-      "weekKey": "2026-W23"
+      "week": 22,
+      "weekKey": "2026-W22"
     },
     {
       "id": "0938",
       "session": "26W23.01",
-      "gameNum": 35,
+      "gameNum": 1,
       "rounds": 15,
       "won": false,
       "margin": "tight",
@@ -24392,7 +24392,7 @@
     {
       "id": "0939",
       "session": "26W23.01",
-      "gameNum": 36,
+      "gameNum": 2,
       "rounds": 11,
       "won": true,
       "margin": "crush",
@@ -24418,7 +24418,7 @@
     {
       "id": "0940",
       "session": "26W23.01",
-      "gameNum": 37,
+      "gameNum": 3,
       "rounds": 8,
       "won": true,
       "margin": "tight",
@@ -24444,7 +24444,7 @@
     {
       "id": "0941",
       "session": "26W23.01",
-      "gameNum": 38,
+      "gameNum": 4,
       "rounds": 13,
       "won": true,
       "margin": "clean",
@@ -24470,7 +24470,7 @@
     {
       "id": "0942",
       "session": "26W23.01",
-      "gameNum": 39,
+      "gameNum": 5,
       "rounds": 9,
       "won": true,
       "margin": "clean",
@@ -24496,7 +24496,7 @@
     {
       "id": "0943",
       "session": "26W23.01",
-      "gameNum": 40,
+      "gameNum": 6,
       "rounds": 13,
       "won": true,
       "margin": "tight",
@@ -24522,7 +24522,7 @@
     {
       "id": "0944",
       "session": "26W23.01",
-      "gameNum": 41,
+      "gameNum": 7,
       "rounds": 5,
       "won": true,
       "margin": "crush",
@@ -24548,7 +24548,7 @@
     {
       "id": "0945",
       "session": "26W23.01",
-      "gameNum": 42,
+      "gameNum": 8,
       "rounds": 9,
       "won": true,
       "margin": "crush",
@@ -24574,7 +24574,7 @@
     {
       "id": "0946",
       "session": "26W23.01",
-      "gameNum": 43,
+      "gameNum": 9,
       "rounds": 5,
       "won": false,
       "margin": "crush",
@@ -24600,7 +24600,7 @@
     {
       "id": "0947",
       "session": "26W23.01",
-      "gameNum": 44,
+      "gameNum": 10,
       "rounds": 9,
       "won": false,
       "margin": "crush",
@@ -24626,7 +24626,7 @@
     {
       "id": "0948",
       "session": "26W23.01",
-      "gameNum": 45,
+      "gameNum": 11,
       "rounds": 11,
       "won": true,
       "margin": "crush",
@@ -24652,7 +24652,7 @@
     {
       "id": "0949",
       "session": "26W23.01",
-      "gameNum": 46,
+      "gameNum": 12,
       "rounds": 11,
       "won": false,
       "margin": "clean",
@@ -24678,7 +24678,7 @@
     {
       "id": "0950",
       "session": "26W23.01",
-      "gameNum": 47,
+      "gameNum": 13,
       "rounds": 5,
       "won": true,
       "margin": "clean",
@@ -24704,7 +24704,7 @@
     {
       "id": "0951",
       "session": "26W23.01",
-      "gameNum": 48,
+      "gameNum": 14,
       "rounds": 15,
       "won": true,
       "margin": "tight",
@@ -24730,7 +24730,7 @@
     {
       "id": "0952",
       "session": "26W23.01",
-      "gameNum": 49,
+      "gameNum": 15,
       "rounds": 7,
       "won": false,
       "margin": "crush",
@@ -115139,11 +115139,11 @@
       "num": 4,
       "date": "2026-05-28",
       "time": "8h",
-      "eloStart": 0,
-      "eloEnd": 0,
-      "games": 0,
-      "wins": 0,
-      "losses": 0,
+      "eloStart": 1249,
+      "eloEnd": 1277,
+      "games": 34,
+      "wins": 18,
+      "losses": 16,
       "vods": [
         {
           "platform": "twitch",
@@ -115170,11 +115170,11 @@
       "num": 1,
       "date": "2026-06-01",
       "time": "12h",
-      "eloStart": 1249,
+      "eloStart": 1277,
       "eloEnd": 1340,
-      "games": 49,
-      "wins": 28,
-      "losses": 21,
+      "games": 15,
+      "wins": 10,
+      "losses": 5,
       "vods": [
         {
           "platform": "twitch",
