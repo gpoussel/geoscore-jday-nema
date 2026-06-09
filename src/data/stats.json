@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-10T00:00:33",
+  "generatedAt": "2026-06-10T00:09:09",
   "games": [
     {
       "id": "0001",
@@ -27375,6 +27375,32 @@
       "finalOppHp": 0,
       "finalMyMult": 4.5,
       "finalOppMult": 2.0,
+      "year": 2026,
+      "week": 24,
+      "weekKey": "2026-W24"
+    },
+    {
+      "id": "1054",
+      "session": "26W24.03",
+      "gameNum": 7,
+      "rounds": 4,
+      "won": false,
+      "margin": "crush",
+      "elo": 1287,
+      "eloBefore": 1303,
+      "eloDelta": -16,
+      "roundBuckets": [
+        1,
+        1,
+        0,
+        2,
+        0
+      ],
+      "perfects": 0,
+      "finalMyHp": 0,
+      "finalOppHp": 6000,
+      "finalMyMult": 1.0,
+      "finalOppMult": 3.0,
       "year": 2026,
       "week": 24,
       "weekKey": "2026-W24"
@@ -126710,6 +126736,46 @@
       "winner": "me",
       "damage": 1900,
       "usedMult": 4.0
+    },
+    {
+      "gameId": "1054",
+      "roundNum": 1,
+      "country": "KG",
+      "myScore": 4643,
+      "oppScore": 5000,
+      "winner": "opp",
+      "damage": 357,
+      "usedMult": 1.0
+    },
+    {
+      "gameId": "1054",
+      "roundNum": 2,
+      "country": "NZ",
+      "myScore": 4657,
+      "oppScore": 5000,
+      "winner": "opp",
+      "damage": 515,
+      "usedMult": 1.5
+    },
+    {
+      "gameId": "1054",
+      "roundNum": 3,
+      "country": "NG",
+      "myScore": 3952,
+      "oppScore": 4998,
+      "winner": "opp",
+      "damage": 2092,
+      "usedMult": 2.0
+    },
+    {
+      "gameId": "1054",
+      "roundNum": 4,
+      "country": "IN",
+      "myScore": 2708,
+      "oppScore": 4995,
+      "winner": "opp",
+      "damage": 5718,
+      "usedMult": 2.5
     }
   ],
   "sessions": [
@@ -128424,10 +128490,10 @@
       "date": "2026-06-09",
       "time": "23h",
       "eloStart": 1307,
-      "eloEnd": 1303,
-      "games": 6,
+      "eloEnd": 1287,
+      "games": 7,
       "wins": 3,
-      "losses": 3,
+      "losses": 4,
       "vods": [
         {
           "platform": "twitch",
