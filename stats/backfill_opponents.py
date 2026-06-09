@@ -66,7 +66,7 @@ def print_game(game_rows: list[dict], position: int, total: int) -> None:
         else:
             outcome = c("=", C.BYELLOW, C.BOLD)
         label = country_label(row["country"])
-        print(f"  {int(row['round_num']):>2}. {outcome}  {label:<28} {row['my_score']:>4}-{row['opp_score']:<4}  [{row['my_hp_after']:>5}-{row['opp_hp_after']}]")
+        print(f"  {int(row['round_num']):>2}. {outcome}  {label:<28} {row['my_score']:>4}-{row['opp_score']:<4}  [{row['my_hp_after']:>4}-{row['opp_hp_after']}]")
     current = (head["opp1_country"], head["opp2_country"])
     if any(current):
         print(c(f"  Actuel: {opp_country_label(current[0])} / {opp_country_label(current[1])}", C.YELLOW))
