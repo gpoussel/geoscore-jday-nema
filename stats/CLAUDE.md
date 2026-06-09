@@ -15,10 +15,13 @@ Map distributions live in `../src/data/distributions.json` (hand-maintained, key
 ```bash
 uv run geoscore.py       # interactive CLI to record a new GeoGuessr Duels game (appends to games.csv)
 uv run geoscore_server.py # local mobile-friendly recorder on http://127.0.0.1:8765
+uv run backfill_opponents.py # rattrapage des pays adverses sur les anciennes parties (navigation VOD)
 uv run build_stats.py    # rebuild ../src/data/stats.json from CSV + sessions.json
 ```
 
-Both scripts declare `pycountry` via PEP 723 inline metadata. Invoke them with `uv run <script.py>` (no `python` prefix) so uv picks up the script-local deps.
+`backfill_opponents.py` walks sessions in CSV order, prints VOD links and a per-round recap (country + scores) as a navigation aid, and only stops on games where `opp1_country` or `opp2_country` is still empty. Input per game: `fr de`, `--` = non communiqué, `s`/Entrée = passer, `q` = quitter. It saves after every game (reload-and-patch, so a concurrent recording is not overwritten), accepts `--session 26W24.03` to target one session, and regenerates `stats.json` at the end if anything changed.
+
+All scripts declare `pycountry` via PEP 723 inline metadata. Invoke them with `uv run <script.py>` (no `python` prefix) so uv picks up the script-local deps.
 
 Web (from the repo root `..`, uses pnpm):
 
@@ -41,6 +44,7 @@ Sessions are identified by `<yy>W<iso_week>.<num>` (ISO 8601 year + week), e.g. 
 - **ELO chain integrity**: per session, `my_elo_after` of game N must equal `my_elo_before` of game N+1. Breaks in the chain are typos in the CSV. When fixing, verify against the `elo_delta` (which is usually correct because it comes directly from the game UI).
 - **Country normalization**: CSV stores only country-level codes. US state-level entries are intentionally not kept because that signal is too unreliable; legacy `us:<state>` rows are normalized to `us`. The CSV also keeps GeoGuessr's `uk`; `build_stats.py` rewrites it to ISO `GB` when emitting the JSON, so downstream code sees pure ISO 3166-1 alpha-2.
 - **Country validation** (`countries.py`): ISO 3166-1 alpha-2 countries + `uk` alias (GeoGuessr quirk — they use `uk`, not the ISO `gb`). `build_stats.py` prints a warning for unknown codes; `geoscore.py` rejects unknown codes at input time.
+- **`opp1_country` / `opp2_country`**: game-level columns repeated on each round row (like `opp_elo`). `""` = non renseignée (not yet entered), `--` = non communiquée (the opponent shows the generic GeoGuessr flag), otherwise a lowercase country code (`uk` alias kept, same convention as `country`). Currently ignored by `build_stats.py`.
 - **`game.year` / `game.week` / `game.weekKey`** in the JSON output are derived from the session id, not stored separately in the CSV.
 - **Starting HP / mult step** (`6000` / `0.5`) are defined in `geoscore.py`; `build_stats.py` uses `STARTING_HP` only for margin bucketing.
 - **`margin_bucket`** classifies by the winner's remaining HP: `crush` ≥ 4000, `clean` ≥ 2000, else `tight`. **`score_bucket`** maps round score (0–5000) to 5 buckets.
@@ -54,6 +58,8 @@ For a brand-new past session, the default `my_elo_before` is the last known `my_
 Picking a past `yyWweek.num` resumes that session: new games get inserted in `games.csv` right after the last existing row of the target session, and the default ELO is that session's last `my_elo_after`. Within a session, games are always added as the next one (N+1), never in the middle. A brand-new session is slotted chronologically (before the first existing session with a larger `(year, week, num)`). `save_rows` always rewrites the whole file, which is negligible at this size.
 
 After each insert, `save_rows` renumbers every `game_id` sequentially by CSV position (zero-padded 4 digits, e.g. `0042`). That keeps the invariant **`game_id` ordering ≡ chronological ordering**, so inserting into a past session shifts the ids of all later games upward.
+
+Right after the opponent-ELO prompt, « Pays adverses » asks for the two opponent country codes: Entrée leaves both non renseignée, a single code sets only opp1 (opp2 stays non renseignée), and a bare `--` marks both non communiqué (per-slot mixes like `fr --` also work). During round entry, `opp fr de` updates the values and a bare `opp` shows the current ones.
 
 During round entry, `h` prints inline help. Useful navigation commands are `s` for a recap, `u` to undo the last round, `b` to return to the opponent ELO prompt, `i <round|end> ...` to insert a forgotten round, `e <round> ...` to edit a previous round, `d <round>` to delete a round, and `g <round>` to truncate the game back to that round.
 
