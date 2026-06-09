@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-10T00:50:12",
+  "generatedAt": "2026-06-10T01:15:38",
   "games": [
     {
       "id": "0001",
@@ -27505,6 +27505,58 @@
       "finalOppHp": 0,
       "finalMyMult": 3.5,
       "finalOppMult": 1.5,
+      "year": 2026,
+      "week": 24,
+      "weekKey": "2026-W24"
+    },
+    {
+      "id": "1059",
+      "session": "26W24.03",
+      "gameNum": 12,
+      "rounds": 9,
+      "won": false,
+      "margin": "crush",
+      "elo": 1277,
+      "eloBefore": 1290,
+      "eloDelta": -13,
+      "roundBuckets": [
+        0,
+        1,
+        1,
+        6,
+        1
+      ],
+      "perfects": 0,
+      "finalMyHp": 0,
+      "finalOppHp": 5436,
+      "finalMyMult": 2.0,
+      "finalOppMult": 4.5,
+      "year": 2026,
+      "week": 24,
+      "weekKey": "2026-W24"
+    },
+    {
+      "id": "1060",
+      "session": "26W24.03",
+      "gameNum": 13,
+      "rounds": 11,
+      "won": false,
+      "margin": "crush",
+      "elo": 1263,
+      "eloBefore": 1277,
+      "eloDelta": -14,
+      "roundBuckets": [
+        0,
+        2,
+        1,
+        2,
+        6
+      ],
+      "perfects": 0,
+      "finalMyHp": 0,
+      "finalOppHp": 4905,
+      "finalMyMult": 3.5,
+      "finalOppMult": 4.0,
       "year": 2026,
       "week": 24,
       "weekKey": "2026-W24"
@@ -127200,6 +127252,206 @@
       "winner": "me",
       "damage": 5319,
       "usedMult": 3.0
+    },
+    {
+      "gameId": "1059",
+      "roundNum": 1,
+      "country": "SE",
+      "myScore": 4625,
+      "oppScore": 4423,
+      "winner": "me",
+      "damage": 202,
+      "usedMult": 1.0
+    },
+    {
+      "gameId": "1059",
+      "roundNum": 2,
+      "country": "BR",
+      "myScore": 4647,
+      "oppScore": 4724,
+      "winner": "opp",
+      "damage": 77,
+      "usedMult": 1.0
+    },
+    {
+      "gameId": "1059",
+      "roundNum": 3,
+      "country": "JP",
+      "myScore": 4709,
+      "oppScore": 4834,
+      "winner": "opp",
+      "damage": 188,
+      "usedMult": 1.5
+    },
+    {
+      "gameId": "1059",
+      "roundNum": 4,
+      "country": "CO",
+      "myScore": 4799,
+      "oppScore": 4897,
+      "winner": "opp",
+      "damage": 196,
+      "usedMult": 2.0
+    },
+    {
+      "gameId": "1059",
+      "roundNum": 5,
+      "country": "PH",
+      "myScore": 4745,
+      "oppScore": 4989,
+      "winner": "opp",
+      "damage": 610,
+      "usedMult": 2.5
+    },
+    {
+      "gameId": "1059",
+      "roundNum": 6,
+      "country": "GB",
+      "myScore": 4993,
+      "oppScore": 4752,
+      "winner": "me",
+      "damage": 362,
+      "usedMult": 1.5
+    },
+    {
+      "gameId": "1059",
+      "roundNum": 7,
+      "country": "DE",
+      "myScore": 4349,
+      "oppScore": 4909,
+      "winner": "opp",
+      "damage": 1680,
+      "usedMult": 3.0
+    },
+    {
+      "gameId": "1059",
+      "roundNum": 8,
+      "country": "VN",
+      "myScore": 4724,
+      "oppScore": 4821,
+      "winner": "opp",
+      "damage": 340,
+      "usedMult": 3.5
+    },
+    {
+      "gameId": "1059",
+      "roundNum": 9,
+      "country": "ZA",
+      "myScore": 3686,
+      "oppScore": 5000,
+      "winner": "opp",
+      "damage": 5256,
+      "usedMult": 4.0
+    },
+    {
+      "gameId": "1060",
+      "roundNum": 1,
+      "country": "PL",
+      "myScore": 4600,
+      "oppScore": 4982,
+      "winner": "opp",
+      "damage": 382,
+      "usedMult": 1.0
+    },
+    {
+      "gameId": "1060",
+      "roundNum": 2,
+      "country": "AR",
+      "myScore": 4934,
+      "oppScore": 4999,
+      "winner": "opp",
+      "damage": 98,
+      "usedMult": 1.5
+    },
+    {
+      "gameId": "1060",
+      "roundNum": 3,
+      "country": "BD",
+      "myScore": 4872,
+      "oppScore": 4421,
+      "winner": "me",
+      "damage": 451,
+      "usedMult": 1.0
+    },
+    {
+      "gameId": "1060",
+      "roundNum": 4,
+      "country": "ES",
+      "myScore": 4838,
+      "oppScore": 4754,
+      "winner": "me",
+      "damage": 126,
+      "usedMult": 1.5
+    },
+    {
+      "gameId": "1060",
+      "roundNum": 5,
+      "country": "AR",
+      "myScore": 4994,
+      "oppScore": 4988,
+      "winner": "me",
+      "damage": 12,
+      "usedMult": 2.0
+    },
+    {
+      "gameId": "1060",
+      "roundNum": 6,
+      "country": "US",
+      "myScore": 4065,
+      "oppScore": 4998,
+      "winner": "opp",
+      "damage": 1866,
+      "usedMult": 2.0
+    },
+    {
+      "gameId": "1060",
+      "roundNum": 7,
+      "country": "RU",
+      "myScore": 3741,
+      "oppScore": 4274,
+      "winner": "opp",
+      "damage": 1333,
+      "usedMult": 2.5
+    },
+    {
+      "gameId": "1060",
+      "roundNum": 8,
+      "country": "KE",
+      "myScore": 4981,
+      "oppScore": 4870,
+      "winner": "me",
+      "damage": 278,
+      "usedMult": 2.5
+    },
+    {
+      "gameId": "1060",
+      "roundNum": 9,
+      "country": "PT",
+      "myScore": 4584,
+      "oppScore": 4741,
+      "winner": "opp",
+      "damage": 471,
+      "usedMult": 3.0
+    },
+    {
+      "gameId": "1060",
+      "roundNum": 10,
+      "country": "TR",
+      "myScore": 4995,
+      "oppScore": 4919,
+      "winner": "me",
+      "damage": 228,
+      "usedMult": 3.0
+    },
+    {
+      "gameId": "1060",
+      "roundNum": 11,
+      "country": "CA",
+      "myScore": 4271,
+      "oppScore": 4969,
+      "winner": "opp",
+      "damage": 2443,
+      "usedMult": 3.5
     }
   ],
   "sessions": [
@@ -128914,10 +129166,10 @@
       "date": "2026-06-09",
       "time": "23h",
       "eloStart": 1307,
-      "eloEnd": 1290,
-      "games": 11,
+      "eloEnd": 1263,
+      "games": 13,
       "wins": 5,
-      "losses": 6,
+      "losses": 8,
       "vods": [
         {
           "platform": "twitch",
