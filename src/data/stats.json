@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-09T21:32:22",
+  "generatedAt": "2026-06-09T22:51:37",
   "games": [
     {
       "id": "0001",
@@ -127636,6 +127636,32 @@
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2792514546"
+        }
+      ]
+    },
+    {
+      "id": "26W24.03",
+      "year": 2026,
+      "week": 24,
+      "weekKey": "2026-W24",
+      "num": 3,
+      "date": "2026-06-09",
+      "time": "23h",
+      "eloStart": 0,
+      "eloEnd": 0,
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2792471671?t=7h3m57s"
+        },
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2792514546?t=5h46m21s"
         }
       ]
     }
