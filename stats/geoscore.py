@@ -26,6 +26,7 @@ STARTING_MULT = 1.0
 MULT_STEP = 0.5
 SHARED_MULT_START_ROUND = 5
 GAME_MODES = ("move", "no-move")
+OPP_COUNTRY_NOT_SHARED = "--"  # drapeau générique GeoGuessr
 CSV_FILE = Path(__file__).resolve().parent / "games.csv"
 SESSIONS_FILE = Path(__file__).resolve().parent / "sessions.json"
 INDIVIDUAL_MULT_START_SESSION = "26W14.03"
@@ -76,6 +77,7 @@ COLUMNS = [
     "round_num", "country", "excluded", "my_score", "opp_score",
     "winner", "damage", "used_mult",
     "my_hp_after", "opp_hp_after", "my_mult_after", "opp_mult_after",
+    "opp1_country", "opp2_country",
 ]
 
 
@@ -167,6 +169,16 @@ def normalize_country_code(code: str) -> str:
     if code.startswith("us:"):
         return "us"
     return code
+
+
+def normalize_opp_country(raw: object) -> str:
+    """'' = non renseigné, '--' = non communiqué, sinon code pays normalisé."""
+    code = str(raw or "").strip().lower()
+    if not code:
+        return ""
+    if code == OPP_COUNTRY_NOT_SHARED:
+        return OPP_COUNTRY_NOT_SHARED
+    return normalize_country_code(code)
 
 
 def known_countries_from_rows(rows: list[dict]) -> set[str]:
@@ -282,6 +294,42 @@ def resolve_country(country: str) -> str | None:
     return matched_code
 
 
+def opp_country_label(code: str) -> str:
+    if not code:
+        return "non renseigné"
+    if code == OPP_COUNTRY_NOT_SHARED:
+        return "non communiqué"
+    return country_label(code)
+
+
+def resolve_opp_country(raw: str) -> str | None:
+    """Un jeton pays adverse: '--' ou un code/nom de pays (fuzzy match)."""
+    raw = raw.strip().lower()
+    if raw == OPP_COUNTRY_NOT_SHARED:
+        return OPP_COUNTRY_NOT_SHARED
+    return resolve_country(raw)
+
+
+def parse_opp_countries(raw: str) -> tuple[str, str] | None:
+    """Parse 'fr de' / 'fr --' / '--' / 'fr' en (opp1, opp2). None si invalide."""
+    parts = raw.split()
+    if len(parts) == 1 and parts[0] == OPP_COUNTRY_NOT_SHARED:
+        return OPP_COUNTRY_NOT_SHARED, OPP_COUNTRY_NOT_SHARED
+    if len(parts) not in (1, 2):
+        print(c("  Format: 'fr de', 'fr --', '--' (les deux non communiqués)", C.RED))
+        return None
+    resolved: list[str] = []
+    for part in parts:
+        code = resolve_opp_country(part)
+        if code is None:
+            return None
+        resolved.append(code)
+    if len(resolved) == 1:
+        print(c("  2e pays adverse laissé non renseigné.", C.DIM))
+        return resolved[0], ""
+    return resolved[0], resolved[1]
+
+
 def confirm_new_country(country: str, known_countries: set[str]) -> bool:
     if country in known_countries:
         return True
@@ -386,6 +434,8 @@ def build_game_rows(
     history: list[dict],
     final_my: int,
     final_opp: int,
+    opp1_country: str = "",
+    opp2_country: str = "",
 ) -> list[dict]:
     won = result_from_elo_or_hp(delta, final_my, final_opp)
     rows = []
@@ -414,6 +464,8 @@ def build_game_rows(
             "opp_hp_after": s["opp_hp"],
             "my_mult_after": s["my_mult"],
             "opp_mult_after": s["opp_mult"],
+            "opp1_country": opp1_country,
+            "opp2_country": opp2_country,
         })
     return rows
 
@@ -753,6 +805,8 @@ def load_rows() -> list[dict]:
         r["mode"] = normalize_game_mode(r.get("mode", "")) or "move"
         r["country"] = normalize_country_code(r.get("country", ""))
         r["excluded"] = str(csv_bool(r.get("excluded", False)))
+        r["opp1_country"] = normalize_opp_country(r.get("opp1_country", ""))
+        r["opp2_country"] = normalize_opp_country(r.get("opp2_country", ""))
     return rows
 
 
