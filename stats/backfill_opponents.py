@@ -72,6 +72,15 @@ def print_game(game_rows: list[dict], position: int, total: int) -> None:
         print(c(f"  Actuel: {opp_country_label(current[0])} / {opp_country_label(current[1])}", C.YELLOW))
 
 
+def save_countries(game_id: str, opp1: str, opp2: str) -> None:
+    """Recharge le CSV avant d'écrire: un enregistrement concurrent ne doit pas être écrasé."""
+    fresh = geoscore.load_rows()
+    for row in fresh:
+        if row["game_id"] == game_id:
+            row["opp1_country"], row["opp2_country"] = opp1, opp2
+    geoscore.write_all(fresh)
+
+
 def main() -> None:
     geoscore.enable_ansi()
     parser = argparse.ArgumentParser(description="Rattrapage des pays adverses")
@@ -92,49 +101,52 @@ def main() -> None:
         print(c("Rien à rattraper: tous les pays adverses sont renseignés.", C.GREEN))
         return
     print(f"{c('Backfill pays adverses', C.BOLD, C.BCYAN)} — {total_pending} partie(s) à renseigner")
-    print(c("Saisie: 'fr de', '--' = non communiqué, s = passer, q = quitter\n", C.DIM))
+    print(c("Saisie: 'fr de', '--' = non communiqué, s/Entrée = passer, q = quitter\n", C.DIM))
 
     filled = 0
     skipped = 0
     changed = False
     quitting = False
-    for sid, games in sessions:
-        pending = [g for g in games if needs_backfill(g)]
-        if not pending or quitting:
-            continue
-        print_session_header(sid, sessions_meta, len(games))
-        for position, game_rows in enumerate(games, start=1):
-            if not needs_backfill(game_rows):
+    try:
+        for sid, games in sessions:
+            if not any(needs_backfill(g) for g in games):
                 continue
-            print_game(game_rows, position, len(games))
-            while True:
-                try:
-                    raw = input(
-                        f"Pays adverses {c('(fr de, --=non communiqué, s/Entrée=passer, q=quitter)', C.DIM)}: "
-                    ).strip()
-                except EOFError:
-                    raw = "q"
-                low = raw.lower()
-                if low in ("q", "quit"):
-                    quitting = True
-                    break
-                if not raw or low in ("s", "skip"):
-                    skipped += 1
-                    break
-                parsed = geoscore.parse_opp_countries(raw)
-                if parsed is None:
+            print_session_header(sid, sessions_meta, len(games))
+            for position, game_rows in enumerate(games, start=1):
+                if not needs_backfill(game_rows):
                     continue
-                for row in game_rows:
-                    row["opp1_country"], row["opp2_country"] = parsed
-                geoscore.write_all(rows)
-                changed = True
-                filled += 1
-                print(c(f"  Sauvegardé: {opp_country_label(parsed[0])} / {opp_country_label(parsed[1])}", C.GREEN))
-                break
+                print_game(game_rows, position, len(games))
+                while True:
+                    try:
+                        raw = input(
+                            f"Pays adverses {c('(fr de, --=non communiqué, s/Entrée=passer, q=quitter)', C.DIM)}: "
+                        ).strip()
+                    except EOFError:
+                        raw = "q"
+                    low = raw.lower()
+                    if low in ("q", "quit"):
+                        quitting = True
+                        break
+                    if not raw or low in ("s", "skip"):
+                        skipped += 1
+                        break
+                    parsed = geoscore.parse_opp_countries(raw)
+                    if parsed is None:
+                        continue
+                    for row in game_rows:
+                        row["opp1_country"], row["opp2_country"] = parsed
+                    save_countries(game_rows[0]["game_id"], *parsed)
+                    changed = True
+                    filled += 1
+                    print(c(f"  Sauvegardé: {opp_country_label(parsed[0])} / {opp_country_label(parsed[1])}", C.GREEN))
+                    break
+                if quitting:
+                    break
             if quitting:
                 break
-        if quitting:
-            break
+    except KeyboardInterrupt:
+        quitting = True
+        print(c("\nInterrompu.", C.YELLOW))
 
     if changed:
         geoscore.regenerate_data()
