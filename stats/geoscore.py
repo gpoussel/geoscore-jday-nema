@@ -208,6 +208,7 @@ def print_round_help() -> None:
     print("  d 3              supprimer le round 3")
     print("  g 3              revenir au round 3 (supprime les suivants)")
     print("  elo 1234         corriger l'ELO adversaire")
+    print("  opp fr de        pays des adversaires (-- = non communiqué)")
     print("  nm               marquer la partie en no-move")
     print("  m                remettre la partie en move")
     print("  s                afficher le recapitulatif")
@@ -421,6 +422,23 @@ def ask_elo_result(prompt: str, current_elo: int) -> tuple[int, int] | str | Non
         return delta, new_elo
 
 
+def ask_opp_countries(default: tuple[str, str] = ("", "")) -> tuple[str, str]:
+    prompt = (
+        f"Pays adverses (ex: fr de, -- = non communiqué) "
+        f"{c('[Entrée=non renseigné]', C.DIM)}: "
+    )
+    while True:
+        try:
+            raw = input(prompt).strip()
+        except EOFError:
+            return default
+        if not raw:
+            return default
+        parsed = parse_opp_countries(raw)
+        if parsed is not None:
+            return parsed
+
+
 def build_game_rows(
     *,
     session: str,
@@ -487,6 +505,7 @@ def play_rounds(
     shared_mult: bool = False,
     game_mode: str = "move",
     allow_finished_edit: bool = False,
+    opp_countries: list[str] | None = None,
 ) -> tuple[list[Round], int, str] | str | None:
     if rounds is None:
         rounds = []
@@ -644,6 +663,19 @@ def play_rounds(
             except ValueError:
                 pass
 
+        if parts and parts[0].lower() == "opp":
+            if opp_countries is None:
+                print(c("  Pays adverses non gérés ici.", C.DIM))
+                continue
+            if len(parts) < 2:
+                print(c(f"  Pays adverses: {opp_country_label(opp_countries[0])} / {opp_country_label(opp_countries[1])}", C.CYAN))
+                continue
+            parsed_opp = parse_opp_countries(" ".join(parts[1:]))
+            if parsed_opp is not None:
+                opp_countries[0], opp_countries[1] = parsed_opp
+                print(c(f"  Pays adverses: {opp_country_label(parsed_opp[0])} / {opp_country_label(parsed_opp[1])}", C.CYAN))
+            continue
+
         try:
             parsed = parse_round_input(raw)
         except ValueError as exc:
@@ -710,6 +742,8 @@ def play_game(
             continue
         opp_elo = res
 
+        opp_countries = list(ask_opp_countries())
+
         # 3 & 4. Rounds and Delta
         rounds_list: list[Round] = []
         current_opp_elo = opp_elo
@@ -720,6 +754,7 @@ def play_game(
                 rounds_list,
                 shared_mult=shared_mult,
                 game_mode=game_mode,
+                opp_countries=opp_countries,
             )
             if res_rounds is None:
                 print(c("Partie abandonnee (non sauvegardee).", C.YELLOW))
@@ -766,6 +801,7 @@ def play_game(
                     shared_mult=shared_mult,
                     game_mode=game_mode,
                     allow_finished_edit=True,
+                    opp_countries=opp_countries,
                 )
                 if res_rounds is None:
                     print(c("Partie abandonnee (non sauvegardee).", C.YELLOW))
@@ -792,6 +828,8 @@ def play_game(
                 history=history,
                 final_my=final_my,
                 final_opp=final_opp,
+                opp1_country=opp_countries[0],
+                opp2_country=opp_countries[1],
             )
             return rows
 
