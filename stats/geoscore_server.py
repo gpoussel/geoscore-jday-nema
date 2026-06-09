@@ -262,6 +262,21 @@ def parse_elo_result(raw: object, current_elo: int) -> tuple[int, int]:
     return value - current_elo, value
 
 
+def parse_opp_country_field(value: object, name: str) -> str:
+    raw = str(value or "").strip().lower()
+    if not raw:
+        return ""
+    if raw == geoscore.OPP_COUNTRY_NOT_SHARED:
+        return geoscore.OPP_COUNTRY_NOT_SHARED
+    code = geoscore.normalize_country_code(raw)
+    if not is_valid_country(code):
+        resolved = geoscore.resolve_country(code)
+        if resolved is None:
+            raise ApiError(f"Pays adverse inconnu : {name} = {raw}")
+        code = resolved
+    return code
+
+
 def save_game(payload: dict) -> dict:
     preview = game_preview(payload, allow_new_countries=False)
     if not preview["finished"]:
@@ -272,6 +287,8 @@ def save_game(payload: dict) -> dict:
     if my_elo is None or opp_elo is None:
         raise ApiError("ELO requis")
     delta, new_elo = parse_elo_result(payload.get("eloResult"), my_elo)
+    opp1_country = parse_opp_country_field(payload.get("opp1Country"), "adv. 1")
+    opp2_country = parse_opp_country_field(payload.get("opp2Country"), "adv. 2")
     rounds = parse_rounds(payload, allow_new_countries=False)
     history = geoscore.compute_state(
         rounds,
@@ -289,6 +306,8 @@ def save_game(payload: dict) -> dict:
         history=history,
         final_my=history[-1]["my_hp"],
         final_opp=history[-1]["opp_hp"],
+        opp1_country=opp1_country,
+        opp2_country=opp2_country,
     )
     with WRITE_LOCK:
         geoscore.save_rows(rows)
@@ -499,6 +518,14 @@ HTML = r"""<!doctype html>
         <label>Mon ELO <input id="myElo" inputmode="numeric"></label>
         <label>ELO adversaire <input id="oppElo" inputmode="numeric"></label>
       </div>
+      <div class="grid elo-grid" style="margin-top:10px">
+        <label>Pays adv. 1 <input id="opp1Country" list="countries" autocomplete="off" autocapitalize="none" placeholder="fr ou --"></label>
+        <label>Pays adv. 2 <input id="opp2Country" list="countries" autocomplete="off" autocapitalize="none" placeholder="de ou --"></label>
+      </div>
+      <div class="seg">
+        <button id="opp1Unknown" type="button">Adv. 1 non communiqué</button>
+        <button id="opp2Unknown" type="button">Adv. 2 non communiqué</button>
+      </div>
       <div class="seg">
         <button id="modeMove" type="button" class="active">Move</button>
         <button id="modeNoMove" type="button">No-move</button>
@@ -591,6 +618,8 @@ function gamePayload() {
     ...sessionPayload(),
     myElo: $("myElo").value,
     oppElo: $("oppElo").value,
+    opp1Country: $("opp1Country").value.trim(),
+    opp2Country: $("opp2Country").value.trim(),
     mode: state.mode,
     rounds: state.rounds,
     eloResult: signedValue("eloResult", state.eloSign),
@@ -747,6 +776,8 @@ function resetGame(keepElo = true) {
   state.preview = null;
   state.confirmedNewCountries = [];
   $("oppElo").value = "";
+  $("opp1Country").value = "";
+  $("opp2Country").value = "";
   $("eloResult").value = "";
   if (nextElo != null) $("myElo").value = nextElo;
   clearRoundForm();
@@ -762,6 +793,12 @@ $("modeNoMove").onclick = () => {
   state.mode = "no-move";
   $("modeNoMove").classList.add("active");
   $("modeMove").classList.remove("active");
+};
+$("opp1Unknown").onclick = () => {
+  $("opp1Country").value = "--";
+};
+$("opp2Unknown").onclick = () => {
+  $("opp2Country").value = "--";
 };
 $("eloGain").onclick = () => {
   setEloSign("+");
