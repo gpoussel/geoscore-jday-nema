@@ -57,6 +57,8 @@ def print_game(game_rows: list[dict], position: int, total: int) -> None:
         f"\n--- Partie {head['game_id']} ({position}/{total}) — opp {head['opp_elo']} — "
         f"{verdict} {head['final_my_hp']}-{head['final_opp_hp']} en {head['total_rounds']}R ---"
     )
+    my_total = 0
+    opp_total = 0
     for row in game_rows:
         winner = row["winner"]
         if winner == "me":
@@ -66,8 +68,9 @@ def print_game(game_rows: list[dict], position: int, total: int) -> None:
         else:
             outcome = c("=", C.BYELLOW, C.BOLD)
         label = country_label(row["country"])
-        total = int(row["my_score"]) + int(row["opp_score"])
-        print(f"  {int(row['round_num']):>2}. {outcome}  {label:<28} {row['my_score']:>4}-{row['opp_score']:<4}  ({total:>5})")
+        my_total += int(row["my_score"])
+        opp_total += int(row["opp_score"])
+        print(f"  {int(row['round_num']):>2}. {outcome}  {label:<28} {row['my_score']:>4}-{row['opp_score']:<4}  [{my_total:>6}-{opp_total}]")
     current = (head["opp1_country"], head["opp2_country"])
     if any(current):
         print(c(f"  Actuel: {opp_country_label(current[0])} / {opp_country_label(current[1])}", C.YELLOW))
