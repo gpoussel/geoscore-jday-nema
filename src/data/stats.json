@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-10T23:53:41",
+  "generatedAt": "2026-06-11T00:03:02",
   "games": [
     {
       "id": "0001",
@@ -1238,7 +1238,7 @@
       "session": "26W07.01",
       "gameNum": 8,
       "rounds": 7,
-      "won": false,
+      "won": true,
       "margin": "tight",
       "elo": 788,
       "eloBefore": 772,
@@ -27319,12 +27319,12 @@
         11
       ],
       "perfects": 0,
-      "finalMyHp": 1548,
+      "finalMyHp": 737,
       "finalOppHp": 0,
-      "finalMyMult": 5.5,
-      "finalOppMult": 4.5,
-      "opp1": null,
-      "opp2": null,
+      "finalMyMult": 5.0,
+      "finalOppMult": 5.0,
+      "opp1": "DE",
+      "opp2": "DE",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27351,8 +27351,8 @@
       "finalOppHp": 0,
       "finalMyMult": 5.0,
       "finalOppMult": 2.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "US",
+      "opp2": "SG",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27379,8 +27379,8 @@
       "finalOppHp": 0,
       "finalMyMult": 3.5,
       "finalOppMult": 2.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "US",
+      "opp2": "SG",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27407,8 +27407,8 @@
       "finalOppHp": 2710,
       "finalMyMult": 3.0,
       "finalOppMult": 5.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "GB",
+      "opp2": "GB",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27435,8 +27435,8 @@
       "finalOppHp": 1443,
       "finalMyMult": 3.0,
       "finalOppMult": 3.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "BR",
+      "opp2": "CA",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27463,8 +27463,8 @@
       "finalOppHp": 0,
       "finalMyMult": 4.5,
       "finalOppMult": 3.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "DE",
+      "opp2": "DE",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27491,8 +27491,8 @@
       "finalOppHp": 0,
       "finalMyMult": 5.5,
       "finalOppMult": 3.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "US",
+      "opp2": "TR",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27519,8 +27519,8 @@
       "finalOppHp": 0,
       "finalMyMult": 3.0,
       "finalOppMult": 1.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "GB",
+      "opp2": "PY",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27547,8 +27547,8 @@
       "finalOppHp": 0,
       "finalMyMult": 4.5,
       "finalOppMult": 3.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "BE",
+      "opp2": "BE",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27575,8 +27575,8 @@
       "finalOppHp": 5428,
       "finalMyMult": 2.5,
       "finalOppMult": 4.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "DE",
+      "opp2": "DE",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27603,8 +27603,8 @@
       "finalOppHp": 3832,
       "finalMyMult": 4.5,
       "finalOppMult": 5.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "DE",
+      "opp2": "CH",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27631,8 +27631,8 @@
       "finalOppHp": 0,
       "finalMyMult": 6.5,
       "finalOppMult": 3.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "FI",
+      "opp2": "DE",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27659,8 +27659,8 @@
       "finalOppHp": 0,
       "finalMyMult": 3.0,
       "finalOppMult": 2.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "PL",
+      "opp2": "PL",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27687,8 +27687,8 @@
       "finalOppHp": 0,
       "finalMyMult": 4.0,
       "finalOppMult": 4.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "FR",
+      "opp2": "FR",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27715,8 +27715,8 @@
       "finalOppHp": 0,
       "finalMyMult": 3.5,
       "finalOppMult": 1.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "FR",
+      "opp2": "NZ",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27743,8 +27743,8 @@
       "finalOppHp": 0,
       "finalMyMult": 5.5,
       "finalOppMult": 3.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "DE",
+      "opp2": "DE",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27771,8 +27771,8 @@
       "finalOppHp": 0,
       "finalMyMult": 3.5,
       "finalOppMult": 3.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "DE",
+      "opp2": "DE",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27799,8 +27799,8 @@
       "finalOppHp": 0,
       "finalMyMult": 5.5,
       "finalOppMult": 4.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "DE",
+      "opp2": "DE",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27827,8 +27827,8 @@
       "finalOppHp": 0,
       "finalMyMult": 4.5,
       "finalOppMult": 3.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "DE",
+      "opp2": "DE",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27855,8 +27855,8 @@
       "finalOppHp": 0,
       "finalMyMult": 5.0,
       "finalOppMult": 6.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "DE",
+      "opp2": "DE",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -27883,8 +27883,8 @@
       "finalOppHp": 5847,
       "finalMyMult": 2.0,
       "finalOppMult": 5.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "US",
+      "opp2": "DE",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -139092,12 +139092,12 @@
       "roundNum": 1,
       "country": "BE",
       "myScore": 4810,
-      "oppScore": 1833,
-      "winner": "me",
-      "damage": 2977,
+      "oppScore": 4833,
+      "winner": "opp",
+      "damage": 23,
       "usedMult": 1.0,
-      "myMult": 1.5,
-      "oppMult": 1.0
+      "myMult": 1.0,
+      "oppMult": 1.5
     },
     {
       "gameId": "0976",
@@ -139106,10 +139106,10 @@
       "myScore": 4825,
       "oppScore": 4450,
       "winner": "me",
-      "damage": 563,
-      "usedMult": 1.5,
-      "myMult": 2.0,
-      "oppMult": 1.0
+      "damage": 375,
+      "usedMult": 1.0,
+      "myMult": 1.5,
+      "oppMult": 1.5
     },
     {
       "gameId": "0976",
@@ -139118,10 +139118,10 @@
       "myScore": 4383,
       "oppScore": 4085,
       "winner": "me",
-      "damage": 596,
-      "usedMult": 2.0,
-      "myMult": 2.5,
-      "oppMult": 1.0
+      "damage": 447,
+      "usedMult": 1.5,
+      "myMult": 2.0,
+      "oppMult": 1.5
     },
     {
       "gameId": "0976",
@@ -139130,10 +139130,10 @@
       "myScore": 4999,
       "oppScore": 4989,
       "winner": "me",
-      "damage": 25,
-      "usedMult": 2.5,
-      "myMult": 3.0,
-      "oppMult": 1.0
+      "damage": 20,
+      "usedMult": 2.0,
+      "myMult": 2.5,
+      "oppMult": 1.5
     },
     {
       "gameId": "0976",
@@ -139142,10 +139142,10 @@
       "myScore": 4745,
       "oppScore": 4912,
       "winner": "opp",
-      "damage": 167,
-      "usedMult": 1.0,
-      "myMult": 3.0,
-      "oppMult": 1.5
+      "damage": 251,
+      "usedMult": 1.5,
+      "myMult": 2.5,
+      "oppMult": 2.0
     },
     {
       "gameId": "0976",
@@ -139155,9 +139155,9 @@
       "oppScore": 4959,
       "winner": "opp",
       "damage": 2,
-      "usedMult": 1.5,
-      "myMult": 3.0,
-      "oppMult": 2.0
+      "usedMult": 2.0,
+      "myMult": 2.5,
+      "oppMult": 2.5
     },
     {
       "gameId": "0976",
@@ -139166,10 +139166,10 @@
       "myScore": 4515,
       "oppScore": 4396,
       "winner": "me",
-      "damage": 357,
-      "usedMult": 3.0,
-      "myMult": 3.5,
-      "oppMult": 2.0
+      "damage": 298,
+      "usedMult": 2.5,
+      "myMult": 3.0,
+      "oppMult": 2.5
     },
     {
       "gameId": "0976",
@@ -139178,10 +139178,10 @@
       "myScore": 4995,
       "oppScore": 4327,
       "winner": "me",
-      "damage": 2338,
-      "usedMult": 3.5,
-      "myMult": 4.0,
-      "oppMult": 2.0
+      "damage": 2004,
+      "usedMult": 3.0,
+      "myMult": 3.5,
+      "oppMult": 2.5
     },
     {
       "gameId": "0976",
@@ -139190,10 +139190,10 @@
       "myScore": 4806,
       "oppScore": 4855,
       "winner": "opp",
-      "damage": 98,
-      "usedMult": 2.0,
-      "myMult": 4.0,
-      "oppMult": 2.5
+      "damage": 123,
+      "usedMult": 2.5,
+      "myMult": 3.5,
+      "oppMult": 3.0
     },
     {
       "gameId": "0976",
@@ -139202,10 +139202,10 @@
       "myScore": 4301,
       "oppScore": 4330,
       "winner": "opp",
-      "damage": 73,
-      "usedMult": 2.5,
-      "myMult": 4.0,
-      "oppMult": 3.0
+      "damage": 87,
+      "usedMult": 3.0,
+      "myMult": 3.5,
+      "oppMult": 3.5
     },
     {
       "gameId": "0976",
@@ -139214,10 +139214,10 @@
       "myScore": 1761,
       "oppScore": 2919,
       "winner": "opp",
-      "damage": 3474,
-      "usedMult": 3.0,
-      "myMult": 4.0,
-      "oppMult": 3.5
+      "damage": 4053,
+      "usedMult": 3.5,
+      "myMult": 3.5,
+      "oppMult": 4.0
     },
     {
       "gameId": "0976",
@@ -139226,10 +139226,10 @@
       "myScore": 4942,
       "oppScore": 4386,
       "winner": "me",
-      "damage": 2224,
-      "usedMult": 4.0,
-      "myMult": 4.5,
-      "oppMult": 3.5
+      "damage": 1946,
+      "usedMult": 3.5,
+      "myMult": 4.0,
+      "oppMult": 4.0
     },
     {
       "gameId": "0976",
@@ -139238,10 +139238,10 @@
       "myScore": 4994,
       "oppScore": 4849,
       "winner": "me",
-      "damage": 653,
-      "usedMult": 4.5,
-      "myMult": 5.0,
-      "oppMult": 3.5
+      "damage": 580,
+      "usedMult": 4.0,
+      "myMult": 4.5,
+      "oppMult": 4.0
     },
     {
       "gameId": "0976",
@@ -139250,10 +139250,10 @@
       "myScore": 4900,
       "oppScore": 4992,
       "winner": "opp",
-      "damage": 322,
-      "usedMult": 3.5,
-      "myMult": 5.0,
-      "oppMult": 4.0
+      "damage": 368,
+      "usedMult": 4.0,
+      "myMult": 4.5,
+      "oppMult": 4.5
     },
     {
       "gameId": "0976",
@@ -139262,10 +139262,10 @@
       "myScore": 4888,
       "oppScore": 4967,
       "winner": "opp",
-      "damage": 316,
-      "usedMult": 4.0,
-      "myMult": 5.0,
-      "oppMult": 4.5
+      "damage": 356,
+      "usedMult": 4.5,
+      "myMult": 4.5,
+      "oppMult": 5.0
     },
     {
       "gameId": "0976",
@@ -139274,10 +139274,10 @@
       "myScore": 4893,
       "oppScore": 4702,
       "winner": "me",
-      "damage": 955,
-      "usedMult": 5.0,
-      "myMult": 5.5,
-      "oppMult": 4.5
+      "damage": 860,
+      "usedMult": 4.5,
+      "myMult": 5.0,
+      "oppMult": 5.0
     },
     {
       "gameId": "0977",
@@ -149648,8 +149648,8 @@
       "eloStart": 779,
       "eloEnd": 737,
       "games": 15,
-      "wins": 7,
-      "losses": 8,
+      "wins": 8,
+      "losses": 7,
       "vods": [
         {
           "platform": "youtube",
