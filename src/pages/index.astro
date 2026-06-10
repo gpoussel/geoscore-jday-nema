@@ -5,7 +5,8 @@ import playersData from "../data/players.json";
 import distributionsData from "../data/distributions.json";
 import bannerData from "../data/banner.json";
 import type {
-  CountryStat, Distribution, DistributionsFile, FinalCountryStat, Game, MapAssignment, PlayersFile, Round, Stats,
+  CountryStat, Distribution, DistributionsFile, FinalCountryStat, Game, MapAssignment,
+  OpponentFaced, OpponentHomeTurf, OpponentLanding, OpponentStats, PlayersFile, Round, Stats,
 } from "../types";
 import TeamCard from "../components/TeamCard.astro";
 import PeriodToggle from "../components/PeriodToggle.astro";
@@ -16,6 +17,7 @@ import BlockElo from "../components/BlockElo.astro";
 import BlockPrecision from "../components/BlockPrecision.astro";
 import BlockMultiplier from "../components/BlockMultiplier.astro";
 import BlockPays from "../components/BlockPays.astro";
+import BlockAdversaires from "../components/BlockAdversaires.astro";
 import BlockRecords from "../components/BlockRecords.astro";
 import BlockSessions from "../components/BlockSessions.astro";
 import { rankDivision, rankLabel } from "../lib/ranks";
@@ -123,8 +125,108 @@ type View = {
   sessions: Stats["sessions"];
   countryStats: Record<string, CountryStat>;
   finalCountryStats: Record<string, FinalCountryStat>;
+  opponents: OpponentStats;
   distributions: Distribution[];
   kpis: { games: number; winRate: number; eloNet: number; elo: number; avgAcc: number };
+};
+
+// JDay & Néma's home country — the "à domicile" reference for opponent home turf.
+const HOME_COUNTRY = "FR";
+const HOME_TURF_MIN = 8;
+
+const buildOpponentStats = (games: Game[], rounds: Round[]): OpponentStats => {
+  // Opponent nationalities are game-level; a game enters the pool as soon as one
+  // of its two opponent countries is known (≠ null). Both slots count toward the
+  // "who do we face" share, even when both opponents share a nationality.
+  const targetsByGame = new Map<string, Set<string>>();
+  const slotCounts: Record<string, number> = {};
+  let slotTotal = 0;
+  for (const g of games) {
+    const codes = [g.opp1, g.opp2].filter((c): c is string => c != null);
+    if (codes.length === 0) continue;
+    targetsByGame.set(g.id, new Set(codes));
+    for (const c of codes) {
+      slotCounts[c] = (slotCounts[c] ?? 0) + 1;
+      slotTotal++;
+    }
+  }
+
+  const poolRounds = rounds.filter((r) => targetsByGame.has(r.gameId));
+  const N = poolRounds.length;
+
+  // Empirical country frequency over the pool, used as the chance baseline.
+  const freq: Record<string, number> = {};
+  for (const r of poolRounds) freq[r.country] = (freq[r.country] ?? 0) + 1;
+  const f = (c: string) => (N ? (freq[c] ?? 0) / N : 0);
+
+  let obs = 0;
+  let exp = 0;
+  for (const r of poolRounds) {
+    const t = targetsByGame.get(r.gameId)!;
+    if (t.has(r.country)) obs++;
+    let pMiss = 1;
+    for (const c of t) pMiss *= 1 - f(c);
+    exp += 1 - pMiss;
+  }
+  const observed = N ? obs / N : 0;
+  const expected = N ? exp / N : 0;
+  const lift = expected > 0 ? observed / expected : 0;
+
+  const faced: OpponentFaced[] = Object.entries(slotCounts)
+    .map(([code, slots]) => ({ code, slots, share: slotTotal ? slots / slotTotal : 0 }))
+    .sort((a, b) => b.slots - a.slots);
+
+  const landing: OpponentLanding[] = [];
+  for (const { code } of faced) {
+    const withR = poolRounds.filter((r) => targetsByGame.get(r.gameId)!.has(code));
+    const withoutR = poolRounds.filter((r) => !targetsByGame.get(r.gameId)!.has(code));
+    if (withR.length === 0 || withoutR.length === 0) continue;
+    landing.push({
+      code,
+      pWith: withR.filter((r) => r.country === code).length / withR.length,
+      pWithout: withoutR.filter((r) => r.country === code).length / withoutR.length,
+      roundsWith: withR.length,
+    });
+  }
+
+  const homeTurf: OpponentHomeTurf[] = [];
+  for (const { code } of faced) {
+    if (code === HOME_COUNTRY) continue;
+    const hr = poolRounds.filter(
+      (r) => r.country === code && targetsByGame.get(r.gameId)!.has(code),
+    );
+    if (hr.length < HOME_TURF_MIN) continue;
+    homeTurf.push({
+      code,
+      n: hr.length,
+      homeMult: hr.reduce((s, r) => s + r.oppMult, 0) / hr.length,
+      balance: hr.reduce((s, r) => s + (r.myScore - r.oppScore), 0),
+      isHome: false,
+    });
+  }
+  homeTurf.sort((a, b) => b.n - a.n);
+
+  // Reference row: the duo at home in France (we are "home", so our multiplier).
+  // Opponent nationality is irrelevant here, so all period rounds in FR count.
+  const frR = rounds.filter((r) => r.country === HOME_COUNTRY);
+  const homeRef: OpponentHomeTurf | null = frR.length
+    ? {
+        code: HOME_COUNTRY,
+        n: frR.length,
+        homeMult: frR.reduce((s, r) => s + r.myMult, 0) / frR.length,
+        balance: frR.reduce((s, r) => s + (r.myScore - r.oppScore), 0),
+        isHome: true,
+      }
+    : null;
+
+  return {
+    pool: { games: targetsByGame.size, rounds: N },
+    global: { observed, expected, lift },
+    faced,
+    landing,
+    homeTurf,
+    homeRef,
+  };
 };
 
 const latestElo = (games: Game[]) => {
@@ -209,6 +311,7 @@ const buildView = (games: Game[], sessions: Stats["sessions"]): View => {
     sessions,
     countryStats,
     finalCountryStats,
+    opponents: buildOpponentStats(games, rounds),
     distributions: viewDistributions,
     kpis: {
       games: games.length,
@@ -328,6 +431,7 @@ const ogImage = `${baseUrl}og.png`;
           <BlockPrecision games={v.games} rounds={v.rounds} sessions={v.sessions} aggregateMode={key === "all" ? "week" : "game"} />
           <BlockMultiplier games={v.games} rounds={v.rounds} sessions={v.sessions} />
           <BlockPays countryStats={v.countryStats} finalCountryStats={v.finalCountryStats} distributions={v.distributions} />
+          <BlockAdversaires opponents={v.opponents} />
           <BlockRecords games={v.games} rounds={v.rounds} />
           <BlockSessions sessions={v.sessions} players={players} rankByWeek={rankByWeek} />
         </div>

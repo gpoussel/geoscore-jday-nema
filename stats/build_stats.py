@@ -68,6 +68,17 @@ def csv_bool(value: object) -> bool:
     return str(value).strip().lower() in ("1", "true", "yes", "y", "oui", "o")
 
 
+def norm_country(raw: str) -> str | None:
+    """Normalize a CSV country code to ISO 3166-1 alpha-2 (upper-case).
+
+    GeoGuessr's 'uk' alias becomes 'GB'. Empty ('' = non renseignée) and '--'
+    ('non communiquée', generic flag) both collapse to None — i.e. no country."""
+    code = raw.strip().lower()
+    if not code or code == "--":
+        return None
+    return "GB" if code == "uk" else code.upper()
+
+
 def validate_game_id_sequence(rows: list[dict]) -> None:
     """Fail fast when game_id blocks are not strictly sequential in CSV order."""
     previous_gid: str | None = None
@@ -160,6 +171,8 @@ def aggregate_games(rows: list[dict]) -> tuple[list[dict], list[dict]]:
             "finalOppHp": final_opp_hp,
             "finalMyMult": float(last["my_mult_after"]),
             "finalOppMult": float(last["opp_mult_after"]),
+            "opp1": norm_country(head.get("opp1_country", "")),
+            "opp2": norm_country(head.get("opp2_country", "")),
         })
 
         for r in stat_rows:
@@ -176,6 +189,8 @@ def aggregate_games(rows: list[dict]) -> tuple[list[dict], list[dict]]:
                 "winner": r["winner"],
                 "damage": int(r["damage"]),
                 "usedMult": float(r["used_mult"]),
+                "myMult": float(r["my_mult_after"]),
+                "oppMult": float(r["opp_mult_after"]),
             })
     return games, rounds
 

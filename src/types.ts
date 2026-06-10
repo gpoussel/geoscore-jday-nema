@@ -31,6 +31,8 @@ export type RawGame = {
   finalOppHp: number;
   finalMyMult: number;
   finalOppMult: number;
+  opp1: string | null;
+  opp2: string | null;
 };
 
 export type Game = RawGame & {
@@ -47,6 +49,8 @@ export type Round = {
   winner: "me" | "opp" | "tie";
   damage: number;
   usedMult: number;
+  myMult: number;
+  oppMult: number;
 };
 
 export type Session = {
@@ -120,4 +124,44 @@ export type FinalCountryStat = {
   wins: number;
   losses: number;
   total: number;
+};
+
+/** Share of a country among the opponents the duo faced. */
+export type OpponentFaced = {
+  code: string;
+  slots: number;
+  share: number;
+};
+
+/**
+ * Per-country test of the "we land in the opponent's country" myth:
+ * P(round = code | an opponent is from code) vs P(round = code | none is).
+ */
+export type OpponentLanding = {
+  code: string;
+  pWith: number;
+  pWithout: number;
+  roundsWith: number;
+};
+
+/**
+ * Home-turf performance on rounds located in `code`. For opponent countries the
+ * opponent is "home" (`homeMult` = their multiplier); the `isHome` reference row
+ * is the duo at home in France (`homeMult` = our multiplier).
+ */
+export type OpponentHomeTurf = {
+  code: string;
+  n: number;
+  homeMult: number;
+  balance: number;
+  isHome: boolean;
+};
+
+export type OpponentStats = {
+  pool: { games: number; rounds: number };
+  global: { observed: number; expected: number; lift: number };
+  faced: OpponentFaced[];
+  landing: OpponentLanding[];
+  homeTurf: OpponentHomeTurf[];
+  homeRef: OpponentHomeTurf | null;
 };

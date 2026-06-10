@@ -1,0 +1,289 @@
+---
+import BlockHead from "./ui/BlockHead.astro";
+import Card from "./ui/Card.astro";
+import CardHead from "./ui/CardHead.astro";
+import Flag from "./ui/Flag.astro";
+import { countryName } from "../lib/country";
+import type { OpponentStats } from "../types";
+
+interface Props {
+  opponents: OpponentStats;
+}
+const { opponents } = Astro.props;
+const { pool, global, faced, landing, homeTurf, homeRef } = opponents;
+
+const hasData = pool.games > 0;
+const nameOf = countryName;
+
+const pct1 = (n: number) => `${(n * 100).toFixed(1).replace(".", ",")}%`;
+const pct0 = (n: number) =>
+  `${Math.round(n * 100).toLocaleString("fr-FR")}%`;
+const fmtMult = (n: number) => `×${n.toFixed(2).replace(".", ",")}`;
+const fmtLift = (n: number) => `×${n.toFixed(2).replace(".", ",")}`;
+const fmtBalance = (n: number) => {
+  const r = Math.round(n);
+  return `${r >= 0 ? "+" : "−"}${Math.abs(r).toLocaleString("fr-FR")}`;
+};
+
+const topFaced = faced.slice(0, 8);
+const topLanding = landing.slice(0, 8);
+
+// Verdict marker per country: does landing in X get *more* likely when an
+// opponent is from X? ≈ (no effect) is the myth-debunking outcome.
+type Mark = { glyph: string; tone: "up" | "down" | "flat" };
+const landingMark = (pWith: number, pWithout: number): Mark => {
+  if (pWithout <= 0) {
+    return pWith > 0 ? { glyph: "▲", tone: "up" } : { glyph: "≈", tone: "flat" };
+  }
+  const ratio = pWith / pWithout;
+  if (ratio >= 1.2) return { glyph: "▲", tone: "up" };
+  if (ratio <= 0.8) return { glyph: "▼", tone: "down" };
+  return { glyph: "≈", tone: "flat" };
+};
+
+// Stack the FR reference at the bottom of the home-turf table.
+const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
+---
+
+<section class="block">
+  <BlockHead
+    title="Adversaires"
+    help={[
+      "Basé sur les parties de la période dont au moins un pays adverse est renseigné.",
+      "Qui affronte-t-on : part de chaque nationalité parmi les adversaires (2 par partie).",
+      "Tombe-t-on chez eux : fréquence des rounds situés dans le pays de l'adversaire, selon qu'on affronte ou non un joueur de ce pays. Le mythe voudrait « avec » ≫ « sans ».",
+      "Sur leurs terres : sur les rounds tombés dans le pays de l'adversaire, son multiplicateur moyen (équipe à domicile) et notre cumul de points (nous − adverse, sans multi). FR = repère à domicile.",
+    ]}
+  />
+
+  {!hasData && (
+    <Card>
+      <p class="adv-empty">Aucune partie avec pays adverse renseigné sur la période.</p>
+    </Card>
+  )}
+
+  {hasData && (
+    <>
+      <div class="adv-row">
+        <Card>
+          <CardHead eyebrow="Qui affronte-t-on ?" />
+          <ol class="adv-list">
+            {topFaced.map((s, i) => (
+              <li>
+                <span class="adv-rank">{i + 1}</span>
+                <Flag code={s.code} class="adv-flag" />
+                <span class="adv-name">{nameOf(s.code)}</span>
+                <span class="adv-app">×{s.slots}</span>
+                <span class="adv-share">
+                  <span class="adv-bar" style={`--w:${(s.share * 100).toFixed(1)}%`}></span>
+                  <b>{pct0(s.share)}</b>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </Card>
+
+        <Card>
+          <CardHead eyebrow="Tombe-t-on vraiment chez eux ?" />
+          <p class="adv-global">
+            Global · <b>{pct1(global.observed)}</b> observé vs
+            <b> {pct1(global.expected)}</b> attendu ·
+            <b class={`adv-lift ${global.lift >= 1.2 ? "up" : global.lift <= 0.85 ? "down" : "flat"}`}>
+              {" "}{fmtLift(global.lift)}
+            </b>
+          </p>
+          <div class="adv-cols">
+            <span></span><span></span>
+            <span class="adv-col-h">avec</span>
+            <span class="adv-col-h">sans</span>
+            <span></span>
+          </div>
+          <ol class="adv-list adv-list-land">
+            {topLanding.map((s) => {
+              const m = landingMark(s.pWith, s.pWithout);
+              return (
+                <li>
+                  <Flag code={s.code} class="adv-flag" />
+                  <span class="adv-name">{nameOf(s.code)}</span>
+                  <span class="adv-with">{pct1(s.pWith)}</span>
+                  <span class="adv-without">{pct1(s.pWithout)}</span>
+                  <span class={`adv-mark adv-mark-${m.tone}`}>{m.glyph}</span>
+                </li>
+              );
+            })}
+          </ol>
+        </Card>
+      </div>
+
+      {homeRows.length > 0 && (
+        <Card class="adv-home">
+          <CardHead eyebrow="Sur leurs terres">
+            <span class="adv-sub">sont-ils avantagés chez eux ?</span>
+          </CardHead>
+          <div class="adv-home-cols">
+            <span></span><span></span>
+            <span class="adv-col-h">rounds</span>
+            <span class="adv-col-h">multi dom.</span>
+            <span class="adv-col-h">cumul ±</span>
+          </div>
+          <ol class="adv-list adv-list-home">
+            {homeRows.map((s) => (
+              <li class={s.isHome ? "adv-ref" : ""}>
+                <Flag code={s.code} class="adv-flag" />
+                <span class="adv-name">
+                  {nameOf(s.code)}
+                  {s.isHome && <span class="adv-tag">chez nous</span>}
+                </span>
+                <span class="adv-n">×{s.n}</span>
+                <span class="adv-mult">{fmtMult(s.homeMult)}</span>
+                <span class={`adv-bal ${s.balance >= 0 ? "win" : "loss"}`}>{fmtBalance(s.balance)}</span>
+              </li>
+            ))}
+          </ol>
+        </Card>
+      )}
+    </>
+  )}
+</section>
+
+<style>
+  .block { margin-top: calc(var(--gap) * 2.5); }
+
+  .adv-empty {
+    margin: 0;
+    color: var(--fg-2);
+    font-family: var(--sans);
+    font-size: 14px;
+  }
+
+  .adv-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap);
+  }
+
+  .adv-global {
+    margin: -6px 0 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--fg-2);
+  }
+  .adv-global b { color: var(--fg-0); font-weight: 600; }
+  .adv-lift.up { color: var(--loss); }
+  .adv-lift.down,
+  .adv-lift.flat { color: var(--win); }
+
+  .adv-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0;
+    margin: 0;
+  }
+  .adv-list li {
+    display: grid;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: var(--bg-2);
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  /* Qui affronte-t-on : rank | flag | name | ×slots | share(bar+%) */
+  ol.adv-list:not(.adv-list-land):not(.adv-list-home) li {
+    grid-template-columns: 18px 24px 1fr auto minmax(96px, auto);
+  }
+  .adv-rank {
+    font-family: var(--serif); font-style: italic;
+    font-size: 16px; color: var(--fg-2);
+  }
+  .adv-share {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 8px;
+    min-width: 96px;
+  }
+  .adv-bar {
+    height: 6px;
+    border-radius: 99px;
+    background: color-mix(in oklch, oklch(0.62 0.16 285) 70%, transparent);
+    width: var(--w);
+    min-width: 2px;
+  }
+  .adv-share b { color: var(--fg-0); font-weight: 600; text-align: right; }
+
+  /* Tombe-t-on chez eux : flag | name | avec | sans | mark */
+  .adv-cols,
+  .adv-home-cols {
+    display: grid;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px 6px;
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fg-3);
+  }
+  .adv-cols { grid-template-columns: 24px 1fr auto auto 24px; }
+  .adv-col-h { text-align: right; }
+
+  .adv-list-land li {
+    grid-template-columns: 24px 1fr auto auto 24px;
+  }
+  .adv-with { color: var(--fg-0); font-weight: 600; text-align: right; }
+  .adv-without { color: var(--fg-2); text-align: right; }
+  .adv-mark { text-align: center; font-weight: 700; }
+  .adv-mark-up { color: var(--loss); }
+  .adv-mark-down,
+  .adv-mark-flat { color: var(--win); }
+
+  /* Sur leurs terres : flag | name | n | mult | balance */
+  .adv-home-cols { grid-template-columns: 24px 1fr auto auto auto; }
+  .adv-list-home li {
+    grid-template-columns: 24px 1fr auto auto auto;
+  }
+  .adv-n { color: var(--fg-3); font-size: 10px; }
+  .adv-mult { color: var(--fg-0); font-weight: 600; text-align: right; }
+  .adv-bal { font-weight: 600; text-align: right; min-width: 64px; }
+  .adv-bal.win { color: var(--win); }
+  .adv-bal.loss { color: var(--loss); }
+
+  .adv-ref {
+    background: color-mix(in oklch, var(--win) 12%, var(--bg-2)) !important;
+    outline: 1px solid color-mix(in oklch, var(--win) 35%, transparent);
+  }
+  .adv-tag {
+    margin-left: 8px;
+    font-family: var(--sans);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--win);
+  }
+  .adv-sub {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--fg-2);
+  }
+
+  .adv-name { color: var(--fg-1); font-family: var(--sans); font-size: 12px; }
+  .adv-app { color: var(--fg-3); font-size: 10px; }
+
+  .adv-list :global(.adv-flag) {
+    width: 24px; height: 18px;
+    border-radius: 2px;
+    line-height: 1;
+  }
+
+  .adv-home { margin-top: var(--gap); }
+
+  @media (max-width: 1024px) {
+    .adv-row { grid-template-columns: 1fr; }
+  }
+</style>
