@@ -123,10 +123,7 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
             {homeRows.map((s) => (
               <li class={s.isHome ? "adv-ref" : ""}>
                 <Flag code={s.code} class="adv-flag" />
-                <span class="adv-name">
-                  {nameOf(s.code)}
-                  {s.isHome && <span class="adv-tag">chez nous</span>}
-                </span>
+                <span class="adv-name">{nameOf(s.code)}</span>
                 <span class="adv-n">×{s.n}</span>
                 <span class="adv-mult">{fmtMult(s.homeMult)}</span>
                 <span class={`adv-bal ${s.balance >= 0 ? "win" : "loss"}`}>{fmtBalance(s.balance)}</span>
@@ -255,14 +252,6 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
   .adv-ref {
     background: color-mix(in oklch, var(--win) 12%, var(--bg-2)) !important;
     outline: 1px solid color-mix(in oklch, var(--win) 35%, transparent);
-  }
-  .adv-tag {
-    margin-left: 8px;
-    font-family: var(--sans);
-    font-size: 9px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--win);
   }
   .adv-sub {
     font-family: var(--serif);

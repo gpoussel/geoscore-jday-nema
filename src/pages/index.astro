@@ -132,7 +132,8 @@ type View = {
 
 // JDay & Néma's home country — the "à domicile" reference for opponent home turf.
 const HOME_COUNTRY = "FR";
-const HOME_TURF_MIN = 8;
+// Opponent countries shown in the "Sur leurs terres" table (plus the FR row).
+const HOME_TURF_TOP = 7;
 
 const buildOpponentStats = (games: Game[], rounds: Round[]): OpponentStats => {
   // Opponent nationalities are game-level; a game enters the pool as soon as one
@@ -216,7 +217,7 @@ const buildOpponentStats = (games: Game[], rounds: Round[]): OpponentStats => {
     const hr = poolRounds.filter(
       (r) => r.country === code && targetsByGame.get(r.gameId)!.has(code),
     );
-    if (hr.length < HOME_TURF_MIN) continue;
+    if (hr.length === 0) continue;
     homeTurf.push({
       code,
       n: hr.length,
@@ -227,7 +228,7 @@ const buildOpponentStats = (games: Game[], rounds: Round[]): OpponentStats => {
       isHome: false,
     });
   }
-  homeTurf.sort((a, b) => b.n - a.n);
+  homeTurf.sort((a, b) => b.n - a.n || a.code.localeCompare(b.code));
 
   // Reference row: the duo at home in France (we are "home", so our multiplier).
   // Opponent nationality is irrelevant here, so all period rounds in FR count.
@@ -256,7 +257,7 @@ const buildOpponentStats = (games: Game[], rounds: Round[]): OpponentStats => {
     global: { observed, expected, lift },
     faced,
     landing,
-    homeTurf,
+    homeTurf: homeTurf.slice(0, HOME_TURF_TOP),
     homeRef,
   };
 };
