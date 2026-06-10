@@ -189,6 +189,27 @@ const buildOpponentStats = (games: Game[], rounds: Round[]): OpponentStats => {
     });
   }
 
+  // Final-round country per game → which games were *decided* on a given soil.
+  const finalCountry = new Map<string, string>();
+  const finalRoundNum = new Map<string, number>();
+  for (const r of rounds) {
+    if (r.roundNum > (finalRoundNum.get(r.gameId) ?? -1)) {
+      finalRoundNum.set(r.gameId, r.roundNum);
+      finalCountry.set(r.gameId, r.country);
+    }
+  }
+  // A game is "decided" in X when its last round is located in X and an opponent
+  // is from X — i.e. the deciding round landed on the opponent's home soil.
+  const decided: Record<string, { wins: number; losses: number }> = {};
+  for (const g of games) {
+    const t = targetsByGame.get(g.id);
+    const fc = finalCountry.get(g.id);
+    if (!t || fc == null || !t.has(fc)) continue;
+    const d = (decided[fc] ??= { wins: 0, losses: 0 });
+    if (g.won) d.wins++;
+    else d.losses++;
+  }
+
   const homeTurf: OpponentHomeTurf[] = [];
   for (const { code } of faced) {
     if (code === HOME_COUNTRY) continue;
@@ -201,6 +222,8 @@ const buildOpponentStats = (games: Game[], rounds: Round[]): OpponentStats => {
       n: hr.length,
       homeMult: hr.reduce((s, r) => s + r.oppMult, 0) / hr.length,
       balance: hr.reduce((s, r) => s + (r.myScore - r.oppScore), 0) / hr.length,
+      wins: decided[code]?.wins ?? 0,
+      losses: decided[code]?.losses ?? 0,
       isHome: false,
     });
   }
@@ -209,12 +232,21 @@ const buildOpponentStats = (games: Game[], rounds: Round[]): OpponentStats => {
   // Reference row: the duo at home in France (we are "home", so our multiplier).
   // Opponent nationality is irrelevant here, so all period rounds in FR count.
   const frR = rounds.filter((r) => r.country === HOME_COUNTRY);
+  let frWins = 0;
+  let frLosses = 0;
+  for (const g of games) {
+    if (finalCountry.get(g.id) !== HOME_COUNTRY) continue;
+    if (g.won) frWins++;
+    else frLosses++;
+  }
   const homeRef: OpponentHomeTurf | null = frR.length
     ? {
         code: HOME_COUNTRY,
         n: frR.length,
         homeMult: frR.reduce((s, r) => s + r.myMult, 0) / frR.length,
         balance: frR.reduce((s, r) => s + (r.myScore - r.oppScore), 0) / frR.length,
+        wins: frWins,
+        losses: frLosses,
         isHome: true,
       }
     : null;

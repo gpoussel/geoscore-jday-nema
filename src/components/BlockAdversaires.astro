@@ -52,6 +52,7 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
       "Qui affronte-t-on : part de chaque nationalité parmi les adversaires (2 par partie).",
       "Tombe-t-on chez eux : fréquence des rounds situés dans le pays de l'adversaire, selon qu'on affronte (« avec ») ou non (« sans ») un joueur de ce pays.",
       "Sur leurs terres : sur les rounds tombés dans le pays de l'adversaire, son multiplicateur moyen (équipe à domicile) et notre écart de points moyen par round (nous − adverse, sans multi). FR = repère à domicile.",
+      "V décis. / D décis. : parties dont le dernier round (décisif) est tombé dans ce pays, gagnées / perdues.",
     ]}
   />
 
@@ -124,6 +125,8 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
             <span class="adv-col-h">rounds</span>
             <span class="adv-col-h">multi moyen</span>
             <span class="adv-col-h">± moyen</span>
+            <span class="adv-col-h" title="Parties décidées sur ce sol — gagnées">V décis.</span>
+            <span class="adv-col-h" title="Parties décidées sur ce sol — perdues">D décis.</span>
           </div>
           <ol class="adv-list adv-list-home">
             {homeRows.map((s) => (
@@ -136,6 +139,8 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
                 <span class="adv-n">×{s.n}</span>
                 <span class="adv-mult">{fmtMult(s.homeMult)}</span>
                 <span class={`adv-bal ${s.balance >= 0 ? "win" : "loss"}`}>{fmtBalance(s.balance)}</span>
+                <span class={`adv-wd adv-w ${s.wins ? "" : "z"}`}>{s.wins}</span>
+                <span class={`adv-wd adv-d ${s.losses ? "" : "z"}`}>{s.losses}</span>
               </li>
             ))}
           </ol>
@@ -241,16 +246,20 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
   .adv-mark-down,
   .adv-mark-flat { color: var(--win); }
 
-  /* Sur leurs terres : flag | name | n | mult | balance */
-  .adv-home-cols { grid-template-columns: 24px 1fr auto auto auto; }
+  /* Sur leurs terres : flag | name | n | mult | balance | V | D */
+  .adv-home-cols { grid-template-columns: 24px 1fr auto auto auto auto auto; }
   .adv-list-home li {
-    grid-template-columns: 24px 1fr auto auto auto;
+    grid-template-columns: 24px 1fr auto auto auto auto auto;
   }
   .adv-n { color: var(--fg-3); font-size: 10px; }
   .adv-mult { color: var(--fg-0); font-weight: 600; text-align: right; }
   .adv-bal { font-weight: 600; text-align: right; min-width: 64px; }
   .adv-bal.win { color: var(--win); }
   .adv-bal.loss { color: var(--loss); }
+  .adv-wd { font-weight: 600; text-align: right; min-width: 26px; }
+  .adv-w { color: var(--win); }
+  .adv-d { color: var(--loss); }
+  .adv-wd.z { color: var(--fg-3); font-weight: 400; }
 
   .adv-ref {
     background: color-mix(in oklch, var(--win) 12%, var(--bg-2)) !important;

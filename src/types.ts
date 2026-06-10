@@ -149,13 +149,16 @@ export type OpponentLanding = {
  * opponent is "home" (`homeMult` = their multiplier); the `isHome` reference row
  * is the duo at home in France (`homeMult` = our multiplier). `balance` is the
  * per-round mean of (myScore − oppScore) — averaged so countries with different
- * round counts stay comparable.
+ * round counts stay comparable. `wins`/`losses` count games *decided* on that
+ * soil (last round located there), won/lost.
  */
 export type OpponentHomeTurf = {
   code: string;
   n: number;
   homeMult: number;
   balance: number;
+  wins: number;
+  losses: number;
   isHome: boolean;
 };
 
