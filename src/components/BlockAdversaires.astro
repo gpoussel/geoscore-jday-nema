@@ -28,8 +28,8 @@ const fmtBalance = (n: number) => {
 const topFaced = faced.slice(0, 8);
 const topLanding = landing.slice(0, 8);
 
-// Verdict marker per country: does landing in X get *more* likely when an
-// opponent is from X? ≈ (no effect) is the myth-debunking outcome.
+// Marker per country: does landing in X get *more* likely when an opponent is
+// from X? ≈ means no difference between facing a player from X and not.
 type Mark = { glyph: string; tone: "up" | "down" | "flat" };
 const landingMark = (pWith: number, pWithout: number): Mark => {
   if (pWithout <= 0) {
@@ -50,7 +50,7 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
     title="Adversaires"
     help={[
       "Qui affronte-t-on : part de chaque nationalité parmi les adversaires (2 par partie).",
-      "Tombe-t-on chez eux : fréquence des rounds situés dans le pays de l'adversaire, selon qu'on affronte ou non un joueur de ce pays. Le mythe voudrait « avec » ≫ « sans ».",
+      "Tombe-t-on chez eux : fréquence des rounds situés dans le pays de l'adversaire, selon qu'on affronte (« avec ») ou non (« sans ») un joueur de ce pays.",
       "Sur leurs terres : sur les rounds tombés dans le pays de l'adversaire, son multiplicateur moyen (équipe à domicile) et notre cumul de points (nous − adverse, sans multi). FR = repère à domicile.",
     ]}
   />
@@ -83,7 +83,7 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
         </Card>
 
         <Card>
-          <CardHead eyebrow="Tombe-t-on vraiment chez eux ?" />
+          <CardHead eyebrow="Tombe-t-on chez eux ?" />
           <p class="adv-global">
             Global · <b>{pct1(global.observed)}</b> observé vs
             <b> {pct1(global.expected)}</b> attendu ·
