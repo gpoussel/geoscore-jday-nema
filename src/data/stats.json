@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-10T23:34:56",
+  "generatedAt": "2026-06-10T23:48:01",
   "games": [
     {
       "id": "0001",
@@ -25839,8 +25839,8 @@
       "finalOppHp": 0,
       "finalMyMult": 2.5,
       "finalOppMult": 1.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "GB",
+      "opp2": "JP",
       "year": 2026,
       "week": 22,
       "weekKey": "2026-W22"
@@ -25867,8 +25867,8 @@
       "finalOppHp": 2846,
       "finalMyMult": 3.5,
       "finalOppMult": 4.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "HU",
+      "opp2": "JP",
       "year": 2026,
       "week": 22,
       "weekKey": "2026-W22"
@@ -25895,8 +25895,8 @@
       "finalOppHp": 4801,
       "finalMyMult": 1.5,
       "finalOppMult": 4.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "PT",
+      "opp2": "FR",
       "year": 2026,
       "week": 22,
       "weekKey": "2026-W22"
@@ -25923,8 +25923,8 @@
       "finalOppHp": 1655,
       "finalMyMult": 3.0,
       "finalOppMult": 3.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "ES",
+      "opp2": "UA",
       "year": 2026,
       "week": 22,
       "weekKey": "2026-W22"
@@ -25951,8 +25951,8 @@
       "finalOppHp": 0,
       "finalMyMult": 4.0,
       "finalOppMult": 4.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "AU",
+      "opp2": "AU",
       "year": 2026,
       "week": 22,
       "weekKey": "2026-W22"
@@ -25979,8 +25979,8 @@
       "finalOppHp": 0,
       "finalMyMult": 6.0,
       "finalOppMult": 5.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "FR",
+      "opp2": "FR",
       "year": 2026,
       "week": 22,
       "weekKey": "2026-W22"
@@ -26007,8 +26007,8 @@
       "finalOppHp": 0,
       "finalMyMult": 5.0,
       "finalOppMult": 2.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "DE",
+      "opp2": "DE",
       "year": 2026,
       "week": 22,
       "weekKey": "2026-W22"
@@ -26035,8 +26035,8 @@
       "finalOppHp": 286,
       "finalMyMult": 4.5,
       "finalOppMult": 6.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "DE",
+      "opp2": "DE",
       "year": 2026,
       "week": 22,
       "weekKey": "2026-W22"
@@ -26063,8 +26063,8 @@
       "finalOppHp": 5941,
       "finalMyMult": 2.0,
       "finalOppMult": 4.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "CH",
+      "opp2": "CH",
       "year": 2026,
       "week": 22,
       "weekKey": "2026-W22"
@@ -26091,8 +26091,8 @@
       "finalOppHp": 3121,
       "finalMyMult": 4.0,
       "finalOppMult": 4.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "CH",
+      "opp2": "CH",
       "year": 2026,
       "week": 22,
       "weekKey": "2026-W22"
@@ -26119,7 +26119,7 @@
       "finalOppHp": 4139,
       "finalMyMult": 3.5,
       "finalOppMult": 3.0,
-      "opp1": null,
+      "opp1": "US",
       "opp2": null,
       "year": 2026,
       "week": 22,
@@ -26147,8 +26147,8 @@
       "finalOppHp": 5297,
       "finalMyMult": 2.5,
       "finalOppMult": 4.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "FR",
+      "opp2": "FR",
       "year": 2026,
       "week": 22,
       "weekKey": "2026-W22"
@@ -26175,8 +26175,8 @@
       "finalOppHp": 0,
       "finalMyMult": 4.0,
       "finalOppMult": 2.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "AL",
+      "opp2": "CN",
       "year": 2026,
       "week": 22,
       "weekKey": "2026-W22"
@@ -26203,8 +26203,8 @@
       "finalOppHp": 0,
       "finalMyMult": 3.5,
       "finalOppMult": 1.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "IN",
+      "opp2": "US",
       "year": 2026,
       "week": 22,
       "weekKey": "2026-W22"
@@ -26231,8 +26231,8 @@
       "finalOppHp": 0,
       "finalMyMult": 4.5,
       "finalOppMult": 3.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "IT",
+      "opp2": "US",
       "year": 2026,
       "week": 22,
       "weekKey": "2026-W22"
@@ -26259,8 +26259,8 @@
       "finalOppHp": 241,
       "finalMyMult": 6.0,
       "finalOppMult": 3.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "FR",
+      "opp2": "FR",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -26287,8 +26287,8 @@
       "finalOppHp": 0,
       "finalMyMult": 4.0,
       "finalOppMult": 3.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "FR",
+      "opp2": "FR",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -26315,8 +26315,8 @@
       "finalOppHp": 0,
       "finalMyMult": 3.0,
       "finalOppMult": 3.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "DE",
+      "opp2": "DE",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -26343,8 +26343,8 @@
       "finalOppHp": 0,
       "finalMyMult": 4.0,
       "finalOppMult": 4.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "KI",
+      "opp2": "CH",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -26371,8 +26371,8 @@
       "finalOppHp": 0,
       "finalMyMult": 3.5,
       "finalOppMult": 3.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "FR",
+      "opp2": "FR",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -26399,8 +26399,8 @@
       "finalOppHp": 0,
       "finalMyMult": 4.0,
       "finalOppMult": 4.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "DK",
+      "opp2": "BR",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -26427,8 +26427,8 @@
       "finalOppHp": 0,
       "finalMyMult": 3.0,
       "finalOppMult": 1.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "JP",
+      "opp2": "JP",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -26455,8 +26455,8 @@
       "finalOppHp": 0,
       "finalMyMult": 4.5,
       "finalOppMult": 2.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "IN",
+      "opp2": "DE",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -26483,8 +26483,8 @@
       "finalOppHp": 5894,
       "finalMyMult": 1.5,
       "finalOppMult": 3.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "DE",
+      "opp2": "DE",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -26511,8 +26511,8 @@
       "finalOppHp": 5846,
       "finalMyMult": 2.5,
       "finalOppMult": 4.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "DE",
+      "opp2": "DE",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -26539,8 +26539,8 @@
       "finalOppHp": 0,
       "finalMyMult": 4.5,
       "finalOppMult": 3.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "UA",
+      "opp2": "UA",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -26567,8 +26567,8 @@
       "finalOppHp": 3334,
       "finalMyMult": 2.5,
       "finalOppMult": 5.0,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "DE",
+      "opp2": "DE",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -26595,8 +26595,8 @@
       "finalOppHp": 0,
       "finalMyMult": 3.0,
       "finalOppMult": 1.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "GB",
+      "opp2": "DK",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -26623,8 +26623,8 @@
       "finalOppHp": 0,
       "finalMyMult": 4.0,
       "finalOppMult": 5.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "FR",
+      "opp2": "SE",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -26651,8 +26651,8 @@
       "finalOppHp": 5381,
       "finalMyMult": 2.0,
       "finalOppMult": 3.5,
-      "opp1": null,
-      "opp2": null,
+      "opp1": "DK",
+      "opp2": "DK",
       "year": 2026,
       "week": 23,
       "weekKey": "2026-W23"
@@ -151119,6 +151119,11 @@
           "url": "https://www.twitch.tv/videos/2786896119?t=00h05m21s"
         },
         {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=4KMe1A3EGoU&t=795s"
+        },
+        {
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2786899127"
@@ -151143,6 +151148,11 @@
           "platform": "twitch",
           "player": "jday",
           "url": "https://www.twitch.tv/videos/2786896119?t=05h27m52s"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=4KMe1A3EGoU&t=19710s"
         },
         {
           "platform": "twitch",
@@ -151171,6 +151181,11 @@
           "url": "https://www.twitch.tv/videos/2787781760"
         },
         {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=7EzOCsgr47k"
+        },
+        {
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2787780056?t=00h02m22s"
@@ -151195,6 +151210,11 @@
           "platform": "twitch",
           "player": "jday",
           "url": "https://www.twitch.tv/videos/2788280030?t=00h08m10s"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=HcP9nnKMUK4"
         },
         {
           "platform": "twitch",
