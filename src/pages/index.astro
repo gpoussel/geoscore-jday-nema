@@ -200,7 +200,7 @@ const buildOpponentStats = (games: Game[], rounds: Round[]): OpponentStats => {
       code,
       n: hr.length,
       homeMult: hr.reduce((s, r) => s + r.oppMult, 0) / hr.length,
-      balance: hr.reduce((s, r) => s + (r.myScore - r.oppScore), 0),
+      balance: hr.reduce((s, r) => s + (r.myScore - r.oppScore), 0) / hr.length,
       isHome: false,
     });
   }
@@ -214,7 +214,7 @@ const buildOpponentStats = (games: Game[], rounds: Round[]): OpponentStats => {
         code: HOME_COUNTRY,
         n: frR.length,
         homeMult: frR.reduce((s, r) => s + r.myMult, 0) / frR.length,
-        balance: frR.reduce((s, r) => s + (r.myScore - r.oppScore), 0),
+        balance: frR.reduce((s, r) => s + (r.myScore - r.oppScore), 0) / frR.length,
         isHome: true,
       }
     : null;

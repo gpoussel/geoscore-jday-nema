@@ -51,7 +51,7 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
     help={[
       "Qui affronte-t-on : part de chaque nationalité parmi les adversaires (2 par partie).",
       "Tombe-t-on chez eux : fréquence des rounds situés dans le pays de l'adversaire, selon qu'on affronte (« avec ») ou non (« sans ») un joueur de ce pays.",
-      "Sur leurs terres : sur les rounds tombés dans le pays de l'adversaire, son multiplicateur moyen (équipe à domicile) et notre cumul de points (nous − adverse, sans multi). FR = repère à domicile.",
+      "Sur leurs terres : sur les rounds tombés dans le pays de l'adversaire, son multiplicateur moyen (équipe à domicile) et notre écart de points moyen par round (nous − adverse, sans multi). FR = repère à domicile.",
     ]}
   />
 
@@ -122,8 +122,8 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
           <div class="adv-home-cols">
             <span></span><span></span>
             <span class="adv-col-h">rounds</span>
-            <span class="adv-col-h">multi dom.</span>
-            <span class="adv-col-h">cumul ±</span>
+            <span class="adv-col-h">multi moyen</span>
+            <span class="adv-col-h">± moyen</span>
           </div>
           <ol class="adv-list adv-list-home">
             {homeRows.map((s) => (

@@ -147,7 +147,9 @@ export type OpponentLanding = {
 /**
  * Home-turf performance on rounds located in `code`. For opponent countries the
  * opponent is "home" (`homeMult` = their multiplier); the `isHome` reference row
- * is the duo at home in France (`homeMult` = our multiplier).
+ * is the duo at home in France (`homeMult` = our multiplier). `balance` is the
+ * per-round mean of (myScore − oppScore) — averaged so countries with different
+ * round counts stay comparable.
  */
 export type OpponentHomeTurf = {
   code: string;
