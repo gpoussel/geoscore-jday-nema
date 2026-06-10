@@ -49,7 +49,6 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
   <BlockHead
     title="Adversaires"
     help={[
-      "Basé sur les parties de la période dont au moins un pays adverse est renseigné.",
       "Qui affronte-t-on : part de chaque nationalité parmi les adversaires (2 par partie).",
       "Tombe-t-on chez eux : fréquence des rounds situés dans le pays de l'adversaire, selon qu'on affronte ou non un joueur de ce pays. Le mythe voudrait « avec » ≫ « sans ».",
       "Sur leurs terres : sur les rounds tombés dans le pays de l'adversaire, son multiplicateur moyen (équipe à domicile) et notre cumul de points (nous − adverse, sans multi). FR = repère à domicile.",
@@ -58,7 +57,7 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
 
   {!hasData && (
     <Card>
-      <p class="adv-empty">Aucune partie avec pays adverse renseigné sur la période.</p>
+      <p class="adv-empty">Pas encore de données sur la période.</p>
     </Card>
   )}
 
