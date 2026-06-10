@@ -63,7 +63,7 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
 
   {hasData && (
     <>
-      <div class="adv-row">
+      <div class="adv-grid">
         <Card>
           <CardHead eyebrow="Qui affronte-t-on ?" />
           <ol class="adv-list">
@@ -105,9 +105,8 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
             })}
           </ol>
         </Card>
-      </div>
 
-      {homeRows.length > 0 && (
+        {homeRows.length > 0 && (
         <Card class="adv-home">
           <CardHead eyebrow="Sur leurs terres">
             <span class="adv-sub">sont-ils avantagés chez eux ?</span>
@@ -137,7 +136,8 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
             ))}
           </ol>
         </Card>
-      )}
+        )}
+      </div>
     </>
   )}
 </section>
@@ -152,10 +152,20 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
     font-size: 14px;
   }
 
-  .adv-row {
+  .adv-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--gap);
+    align-items: start;
+  }
+  /* Default (≥1024px): the wide home-turf table spans both columns below. */
+  .adv-home { grid-column: 1 / -1; }
+
+  /* Large screens: all three cards on one row. The home table gets extra
+     width (1.7fr) so its 7 columns stay readable. */
+  @media (min-width: 1440px) {
+    .adv-grid { grid-template-columns: 1fr 1fr 1.7fr; }
+    .adv-home { grid-column: auto; }
   }
 
   .adv-list {
@@ -270,9 +280,8 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
     line-height: 1;
   }
 
-  .adv-home { margin-top: var(--gap); }
-
   @media (max-width: 1024px) {
-    .adv-row { grid-template-columns: 1fr; }
+    .adv-grid { grid-template-columns: 1fr; }
+    .adv-home { grid-column: auto; }
   }
 </style>
