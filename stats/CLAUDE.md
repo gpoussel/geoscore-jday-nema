@@ -19,7 +19,7 @@ uv run backfill_opponents.py # rattrapage des pays adverses sur les anciennes pa
 uv run build_stats.py    # rebuild ../src/data/stats.json from CSV + sessions.json
 ```
 
-`backfill_opponents.py` walks sessions in CSV order, prints VOD links and a per-round recap (country + scores) as a navigation aid, and only stops on games where `opp1_country` or `opp2_country` is still empty. Input per game: `fr de`, `--` = non communiqué, `s`/Entrée = passer, `q` = quitter. It saves after every game (reload-and-patch, so a concurrent recording is not overwritten), accepts `--session 26W24.03` to target one session, and regenerates `stats.json` at the end if anything changed.
+`backfill_opponents.py` walks sessions in CSV order, prints VOD links and a per-round recap (country + scores) as a navigation aid, and only stops on games where `opp1_country` or `opp2_country` is still empty. Input per game: `fr de`, `--` = non communiqué, `s`/Entrée = passer, `u` = revenir à la partie traitée précédente, `q` = quitter. `u` only steps back through games that were pending at launch; pressing Entrée/`s` on an already-filled game erases its countries (back to non renseignée). It saves after every game (reload-and-patch, so a concurrent recording is not overwritten), accepts `--session 26W24.03` to target one session, and regenerates `stats.json` at the end if anything changed.
 
 All scripts declare `pycountry` via PEP 723 inline metadata. Invoke them with `uv run <script.py>` (no `python` prefix) so uv picks up the script-local deps.
 

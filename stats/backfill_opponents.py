@@ -96,62 +96,73 @@ def main() -> None:
             print(c(f"Session inconnue: {args.session}", C.RED))
             return
 
-    total_pending = sum(1 for _, games in sessions for g in games if needs_backfill(g))
-    if not total_pending:
+    # Liste à plat des parties à traiter, figée au lancement: 'u' ne ramène que
+    # vers des parties initialement en attente (la dernière partie traitée).
+    pending = [
+        (sid, position, len(games), game_rows)
+        for sid, games in sessions
+        for position, game_rows in enumerate(games, start=1)
+        if needs_backfill(game_rows)
+    ]
+    if not pending:
         print(c("Rien à rattraper: tous les pays adverses sont renseignés.", C.GREEN))
         return
-    print(f"{c('Backfill pays adverses', C.BOLD, C.BCYAN)} — {total_pending} partie(s) à renseigner")
-    print(c("Saisie: 'fr de', '--' = non communiqué, s/Entrée = passer, q = quitter\n", C.DIM))
+    print(f"{c('Backfill pays adverses', C.BOLD, C.BCYAN)} — {len(pending)} partie(s) à renseigner")
+    print(c("Saisie: 'fr de', '--' = non communiqué, s/Entrée = passer, u = revenir en arrière, q = quitter\n", C.DIM))
 
-    filled = 0
-    skipped = 0
     changed = False
-    quitting = False
+    shown_session: str | None = None
+    i = 0
     try:
-        for sid, games in sessions:
-            if not any(needs_backfill(g) for g in games):
-                continue
-            print_session_header(sid, sessions_meta, len(games))
-            for position, game_rows in enumerate(games, start=1):
-                if not needs_backfill(game_rows):
-                    continue
-                print_game(game_rows, position, len(games))
-                while True:
-                    try:
-                        raw = input(
-                            f"Pays adverses {c('(fr de, --=non communiqué, s/Entrée=passer, q=quitter)', C.DIM)}: "
-                        ).strip()
-                    except EOFError:
-                        raw = "q"
-                    low = raw.lower()
-                    if low in ("q", "quit"):
-                        quitting = True
-                        break
-                    if not raw or low in ("s", "skip"):
-                        skipped += 1
-                        break
-                    parsed = geoscore.parse_opp_countries(raw)
-                    if parsed is None:
-                        continue
-                    for row in game_rows:
-                        row["opp1_country"], row["opp2_country"] = parsed
-                    save_countries(game_rows[0]["game_id"], *parsed)
-                    changed = True
-                    filled += 1
-                    print(c(f"  Sauvegardé: {opp_country_label(parsed[0])} / {opp_country_label(parsed[1])}", C.GREEN))
-                    break
-                if quitting:
-                    break
-            if quitting:
+        while 0 <= i < len(pending):
+            sid, position, total, game_rows = pending[i]
+            if sid != shown_session:
+                print_session_header(sid, sessions_meta, total)
+                shown_session = sid
+            print_game(game_rows, position, total)
+            try:
+                raw = input(
+                    f"Pays adverses {c('(fr de, --=non communiqué, s/Entrée=passer, u=retour, q=quitter)', C.DIM)}: "
+                ).strip()
+            except EOFError:
+                raw = "q"
+            low = raw.lower()
+            if low in ("q", "quit"):
                 break
+            if low in ("u", "undo", "b", "back"):
+                if i == 0:
+                    print(c("  Déjà à la première partie.", C.YELLOW))
+                else:
+                    i -= 1
+                    shown_session = None  # ré-affiche l'en-tête de la session ciblée
+                continue
+            if not raw or low in ("s", "skip"):
+                # Passer: efface une valeur déjà saisie (remet en non renseignée).
+                if not needs_backfill(game_rows):
+                    for row in game_rows:
+                        row["opp1_country"], row["opp2_country"] = "", ""
+                    save_countries(game_rows[0]["game_id"], "", "")
+                    changed = True
+                    print(c("  Effacé (non renseignée).", C.YELLOW))
+                i += 1
+                continue
+            parsed = geoscore.parse_opp_countries(raw)
+            if parsed is None:
+                continue
+            for row in game_rows:
+                row["opp1_country"], row["opp2_country"] = parsed
+            save_countries(game_rows[0]["game_id"], *parsed)
+            changed = True
+            print(c(f"  Sauvegardé: {opp_country_label(parsed[0])} / {opp_country_label(parsed[1])}", C.GREEN))
+            i += 1
     except KeyboardInterrupt:
-        quitting = True
         print(c("\nInterrompu.", C.YELLOW))
 
     if changed:
         geoscore.regenerate_data()
-    remaining = total_pending - filled - skipped
-    print(c(f"\nFin. {filled} renseignée(s), {skipped} passée(s), {remaining} restante(s).", C.BOLD))
+    done = sum(1 for _, _, _, game_rows in pending if not needs_backfill(game_rows))
+    remaining = len(pending) - done
+    print(c(f"\nFin. {done} renseignée(s), {remaining} restante(s).", C.BOLD))
 
 
 if __name__ == "__main__":
