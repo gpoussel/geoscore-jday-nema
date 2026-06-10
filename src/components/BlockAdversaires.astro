@@ -10,7 +10,7 @@ interface Props {
   opponents: OpponentStats;
 }
 const { opponents } = Astro.props;
-const { pool, global, faced, landing, homeTurf, homeRef } = opponents;
+const { pool, faced, landing, homeTurf, homeRef } = opponents;
 
 const hasData = pool.games > 0;
 const nameOf = countryName;
@@ -19,7 +19,6 @@ const pct1 = (n: number) => `${(n * 100).toFixed(1).replace(".", ",")}%`;
 const pct0 = (n: number) =>
   `${Math.round(n * 100).toLocaleString("fr-FR")}%`;
 const fmtMult = (n: number) => `×${n.toFixed(2).replace(".", ",")}`;
-const fmtLift = (n: number) => `×${n.toFixed(2).replace(".", ",")}`;
 const fmtBalance = (n: number) => {
   const r = Math.round(n);
   return `${r >= 0 ? "+" : "−"}${Math.abs(r).toLocaleString("fr-FR")}`;
@@ -85,13 +84,6 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
 
         <Card>
           <CardHead eyebrow="Tombe-t-on dans leur pays ?" />
-          <p class="adv-global">
-            Global · <b>{pct1(global.observed)}</b> observé vs
-            <b> {pct1(global.expected)}</b> attendu ·
-            <b class={`adv-lift ${global.lift >= 1.2 ? "up" : global.lift <= 0.85 ? "down" : "flat"}`}>
-              {" "}{fmtLift(global.lift)}
-            </b>
-          </p>
           <div class="adv-cols">
             <span></span><span></span>
             <span class="adv-col-h">avec</span>
@@ -165,17 +157,6 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
     grid-template-columns: 1fr 1fr;
     gap: var(--gap);
   }
-
-  .adv-global {
-    margin: -6px 0 14px;
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--fg-2);
-  }
-  .adv-global b { color: var(--fg-0); font-weight: 600; }
-  .adv-lift.up { color: var(--loss); }
-  .adv-lift.down,
-  .adv-lift.flat { color: var(--win); }
 
   .adv-list {
     list-style: none;
