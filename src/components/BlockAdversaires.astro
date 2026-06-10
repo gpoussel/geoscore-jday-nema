@@ -125,8 +125,8 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
             <span class="adv-col-h">rounds</span>
             <span class="adv-col-h">multi moyen</span>
             <span class="adv-col-h">± moyen</span>
-            <span class="adv-col-h" title="Parties décidées sur ce sol — gagnées">V décis.</span>
-            <span class="adv-col-h" title="Parties décidées sur ce sol — perdues">D décis.</span>
+            <span class="adv-col-h" title="Parties décidées sur ce sol — gagnées">V</span>
+            <span class="adv-col-h" title="Parties décidées sur ce sol — perdues">D</span>
           </div>
           <ol class="adv-list adv-list-home">
             {homeRows.map((s) => (
@@ -233,12 +233,11 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
     text-transform: uppercase;
     color: var(--fg-3);
   }
-  .adv-cols { grid-template-columns: 24px 1fr auto auto 24px; }
-  .adv-col-h { text-align: right; }
-
+  .adv-cols,
   .adv-list-land li {
-    grid-template-columns: 24px 1fr auto auto 24px;
+    grid-template-columns: 24px 1fr 56px 56px 24px;
   }
+  .adv-col-h { text-align: right; }
   .adv-with { color: var(--fg-0); font-weight: 600; text-align: right; }
   .adv-without { color: var(--fg-2); text-align: right; }
   .adv-mark { text-align: center; font-weight: 700; }
@@ -246,12 +245,13 @@ const homeRows = homeRef ? [...homeTurf, homeRef] : homeTurf;
   .adv-mark-down,
   .adv-mark-flat { color: var(--win); }
 
-  /* Sur leurs terres : flag | name | n | mult | balance | V | D */
-  .adv-home-cols { grid-template-columns: 24px 1fr auto auto auto auto auto; }
+  /* Sur leurs terres : flag | name | rounds | multi | ± | V | D.
+     Fixed widths so the header row and the body rows (separate grids) align. */
+  .adv-home-cols,
   .adv-list-home li {
-    grid-template-columns: 24px 1fr auto auto auto auto auto;
+    grid-template-columns: 24px 1fr 48px 88px 72px 32px 32px;
   }
-  .adv-n { color: var(--fg-3); font-size: 10px; }
+  .adv-n { color: var(--fg-3); font-size: 10px; text-align: right; }
   .adv-mult { color: var(--fg-0); font-weight: 600; text-align: right; }
   .adv-bal { font-weight: 600; text-align: right; min-width: 64px; }
   .adv-bal.win { color: var(--win); }
