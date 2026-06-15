@@ -6,14 +6,15 @@ import type { Player } from "../types";
 interface Props {
   players: Record<string, Player>;
   duoRank: string;
+  brand: string;
 }
-const { players, duoRank } = Astro.props;
+const { players, duoRank, brand } = Astro.props;
 const list = Object.values(players);
 ---
 
 <div class="team-card">
   <div class="left">
-    <div class="kicker">Road to Champion</div>
+    <div class="kicker">{brand}</div>
     <div class="title-row">
       <div class="names">
         {list.map((p, i) => (

@@ -66,6 +66,44 @@ body::before {
   z-index: 0;
 }
 
+/* ============================================
+   Champion theme — applied while the duo's current
+   rank is Champion. Blue palette drawn from the
+   champion rank icon; win/loss go pastel. Removing
+   `.champion` from <body> restores the purple theme.
+   ============================================ */
+body.champion {
+  --bg-0: oklch(0.18 0.085 248);
+  --bg-1: oklch(0.22 0.08 248);
+  --bg-2: oklch(0.27 0.08 248);
+  --card: oklch(0.24 0.08 248);
+  --card-hi: oklch(0.29 0.09 248);
+  --border: oklch(0.36 0.07 248);
+  --border-hi: oklch(0.50 0.10 248);
+
+  --fg-0: oklch(0.97 0.010 248);
+  --fg-1: oklch(0.84 0.020 248);
+  --fg-2: oklch(0.62 0.030 248);
+  --fg-3: oklch(0.46 0.030 248);
+
+  --win: oklch(0.88 0.105 168);
+  --win-soft: oklch(0.88 0.105 168 / 0.18);
+  --loss: oklch(0.80 0.115 55);
+  --loss-soft: oklch(0.80 0.115 55 / 0.18);
+
+  --map-unseen: oklch(0.17 0.015 248);
+  --map-mid: oklch(0.55 0.03 248);
+
+  --accent: oklch(0.78 0.13 235);
+
+  background:
+    radial-gradient(120% 120% at 100% -20%, rgba(56, 189, 248, 0.20) 0%, rgba(56, 189, 248, 0) 70%),
+    radial-gradient(140% 120% at 0% -10%, rgba(37, 99, 235, 0.40) 0%, rgba(37, 99, 235, 0) 70%),
+    #07172f;
+  background-attachment: fixed;
+}
+html:has(body.champion) { background: #07172f; }
+
 .app {
   position: relative;
   z-index: 1;

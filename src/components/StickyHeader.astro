@@ -9,13 +9,14 @@ interface Props {
     view: { kpis: { games: number; winRate: number; eloNet: number; elo: number; avgAcc: number } };
   }[];
   activeKey: string;
+  brand: string;
 }
-const { periods, activeKey } = Astro.props;
+const { periods, activeKey, brand } = Astro.props;
 ---
 
 <div class="sticky-header" data-sticky>
   <div class="sticky-inner">
-    <span class="brand">Road to Champion</span>
+    <span class="brand">{brand}</span>
     <PeriodToggle periods={periods} activeKey={activeKey} />
     <div class="sticky-kpis">
       {periods.map(({ key, view: { kpis } }) => (

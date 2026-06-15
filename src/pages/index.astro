@@ -12,6 +12,7 @@ import TeamCard from "../components/TeamCard.astro";
 import PeriodToggle from "../components/PeriodToggle.astro";
 import StickyHeader from "../components/StickyHeader.astro";
 import Banner from "../components/Banner.astro";
+import ChampionConfetti from "../components/ChampionConfetti.astro";
 import KpiRow from "../components/KpiRow.astro";
 import BlockElo from "../components/BlockElo.astro";
 import BlockPrecision from "../components/BlockPrecision.astro";
@@ -67,6 +68,8 @@ for (const weekKey of weeksWithGames) {
 const latestRankedWeek = Object.keys(rankByWeek).sort().at(-1);
 const currentDuoRank = latestRankedWeek ? rankByWeek[latestRankedWeek] : undefined;
 if (!currentDuoRank) throw new Error("Missing current duo rank in src/data/players.json");
+const isChampion = rankDivision(currentDuoRank) === "champion";
+const brandLabel = isChampion ? "Champion !" : "Road to Champion";
 
 const mapsById = new Map(maps.map((m) => [m.id, m]));
 const distributionFor = (assignment: MapAssignment): Distribution => {
@@ -403,7 +406,7 @@ const generatedAt = new Date(stats.generatedAt).toLocaleDateString("fr-FR");
 const allView = periods.find((p) => p.key === "all")!.view;
 const currentElo = allView.kpis.elo;
 const playerNames = Object.values(players).map((p) => p.name).join(" × ");
-const ogTitle = "Road to Champion · JDay & Néma";
+const ogTitle = `${brandLabel} · JDay & Néma`;
 const ogDescription =
   `Stats GeoGuessr Duels du duo ${playerNames} (${rankLabel(currentDuoRank)}) — ${allView.kpis.games} parties, ` +
   `${allView.kpis.winRate}% de victoires, ELO ${currentElo}.`;
@@ -424,7 +427,7 @@ const ogImage = `${baseUrl}og.png`;
     <link rel="canonical" href={baseUrl} />
 
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Road to Champion" />
+    <meta property="og:site_name" content={brandLabel} />
     <meta property="og:locale" content="fr_FR" />
     <meta property="og:url" content={baseUrl} />
     <meta property="og:title" content={ogTitle} />
@@ -445,12 +448,13 @@ const ogImage = `${baseUrl}og.png`;
       rel="stylesheet"
     />
   </head>
-  <body data-period={activePeriod}>
+  <body data-period={activePeriod} class:list={{ champion: isChampion }}>
+    {isChampion && <ChampionConfetti />}
     <Banner text={bannerData.text} />
-    <StickyHeader periods={periods} activeKey={activePeriod} />
+    <StickyHeader periods={periods} activeKey={activePeriod} brand={brandLabel} />
     <div class="app">
       <header class="header">
-        <TeamCard players={players} duoRank={currentDuoRank} />
+        <TeamCard players={players} duoRank={currentDuoRank} brand={brandLabel} />
         <PeriodToggle periods={periods} activeKey={activePeriod} />
       </header>
 
