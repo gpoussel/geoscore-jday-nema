@@ -64,11 +64,8 @@ for (const weekKey of weeksWithGames) {
   if (!rank) throw new Error(`Missing duo rank for week ${weekKey} in src/data/players.json`);
 }
 
-const latestSession = [...stats.sessions]
-  .filter((s) => s.games > 0)
-  .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))
-  .at(-1);
-const currentDuoRank = latestSession ? rankByWeek[latestSession.weekKey] : undefined;
+const latestRankedWeek = Object.keys(rankByWeek).sort().at(-1);
+const currentDuoRank = latestRankedWeek ? rankByWeek[latestRankedWeek] : undefined;
 if (!currentDuoRank) throw new Error("Missing current duo rank in src/data/players.json");
 
 const mapsById = new Map(maps.map((m) => [m.id, m]));
