@@ -26,18 +26,6 @@ const duoRank = latestWeekKey ? rankByWeek[latestWeekKey] : undefined;
 if (!duoRank) throw new Error("Missing current duo rank in src/data/players.json");
 const players = Object.values(playersFile.players).map((p) => p.name);
 
-const rankLabels = {
-  champion: "Champion",
-  master_i: "Master I",
-  master_ii: "Master II",
-  gold_i: "Gold I",
-  gold_ii: "Gold II",
-  gold_iii: "Gold III",
-  silver_i: "Silver I",
-  silver_ii: "Silver II",
-  silver_iii: "Silver III",
-  bronze: "Bronze",
-};
 const rankAliases = {
   "master 1": "master_i",
   "master i": "master_i",
@@ -61,7 +49,6 @@ const rankKey = (rank) => {
   const normalized = normalizeRank(rank);
   return rankAliases[normalized] ?? normalized;
 };
-const rankLabel = (rank) => rankLabels[rankKey(rank)] ?? rank;
 
 const fmtSigned = (n) => (n >= 0 ? `+${n}` : `${n}`);
 
@@ -72,7 +59,6 @@ const isChampion = rankKey(duoRank) === "champion";
 const theme = isChampion
   ? {
       title: "Champion !",
-      rankNote: "rang maximal atteint",
       bgTop: "#0b2350",
       bgBottom: "#07172f",
       bgRender: "#07172f",
@@ -84,8 +70,6 @@ const theme = isChampion
       line: "#1d3a6b",
       pos: "#6ee7c7",
       neg: "#ffb38a",
-      rankGradFrom: "#38bdf8",
-      rankGradTo: "#2563eb",
     }
   : {
       title: "Road to Champion",
@@ -101,8 +85,6 @@ const theme = isChampion
       line: "#3a2a78",
       pos: "#3ae8bd",
       neg: "#ff9966",
-      rankGradFrom: "#3ae8bd",
-      rankGradTo: "#7950e5",
     };
 
 const svg = `<?xml version="1.0" encoding="UTF-8"?>
@@ -123,10 +105,6 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
     <linearGradient id="cardBg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#ffffff" stop-opacity="0.08"/>
       <stop offset="100%" stop-color="#ffffff" stop-opacity="0.02"/>
-    </linearGradient>
-    <linearGradient id="rankGrad" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="${theme.rankGradFrom}"/>
-      <stop offset="100%" stop-color="${theme.rankGradTo}"/>
     </linearGradient>
   </defs>
 
@@ -163,7 +141,7 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
     </text>
   </g>
 
-  <g transform="translate(340 380)">
+  <g transform="translate(480 380)">
     <rect width="240" height="180" rx="14" fill="url(#cardBg)" stroke="${theme.line}" stroke-width="1"/>
     <text x="20" y="38" font-family="'Geist', Arial, sans-serif"
           font-size="13" font-weight="600" fill="${theme.muted}" letter-spacing="3">VICTOIRES</text>
@@ -175,7 +153,7 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
     </text>
   </g>
 
-  <g transform="translate(600 380)">
+  <g transform="translate(880 380)">
     <rect width="240" height="180" rx="14" fill="url(#cardBg)" stroke="${theme.line}" stroke-width="1"/>
     <text x="20" y="38" font-family="'Geist', Arial, sans-serif"
           font-size="13" font-weight="600" fill="${theme.muted}" letter-spacing="3">SESSIONS</text>
@@ -185,17 +163,6 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
           font-size="20" font-weight="500" fill="${theme.subtitle}">
       sur ${weeks} semaine${weeks > 1 ? "s" : ""}
     </text>
-  </g>
-
-  <g transform="translate(860 380)">
-    <rect width="260" height="180" rx="14" fill="url(#cardBg)" stroke="${theme.line}" stroke-width="1"/>
-    <text x="20" y="38" font-family="'Geist', Arial, sans-serif"
-          font-size="13" font-weight="600" fill="${theme.muted}" letter-spacing="3">RANG DUO</text>
-    <rect x="20" y="62" width="220" height="6" rx="3" fill="url(#rankGrad)"/>
-    <text x="20" y="130" font-family="'Instrument Serif', Georgia, serif"
-          font-style="italic" font-size="60" font-weight="400" fill="#ffffff">${rankLabel(duoRank)}</text>
-    <text x="20" y="160" font-family="'Geist', Arial, sans-serif"
-          font-size="16" font-weight="500" fill="${theme.muted}">${theme.rankNote}</text>
   </g>
 </svg>
 `;
