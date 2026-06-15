@@ -8,6 +8,7 @@ interface Props {
   avgAcc: number;
 }
 const { games, winRate, eloNet, avgAcc } = Astro.props;
+const noGames = games === 0;
 ---
 
 <div class="kpi-row">
@@ -18,8 +19,8 @@ const { games, winRate, eloNet, avgAcc } = Astro.props;
   />
   <Kpi
     label="Win-rate"
-    value={`${winRate}%`}
-    tone={winRate >= 50 ? "win" : "loss"}
+    value={noGames ? "—" : `${winRate}%`}
+    tone={noGames ? undefined : winRate >= 50 ? "win" : "loss"}
     help={["Parties gagnées / parties jouées sur la période active.", "Le résultat est arrondi au pourcentage entier."]}
   />
   <Kpi
@@ -30,7 +31,7 @@ const { games, winRate, eloNet, avgAcc } = Astro.props;
   />
   <Kpi
     label="Précision moy."
-    value={`${avgAcc.toFixed(1).replace(".", ",")}%`}
+    value={noGames ? "—" : `${avgAcc.toFixed(1).replace(".", ",")}%`}
     help={["Moyenne des précisions du duo par partie.", "La précision d'une partie est la moyenne des scores du duo divisés par 50."]}
   />
 </div>

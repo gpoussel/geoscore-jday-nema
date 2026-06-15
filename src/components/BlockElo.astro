@@ -74,7 +74,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
             <circle class="arc arc-loss" cx="100" cy="100" r={R} fill="none" stroke="var(--loss)" stroke-width="22" />
             <circle class="arc arc-win" cx="100" cy="100" r={R} fill="none" stroke="var(--win)" stroke-width="22" stroke-dasharray={`${(winPct / 100) * C} ${C}`} transform="rotate(-90 100 100)" />
             <text x="100" y="96" text-anchor="middle" font-family="var(--serif)" font-size="36" fill="white" font-style="italic">
-              {Math.round(winPct)}<tspan font-size="20">%</tspan>
+              {games.length ? <>{Math.round(winPct)}<tspan font-size="20">%</tspan></> : "—"}
             </text>
             <text x="100" y="115" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="rgba(255,255,255,0.5)" letter-spacing="2">WIN-RATE</text>
           </svg>

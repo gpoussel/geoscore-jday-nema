@@ -19,11 +19,13 @@ const { periods, activeKey, brand } = Astro.props;
     <span class="brand">{brand}</span>
     <PeriodToggle periods={periods} activeKey={activeKey} />
     <div class="sticky-kpis">
-      {periods.map(({ key, view: { kpis } }) => (
+      {periods.map(({ key, view: { kpis } }) => {
+        const noGames = kpis.games === 0;
+        return (
         <span data-view={key} class="kpi-bundle">
           <span class="kpi-item"><b>{kpis.games}</b><em>P</em></span>
           <span class="kpi-item">
-            <b class={kpis.winRate >= 50 ? "tone-win" : "tone-loss"}>{kpis.winRate}%</b>
+            <b class={noGames ? "" : kpis.winRate >= 50 ? "tone-win" : "tone-loss"}>{noGames ? "—" : `${kpis.winRate}%`}</b>
             <em>WR</em>
           </span>
           <span class="kpi-item">
@@ -36,9 +38,10 @@ const { periods, activeKey, brand } = Astro.props;
             </b>
             <em>Δ</em>
           </span>
-          <span class="kpi-item"><b>{kpis.avgAcc.toFixed(1).replace(".", ",")}%</b><em>PRÉC</em></span>
+          <span class="kpi-item"><b>{noGames ? "—" : `${kpis.avgAcc.toFixed(1).replace(".", ",")}%`}</b><em>PRÉC</em></span>
         </span>
-      ))}
+        );
+      })}
     </div>
   </div>
 </div>
