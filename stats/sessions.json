@@ -1168,5 +1168,21 @@
         "url": "https://www.twitch.tv/videos/2794698854?t=04h17m24s"
       }
     ]
+  },
+  "26W25.01": {
+    "date": "2026-06-15",
+    "time": "11h",
+    "vods": [
+      {
+        "platform": "twitch",
+        "player": "jday",
+        "url": "https://www.twitch.tv/videos/2797138599"
+      },
+      {
+        "platform": "twitch",
+        "player": "nema",
+        "url": "https://www.twitch.tv/videos/2797113841?t=1h35m19s"
+      }
+    ]
   }
 }
