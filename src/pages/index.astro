@@ -65,11 +65,16 @@ for (const weekKey of weeksWithGames) {
   if (!rank) throw new Error(`Missing duo rank for week ${weekKey} in src/data/players.json`);
 }
 
-const latestRankedWeek = Object.keys(rankByWeek).sort().at(-1);
+const rankedWeeks = Object.keys(rankByWeek).sort();
+const latestRankedWeek = rankedWeeks.at(-1);
 const currentDuoRank = latestRankedWeek ? rankByWeek[latestRankedWeek] : undefined;
 if (!currentDuoRank) throw new Error("Missing current duo rank in src/data/players.json");
 const isChampion = rankDivision(currentDuoRank) === "champion";
 const brandLabel = isChampion ? "Champion !" : "Road to Champion";
+// Confetti only on promotion: Champion this week, not Champion last week.
+const previousWeekKey = rankedWeeks.at(-2);
+const previousDuoRank = previousWeekKey ? rankByWeek[previousWeekKey] : undefined;
+const isPromotionToChampion = isChampion && rankDivision(previousDuoRank ?? "") !== "champion";
 
 const mapsById = new Map(maps.map((m) => [m.id, m]));
 const distributionFor = (assignment: MapAssignment): Distribution => {
@@ -449,7 +454,7 @@ const ogImage = `${baseUrl}og.png`;
     />
   </head>
   <body data-period={activePeriod} class:list={{ champion: isChampion }}>
-    {isChampion && <ChampionConfetti />}
+    {isPromotionToChampion && <ChampionConfetti />}
     <Banner text={bannerData.text} />
     <StickyHeader periods={periods} activeKey={activePeriod} brand={brandLabel} />
     <div class="app">
