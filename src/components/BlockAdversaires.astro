@@ -25,7 +25,9 @@ const fmtBalance = (n: number) => {
 };
 
 const topFaced = faced.slice(0, 8);
-const topLanding = landing.slice(0, 8);
+// Drop countries we never land in when facing them (0 % « avec ») — they carry
+// no signal, all the more so when « sans » is 0 % too.
+const topLanding = landing.filter((s) => s.pWith > 0).slice(0, 8);
 
 // Marker per country: does landing in X get *more* likely when an opponent is
 // from X? ≈ means no difference between facing a player from X and not.
