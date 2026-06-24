@@ -1264,5 +1264,37 @@
         "url": "https://www.twitch.tv/videos/2802566847?t=3h52m55s"
       }
     ]
+  },
+  "26W26.02": {
+    "date": "2026-06-23",
+    "time": "23h",
+    "vods": [
+      {
+        "platform": "twitch",
+        "player": "jday",
+        "url": "https://www.twitch.tv/videos/2803630149?t=03h03m33s"
+      },
+      {
+        "platform": "twitch",
+        "player": "nema",
+        "url": "https://www.twitch.tv/videos/2803637721?t=02h53m42s"
+      }
+    ]
+  },
+  "26W26.03": {
+    "date": "2026-06-24",
+    "time": "19h",
+    "vods": [
+      {
+        "platform": "twitch",
+        "player": "jday",
+        "url": "https://www.twitch.tv/videos/2804403112?t=00h00m09s"
+      },
+      {
+        "platform": "twitch",
+        "player": "nema",
+        "url": "https://www.twitch.tv/videos/2804403234"
+      }
+    ]
   }
 }
