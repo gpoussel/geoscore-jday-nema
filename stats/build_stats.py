@@ -31,6 +31,36 @@ OG_SCRIPT = WEB_ROOT / "scripts" / "build-og.mjs"
 
 STARTING_HP = 6000
 
+# GeoGuessr rebased every player's ELO with `new = old/2 + 250` on this date.
+# games.csv keeps the raw values the game UI showed at recording time; we
+# normalize pre-rebase ELO onto the new scale at this display layer so the curve
+# stays continuous across the change. Games dated on/after this stay as recorded.
+ELO_RESCALE_DATE = "2026-06-29"
+ELO_RESCALE_FORMULA = "elo/2 + 250"
+
+
+def rescale_elo(value: int) -> int:
+    """Map an old-scale ELO onto the post-2026-06-29 scale (old/2 + 250)."""
+    return round(value / 2 + 250)
+
+
+def normalize_elo_scale(games: list[dict], sessions_meta: dict) -> int:
+    """Rewrite pre-rebase game ELO onto the current scale (display only).
+
+    Converts every game whose session predates ELO_RESCALE_DATE so the displayed
+    ELO is continuous with post-rebase data. eloDelta is recomputed from the
+    converted endpoints to keep `eloBefore + eloDelta == elo`. Returns the count
+    of converted games."""
+    converted = 0
+    for g in games:
+        date = sessions_meta.get(g["session"], {}).get("date", "")
+        if date and date < ELO_RESCALE_DATE:
+            g["elo"] = rescale_elo(g["elo"])
+            g["eloBefore"] = rescale_elo(g["eloBefore"])
+            g["eloDelta"] = g["elo"] - g["eloBefore"]
+            converted += 1
+    return converted
+
 
 def margin_bucket(final_my_hp: int, final_opp_hp: int, won: bool) -> str:
     """Classify a game margin from the winner's remaining HP.
@@ -307,10 +337,13 @@ def main() -> None:
         g["week"] = week
         g["weekKey"] = f"{year}-W{week:02d}"
 
+    rescaled = normalize_elo_scale(games, sessions_meta)
+
     sessions = build_sessions(games, sessions_meta)
 
     payload = {
         "generatedAt": datetime.now().isoformat(timespec="seconds"),
+        "eloRescale": {"date": ELO_RESCALE_DATE, "formula": ELO_RESCALE_FORMULA},
         "games": games,
         "rounds": rounds,
         "sessions": sessions,
@@ -319,7 +352,8 @@ def main() -> None:
     OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     OUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     excluded_msg = f", {excluded_count} excluded" if excluded_count else ""
-    print(f"Wrote {OUT_FILE} · {len(games)} games, {len(rounds)} rounds{excluded_msg}, {len(sessions)} sessions")
+    rescaled_msg = f", {rescaled} ELO-rescaled" if rescaled else ""
+    print(f"Wrote {OUT_FILE} · {len(games)} games, {len(rounds)} rounds{excluded_msg}{rescaled_msg}, {len(sessions)} sessions")
 
     regenerate_og_image()
 

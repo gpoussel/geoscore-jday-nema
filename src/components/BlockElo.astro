@@ -5,10 +5,19 @@ import BlockHead from "./ui/BlockHead.astro";
 import type { Game, Session } from "../types";
 import { rankShortLabel } from "../lib/ranks";
 
-interface Props { games: Game[]; sessions: Session[]; rankByWeek: Record<string, string>; }
-const { games, sessions, rankByWeek } = Astro.props;
+interface Props { games: Game[]; sessions: Session[]; rankByWeek: Record<string, string>; rescaleDate?: string; }
+const { games, sessions, rankByWeek, rescaleDate } = Astro.props;
 
 const fmtDate = (iso: string) => { const [, m, d] = iso.split("-"); return `${d}/${m}`; };
+
+// Vertical marker at the GeoGuessr ELO rebasing (new = old/2 + 250): the boundary
+// is the first displayed game whose session is dated on/after rescaleDate. Null
+// until post-rebase games exist, so nothing is drawn before the change lands.
+const sessionDate: Record<string, string> = Object.fromEntries(sessions.map((s) => [s.id, s.date]));
+const rescaleGameIdx = rescaleDate
+  ? games.findIndex((g) => { const d = sessionDate[g.session]; return d && d >= rescaleDate; })
+  : -1;
+const rescaleMarker = rescaleGameIdx > 0 ? { idx: rescaleGameIdx } : null;
 const boundaries = sessions
   .map((s) => {
     const idx = games.findIndex((g) => g.session === s.id);
@@ -61,6 +70,7 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
         <canvas></canvas>
         <script type="application/json" class="elo-data" is:inline set:html={JSON.stringify(eloData)} />
         <script type="application/json" class="session-boundaries" is:inline set:html={JSON.stringify(boundaries)} />
+        <script type="application/json" class="rescale-marker" is:inline set:html={JSON.stringify(rescaleMarker)} />
       </div>
     </Card>
 
@@ -436,10 +446,16 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
   document.querySelectorAll<HTMLElement>(".elo-chart").forEach((el) => {
     const dataEl = el.querySelector<HTMLScriptElement>(".elo-data");
     const boundariesEl = el.querySelector<HTMLScriptElement>(".session-boundaries");
+    const rescaleEl = el.querySelector<HTMLScriptElement>(".rescale-marker");
     const canvas = el.querySelector<HTMLCanvasElement>("canvas");
     if (!dataEl || !canvas || !dataEl.textContent) return;
     const data = JSON.parse(dataEl.textContent) as GamePt[];
     if (!data.length) return;
+    // +1 offsets the synthetic "ELO initial" point prepended to plotData below.
+    const rescaleRaw = rescaleEl?.textContent
+      ? (JSON.parse(rescaleEl.textContent) as { idx: number } | null)
+      : null;
+    const rescaleIdx = rescaleRaw ? rescaleRaw.idx + 1 : -1;
     const boundaries = boundariesEl?.textContent
       ? (JSON.parse(boundariesEl.textContent) as { idx: number; date: string; time: string; weekKey: string; rank: string }[])
           .map((b) => ({ ...b, idx: b.idx + 1 }))
@@ -554,9 +570,48 @@ const maxC = Math.max(1, ...categories.map((c) => c.count));
       },
     };
 
+    const rescaleMarkerPlugin = {
+      id: "rescaleMarker",
+      afterDatasetsDraw(chart: any) {
+        if (rescaleIdx < 0) return;
+        const { ctx, chartArea, scales } = chart;
+        const x = scales.x.getPixelForValue(rescaleIdx);
+        if (x == null || !Number.isFinite(x) || x < chartArea.left || x > chartArea.right) return;
+        ctx.save();
+        ctx.setLineDash([5, 4]);
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(x, chartArea.top);
+        ctx.lineTo(x, chartArea.bottom);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        const label = "REBASAGE ÷2+250";
+        ctx.font = '600 9px "JetBrains Mono", monospace';
+        const tw = ctx.measureText(label).width;
+        const padX = 6;
+        const pillW = tw + padX * 2;
+        const pillH = 16;
+        let px = x + 4;
+        if (px + pillW > chartArea.right) px = x - 4 - pillW;
+        const py = chartArea.bottom - pillH - 4;
+        ctx.fillStyle = "rgba(0,0,0,0.55)";
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(px, py, pillW, pillH, 5);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "rgba(255,255,255,0.9)";
+        ctx.textAlign = "left";
+        ctx.fillText(label, px + padX, py + 11);
+        ctx.restore();
+      },
+    };
+
     const chart = new Chart(canvas.getContext("2d")!, {
       type: "line",
-      plugins: [sessionMarkersPlugin],
+      plugins: [sessionMarkersPlugin, rescaleMarkerPlugin],
       data: {
         labels: plotData.map((_, i) => String(i)),
         datasets: [

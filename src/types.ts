@@ -101,8 +101,15 @@ export type DistributionsFile = {
   assignments: MapAssignment[];
 };
 
+export type EloRescale = {
+  /** ISO date GeoGuessr rebased every player's ELO (new = old/2 + 250). */
+  date: string;
+  formula: string;
+};
+
 export type Stats = {
   generatedAt: string;
+  eloRescale: EloRescale;
   games: RawGame[];
   rounds: Round[];
   sessions: Session[];

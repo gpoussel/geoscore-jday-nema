@@ -466,7 +466,7 @@ const ogImage = `${baseUrl}og.png`;
       {periods.map(({ key, view: v }) => (
         <div data-view={key} class="view">
           <KpiRow {...v.kpis} />
-          <BlockElo games={v.games} sessions={v.sessions} rankByWeek={rankByWeek} />
+          <BlockElo games={v.games} sessions={v.sessions} rankByWeek={rankByWeek} rescaleDate={stats.eloRescale.date} />
           <BlockPrecision games={v.games} rounds={v.rounds} sessions={v.sessions} aggregateMode={key === "all" ? "week" : "game"} />
           <BlockMultiplier games={v.games} rounds={v.rounds} sessions={v.sessions} />
           <BlockPays countryStats={v.countryStats} finalCountryStats={v.finalCountryStats} distributions={v.distributions} />
