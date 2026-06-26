@@ -1166,6 +1166,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2794698854?t=04h17m24s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=oPxuKovs8bk&t=541s"
       }
     ]
   },
@@ -1182,6 +1187,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2797113841?t=1h35m19s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=QMBmwlhFwT0"
       }
     ]
   },
@@ -1198,6 +1208,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2798659794?t=2h58m36s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=fcfkI7WTmlc"
       }
     ]
   },
@@ -1214,6 +1229,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2798659794?t=13h47m50s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=joQqquZBFug&t=8830s"
       }
     ]
   },
@@ -1230,6 +1250,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2800224219?t=4h12m12s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=nqxXfZ6RP28"
       }
     ]
   },
@@ -1246,6 +1271,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2801144922"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=AEnevJ4G5tE"
       }
     ]
   },
