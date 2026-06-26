@@ -47,10 +47,16 @@ def rescale_elo(value: int) -> int:
 def normalize_elo_scale(games: list[dict], sessions_meta: dict) -> int:
     """Rewrite pre-rebase game ELO onto the current scale (display only).
 
-    Converts every game whose session predates ELO_RESCALE_DATE so the displayed
-    ELO is continuous with post-rebase data. eloDelta is recomputed from the
-    converted endpoints to keep `eloBefore + eloDelta == elo`. Returns the count
-    of converted games."""
+    The rebase is a real in-game event on ELO_RESCALE_DATE: until that day the
+    game (and this site) still shows old-scale values, so we leave them untouched
+    and only start converting once today's build date reaches ELO_RESCALE_DATE.
+    From then on, every game whose session predates the rebase is converted so the
+    displayed ELO stays continuous with post-rebase data. eloDelta is recomputed
+    from the converted endpoints to keep `eloBefore + eloDelta == elo`. Returns the
+    count of converted games."""
+    today = datetime.now().date().isoformat()
+    if today < ELO_RESCALE_DATE:
+        return 0
     converted = 0
     for g in games:
         date = sessions_meta.get(g["session"], {}).get("date", "")
