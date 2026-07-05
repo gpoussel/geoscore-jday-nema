@@ -1308,6 +1308,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2803637721?t=02h53m42s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=r-zFHrL8VNg&t=9660s"
       }
     ]
   },
