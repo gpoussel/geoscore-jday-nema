@@ -177,6 +177,8 @@ def last_game_summary(rows: list[dict], session: str) -> dict | None:
         "rounds": len(game_rows),
         "finalMyHp": int(head["final_my_hp"]),
         "finalOppHp": int(head["final_opp_hp"]),
+        "opp1Country": head.get("opp1_country", "") or "",
+        "opp2Country": head.get("opp2_country", "") or "",
     }
 
 
@@ -526,6 +528,9 @@ HTML = r"""<!doctype html>
         <button id="opp1Unknown" type="button">Adv. 1 non communiqué</button>
         <button id="opp2Unknown" type="button">Adv. 2 non communiqué</button>
       </div>
+      <div class="seg" style="grid-template-columns:1fr">
+        <button id="copyOppCountries" type="button">Recopier pays adv. précédents</button>
+      </div>
       <div class="seg">
         <button id="modeMove" type="button" class="active">Move</button>
         <button id="modeNoMove" type="button">No-move</button>
@@ -673,6 +678,12 @@ function applyContext(ctx, keepGame = false) {
 }
 
 function renderLastGame(game) {
+  const copyBtn = $("copyOppCountries");
+  const hasOpp = !!game && (game.opp1Country || game.opp2Country);
+  copyBtn.disabled = !hasOpp;
+  copyBtn.textContent = hasOpp
+    ? `Recopier pays adv. (${[game.opp1Country, game.opp2Country].filter(Boolean).join(" / ") || "--"})`
+    : "Recopier pays adv. précédents";
   if (!game) {
     $("lastGame").textContent = "Aucune partie dans cette session.";
     return;
@@ -799,6 +810,12 @@ $("opp1Unknown").onclick = () => {
 };
 $("opp2Unknown").onclick = () => {
   $("opp2Country").value = "--";
+};
+$("copyOppCountries").onclick = () => {
+  const game = state.context?.lastGame;
+  if (!game) return;
+  $("opp1Country").value = game.opp1Country || "";
+  $("opp2Country").value = game.opp2Country || "";
 };
 $("eloGain").onclick = () => {
   setEloSign("+");
