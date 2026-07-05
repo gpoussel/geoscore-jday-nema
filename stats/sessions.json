@@ -1292,6 +1292,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2802566847?t=3h52m55s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=Ez_meBpolVg"
       }
     ]
   },
@@ -1329,6 +1334,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2804403234"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=FLJZrWiHByQ"
       }
     ]
   },
@@ -1345,6 +1355,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2805644619?t=4h23m26s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=Q4BTT5Gj6e0"
       }
     ]
   },
