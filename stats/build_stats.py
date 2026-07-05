@@ -31,11 +31,15 @@ OG_SCRIPT = WEB_ROOT / "scripts" / "build-og.mjs"
 
 STARTING_HP = 6000
 
-# GeoGuessr rebased every player's ELO with `new = old/2 + 250` on this date.
-# games.csv keeps the raw values the game UI showed at recording time; we
-# normalize pre-rebase ELO onto the new scale at this display layer so the curve
-# stays continuous across the change. Games dated on/after this stay as recorded.
-ELO_RESCALE_DATE = "2026-06-29"
+# GeoGuessr plans to rebase every player's ELO with `new = old/2 + 250`, but the
+# 2026-06-29 rebase was postponed and no new date has been announced. The whole
+# rescale (history conversion + chart marker) is date-gated on this constant, so
+# a future placeholder disables it: nothing is converted and all ELO stays on the
+# raw old scale the game UI showed. Set this to the real date once GeoGuessr ships
+# the rebase; games dated on/after it then stay as recorded while earlier history
+# is converted onto the new scale.
+# TODO: replace with the announced rebase date when it is known.
+ELO_RESCALE_DATE = "9999-12-31"
 ELO_RESCALE_FORMULA = "elo/2 + 250"
 
 
