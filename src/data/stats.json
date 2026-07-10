@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-06T21:11:52",
+  "generatedAt": "2026-07-10T20:16:27",
   "eloRescale": {
     "date": "9999-12-31",
     "formula": "elo/2 + 250"
@@ -192910,6 +192910,84 @@
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2813323327?t=04h00m47s"
+        }
+      ]
+    },
+    {
+      "id": "26W28.02",
+      "year": 2026,
+      "week": 28,
+      "weekKey": "2026-W28",
+      "num": 2,
+      "date": "2026-07-07",
+      "time": "15h",
+      "eloStart": 0,
+      "eloEnd": 0,
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2814221536?t=00h03m15s"
+        },
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2814223202"
+        }
+      ]
+    },
+    {
+      "id": "26W28.03",
+      "year": 2026,
+      "week": 28,
+      "weekKey": "2026-W28",
+      "num": 3,
+      "date": "2026-07-07",
+      "time": "23h",
+      "eloStart": 0,
+      "eloEnd": 0,
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2814221536?t=07h32m56s"
+        },
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2814223202?t=07h29m41s"
+        }
+      ]
+    },
+    {
+      "id": "26W28.04",
+      "year": 2026,
+      "week": 28,
+      "weekKey": "2026-W28",
+      "num": 4,
+      "date": "2026-07-09",
+      "time": "08h",
+      "eloStart": 0,
+      "eloEnd": 0,
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2815629257?t=00h02m47s"
+        },
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2815630124"
         }
       ]
     }
