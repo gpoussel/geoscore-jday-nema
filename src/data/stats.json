@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-11T17:07:13",
+  "generatedAt": "2026-07-13T19:37:34",
   "eloRescale": {
     "date": "9999-12-31",
     "formula": "elo/2 + 250"
@@ -201192,6 +201192,32 @@
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2815630124"
+        }
+      ]
+    },
+    {
+      "id": "26W29.01",
+      "year": 2026,
+      "week": 29,
+      "weekKey": "2026-W29",
+      "num": 1,
+      "date": "2026-07-13",
+      "time": "19h",
+      "eloStart": 0,
+      "eloEnd": 0,
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2819041053?t=1h53m46s"
+        },
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2819106991"
         }
       ]
     }
