@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-13T23:17:19",
+  "generatedAt": "2026-07-14T16:16:27",
   "eloRescale": {
     "date": "9999-12-31",
     "formula": "elo/2 + 250"
@@ -40153,6 +40153,34 @@
       "finalOppMult": 2.5,
       "opp1": "PL",
       "opp2": "PL",
+      "year": 2026,
+      "week": 29,
+      "weekKey": "2026-W29"
+    },
+    {
+      "id": "1435",
+      "session": "26W29.02",
+      "gameNum": 1,
+      "rounds": 8,
+      "won": true,
+      "margin": "tight",
+      "elo": 1233,
+      "eloBefore": 1217,
+      "eloDelta": 16,
+      "roundBuckets": [
+        0,
+        2,
+        0,
+        2,
+        4
+      ],
+      "perfects": 0,
+      "finalMyHp": 228,
+      "finalOppHp": 0,
+      "finalMyMult": 3.0,
+      "finalOppMult": 3.0,
+      "opp1": "AU",
+      "opp2": "DK",
       "year": 2026,
       "week": 29,
       "weekKey": "2026-W29"
@@ -202110,6 +202138,102 @@
       "usedMult": 4.5,
       "myMult": 5.0,
       "oppMult": 2.5
+    },
+    {
+      "gameId": "1435",
+      "roundNum": 1,
+      "country": "ZA",
+      "myScore": 4904,
+      "oppScore": 4703,
+      "winner": "me",
+      "damage": 201,
+      "usedMult": 1.0,
+      "myMult": 1.5,
+      "oppMult": 1.0
+    },
+    {
+      "gameId": "1435",
+      "roundNum": 2,
+      "country": "NZ",
+      "myScore": 4934,
+      "oppScore": 4935,
+      "winner": "opp",
+      "damage": 1,
+      "usedMult": 1.0,
+      "myMult": 1.5,
+      "oppMult": 1.5
+    },
+    {
+      "gameId": "1435",
+      "roundNum": 3,
+      "country": "NZ",
+      "myScore": 3608,
+      "oppScore": 4701,
+      "winner": "opp",
+      "damage": 1640,
+      "usedMult": 1.5,
+      "myMult": 1.5,
+      "oppMult": 2.0
+    },
+    {
+      "gameId": "1435",
+      "roundNum": 4,
+      "country": "TH",
+      "myScore": 4570,
+      "oppScore": 4874,
+      "winner": "opp",
+      "damage": 608,
+      "usedMult": 2.0,
+      "myMult": 1.5,
+      "oppMult": 2.5
+    },
+    {
+      "gameId": "1435",
+      "roundNum": 5,
+      "country": "AU",
+      "myScore": 4993,
+      "oppScore": 4085,
+      "winner": "me",
+      "damage": 1362,
+      "usedMult": 1.5,
+      "myMult": 2.0,
+      "oppMult": 2.5
+    },
+    {
+      "gameId": "1435",
+      "roundNum": 6,
+      "country": "MX",
+      "myScore": 3568,
+      "oppScore": 4977,
+      "winner": "opp",
+      "damage": 3523,
+      "usedMult": 2.5,
+      "myMult": 2.0,
+      "oppMult": 3.0
+    },
+    {
+      "gameId": "1435",
+      "roundNum": 7,
+      "country": "BR",
+      "myScore": 4563,
+      "oppScore": 4441,
+      "winner": "me",
+      "damage": 244,
+      "usedMult": 2.0,
+      "myMult": 2.5,
+      "oppMult": 3.0
+    },
+    {
+      "gameId": "1435",
+      "roundNum": 8,
+      "country": "JP",
+      "myScore": 4844,
+      "oppScore": 3072,
+      "winner": "me",
+      "damage": 4430,
+      "usedMult": 2.5,
+      "myMult": 3.0,
+      "oppMult": 3.0
     }
   ],
   "sessions": [
@@ -204424,6 +204548,21 @@
           "url": "https://www.twitch.tv/videos/2819106991"
         }
       ]
+    },
+    {
+      "id": "26W29.02",
+      "year": 2026,
+      "week": 29,
+      "weekKey": "2026-W29",
+      "num": 2,
+      "date": "",
+      "time": "",
+      "eloStart": 1217,
+      "eloEnd": 1233,
+      "games": 1,
+      "wins": 1,
+      "losses": 0,
+      "vods": []
     }
   ]
 }
