@@ -1376,6 +1376,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2808730236?t=06h54m57s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=RbvmrpvWY2g&t=585s"
       }
     ]
   },
@@ -1392,6 +1397,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2810262189?t=04h08m58s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=eRd0y0du2xg&t=690s"
       }
     ]
   },
@@ -1408,6 +1418,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2811043776?t=05h00m33s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=RRa2MpL0t_w&t=660s"
       }
     ]
   },
@@ -1424,6 +1439,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2813323327?t=04h00m47s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=xG-C3asF7rQ&t=645s"
       }
     ]
   },
@@ -1440,6 +1460,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2814223202"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=jBIE6PbvxUE&t=590s"
       }
     ]
   },
@@ -1456,6 +1481,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2814223202?t=07h29m41s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=jBIE6PbvxUE&t=26630s"
       }
     ]
   },
@@ -1472,6 +1502,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2815630124"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=Cmx_STgyvuA"
       }
     ]
   },
