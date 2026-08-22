@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-20T22:48:23",
+  "generatedAt": "2026-08-22T17:46:35",
   "eloRescale": {
     "date": "9999-12-31",
     "formula": "elo/2 + 250"
@@ -240177,6 +240177,11 @@
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2847065322"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=owd-6UCJ9ls"
         }
       ]
     },
@@ -240270,6 +240275,32 @@
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2851483440"
+        }
+      ]
+    },
+    {
+      "id": "26W34.04",
+      "year": 2026,
+      "week": 34,
+      "weekKey": "2026-W34",
+      "num": 4,
+      "date": "2026-08-22",
+      "time": "13h",
+      "eloStart": 0,
+      "eloEnd": 0,
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2853234388"
+        },
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2853130423?t=04h21m27s"
         }
       ]
     }
