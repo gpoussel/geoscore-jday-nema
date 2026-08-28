@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-22T22:41:12",
+  "generatedAt": "2026-08-28T18:55:46",
   "eloRescale": {
     "date": "9999-12-31",
     "formula": "elo/2 + 250"
@@ -246963,6 +246963,11 @@
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2849659174?t=00h01m33s"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=vAtI8FuP6Ws&t=600s"
         }
       ]
     },
@@ -246989,6 +246994,11 @@
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2849659174?t=06h17m43s"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=vAtI8FuP6Ws&t=21270s"
         }
       ]
     },
@@ -247015,6 +247025,11 @@
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2851483440"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=JsszRV_NySE"
         }
       ]
     },
@@ -247041,6 +247056,84 @@
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2853130423?t=04h21m27s"
+        }
+      ]
+    },
+    {
+      "id": "26W35.01",
+      "year": 2026,
+      "week": 35,
+      "weekKey": "2026-W35",
+      "num": 1,
+      "date": "2026-08-25",
+      "time": "23h",
+      "eloStart": 0,
+      "eloEnd": 0,
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2856218002?t=03h10m56s"
+        },
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2856067255?t=06h32m13s"
+        }
+      ]
+    },
+    {
+      "id": "26W35.02",
+      "year": 2026,
+      "week": 35,
+      "weekKey": "2026-W35",
+      "num": 2,
+      "date": "2026-08-26",
+      "time": "08h",
+      "eloStart": 0,
+      "eloEnd": 0,
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2856750141?t=00h00m17s"
+        },
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2856750234"
+        }
+      ]
+    },
+    {
+      "id": "26W35.03",
+      "year": 2026,
+      "week": 35,
+      "weekKey": "2026-W35",
+      "num": 3,
+      "date": "2026-08-28",
+      "time": "13h",
+      "eloStart": 0,
+      "eloEnd": 0,
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2858655538?t=00h06m59s"
+        },
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2858562910?t=04h22m13s"
         }
       ]
     }
