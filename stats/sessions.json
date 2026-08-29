@@ -1806,6 +1806,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2853130423?t=04h21m27s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=3mDtJNSOCJQ&t=800s"
       }
     ]
   },
@@ -1854,6 +1859,22 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2858562910?t=04h22m13s"
+      }
+    ]
+  },
+  "26W35.04": {
+    "date": "2026-08-29",
+    "time": "13h",
+    "vods": [
+      {
+        "platform": "twitch",
+        "player": "jday",
+        "url": "https://www.twitch.tv/videos/2859620957"
+      },
+      {
+        "platform": "twitch",
+        "player": "nema",
+        "url": "https://www.twitch.tv/videos/2859620710?t=00h00m31s"
       }
     ]
   }
