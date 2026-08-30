@@ -24,10 +24,9 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-import pycountry
 
 import geoscore
-from countries import COUNTRIES, is_valid as is_valid_country
+from countries import COUNTRIES, is_valid as is_valid_country, name_of as country_name
 
 ROOT = Path(__file__).resolve().parent
 WRITE_LOCK = threading.Lock()
@@ -50,10 +49,7 @@ class NewCountryError(ApiError):
 
 def country_label(code: str) -> str:
     code = geoscore.normalize_country_code(code)
-    if code == "uk":
-        return "United Kingdom (uk)"
-    obj = pycountry.countries.get(alpha_2=code.upper())
-    return f"{obj.name if obj else code} ({code})"
+    return f"{country_name(code) or code} ({code})"
 
 
 def country_options() -> list[dict[str, str]]:

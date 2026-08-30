@@ -27,9 +27,15 @@ const projection = geoNaturalEarth1().fitExtent(
 );
 const toPath = geoPath(projection);
 
+// Natural Earth donne des features sans code numérique (territoires non ISO) :
+// on les rattache à leur code user-assigned via leur nom.
+const CODE_BY_NAME: Record<string, string> = { Kosovo: "XK" };
+
 const featureCode = (f: Feature<Geometry, GeoJsonProperties>): string => {
   const id = f.id != null ? String(f.id).padStart(3, "0") : "";
-  return id ? countriesLib.numericToAlpha2(id) ?? "" : "";
+  if (id) return countriesLib.numericToAlpha2(id) ?? "";
+  const name = String(f.properties?.name ?? "");
+  return CODE_BY_NAME[name] ?? "";
 };
 
 interface Props {

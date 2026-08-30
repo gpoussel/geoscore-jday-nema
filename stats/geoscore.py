@@ -17,9 +17,8 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
-import pycountry
 
-from countries import is_valid as is_valid_country, COUNTRIES
+from countries import is_valid as is_valid_country, COUNTRIES, name_of as country_name
 
 STARTING_HP = 6000
 STARTING_MULT = 1.0
@@ -158,10 +157,7 @@ def fmt_mult(m: float) -> str:
 def country_label(code: str) -> str:
     """Return 'Human name (code)' for display; falls back to the code alone."""
     code = code.strip().lower()
-    if code == "uk":
-        return f"United Kingdom ({code})"
-    obj = pycountry.countries.get(alpha_2=code.upper())
-    return f"{obj.name if obj else code} ({code})"
+    return f"{country_name(code) or code} ({code})"
 
 
 def normalize_country_code(code: str) -> str:
@@ -280,9 +276,9 @@ def resolve_country(country: str) -> str | None:
 
     country_names_map = {}
     for code in COUNTRIES:
-        obj = pycountry.countries.get(alpha_2=code.upper())
-        if obj:
-            country_names_map[obj.name.lower()] = code
+        name = country_name(code)
+        if name:
+            country_names_map[name.lower()] = code
 
     matches = difflib.get_close_matches(country, country_names_map.keys(), n=1, cutoff=0.6)
     if not matches:
