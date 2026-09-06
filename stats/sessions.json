@@ -1827,6 +1827,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2856067255?t=06h32m13s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=K54ydFSuR1I&t=11550s"
       }
     ]
   },
@@ -1843,6 +1848,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2856750234"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=T5m-w9WfxLw"
       }
     ]
   },
@@ -1859,6 +1869,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2858562910?t=04h22m13s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=hkUCd8XUr6Q&t=600s"
       }
     ]
   },
@@ -1875,6 +1890,85 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2859620710?t=00h00m31s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=OdiuBS4UEG8"
+      }
+    ]
+  },
+  "26W36.01": {
+    "date": "2026-09-01",
+    "time": "16h",
+    "vods": [
+      {
+        "platform": "twitch",
+        "player": "jday",
+        "url": "https://www.twitch.tv/videos/2862463725"
+      },
+      {
+        "platform": "twitch",
+        "player": "nema",
+        "url": "https://www.twitch.tv/videos/2862463406?t=00h00m24s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=Gh6XybVxeLU&t=765s"
+      }
+    ]
+  },
+  "26W36.02": {
+    "date": "2026-09-01",
+    "time": "22h",
+    "vods": [
+      {
+        "platform": "twitch",
+        "player": "jday",
+        "url": "https://www.twitch.tv/videos/2862463725?t=05h52m05s"
+      },
+      {
+        "platform": "twitch",
+        "player": "nema",
+        "url": "https://www.twitch.tv/videos/2862463406?t=05h52m29s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=Gh6XybVxeLU&t=21300s"
+      }
+    ]
+  },
+  "26W36.03": {
+    "date": "2026-09-03",
+    "time": "08h",
+    "vods": [
+      {
+        "platform": "twitch",
+        "player": "jday",
+        "url": "https://www.twitch.tv/videos/2863974003?t=00h01m04s"
+      },
+      {
+        "platform": "twitch",
+        "player": "nema",
+        "url": "https://www.twitch.tv/videos/2863974333"
+      }
+    ]
+  },
+  "26W36.04": {
+    "date": "2026-09-05",
+    "time": "13h",
+    "vods": [
+      {
+        "platform": "twitch",
+        "player": "jday",
+        "url": "https://www.twitch.tv/videos/2865856852?t=00h01m11s"
+      },
+      {
+        "platform": "twitch",
+        "player": "nema",
+        "url": "https://www.twitch.tv/videos/2865744902?t=04h37m34s"
       }
     ]
   }
