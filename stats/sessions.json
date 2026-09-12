@@ -1995,6 +1995,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2867603413?t=04h08m15s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=7PoqZT7NiQg&t=655s"
       }
     ]
   },
@@ -2011,6 +2016,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2868855845?t=02h32m59s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=4kOIs7YR1dA&t=9619s"
       }
     ]
   },

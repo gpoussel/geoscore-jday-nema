@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-10T20:30:25",
+  "generatedAt": "2026-09-12T14:28:40",
   "eloRescale": {
     "date": "9999-12-31",
     "formula": "elo/2 + 250"
@@ -269815,6 +269815,11 @@
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2867603413?t=04h08m15s"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=7PoqZT7NiQg&t=655s"
         }
       ]
     },
@@ -269841,6 +269846,11 @@
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2868855845?t=02h32m59s"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=4kOIs7YR1dA&t=9619s"
         }
       ]
     },
