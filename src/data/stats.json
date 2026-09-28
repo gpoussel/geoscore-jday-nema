@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-13T21:44:32",
+  "generatedAt": "2026-09-28T18:08:35",
   "eloRescale": {
     "date": "9999-12-31",
     "formula": "elo/2 + 250"
@@ -279093,6 +279093,11 @@
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2870204232"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=2i3nAyZY5CI"
         }
       ]
     },
@@ -279119,6 +279124,161 @@
           "platform": "twitch",
           "player": "nema",
           "url": "https://www.twitch.tv/videos/2872261789"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=I0p62z-XQrE"
+        }
+      ]
+    },
+    {
+      "id": "26W38.01",
+      "year": 2026,
+      "week": 38,
+      "weekKey": "2026-W38",
+      "num": 1,
+      "date": "2026-09-15",
+      "time": "13h",
+      "eloStart": 0,
+      "eloEnd": 0,
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2874738833"
+        },
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2874650088?t=04h34m05s"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=UshMxn40PNU&t=715s"
+        }
+      ]
+    },
+    {
+      "id": "26W38.02",
+      "year": 2026,
+      "week": 38,
+      "weekKey": "2026-W38",
+      "num": 2,
+      "date": "2026-09-17",
+      "time": "08h",
+      "eloStart": 0,
+      "eloEnd": 0,
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2876370311"
+        },
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2876370223?t=00h00m16s"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=SnFNvwihoLk"
+        }
+      ]
+    },
+    {
+      "id": "26W38.03",
+      "year": 2026,
+      "week": 38,
+      "weekKey": "2026-W38",
+      "num": 3,
+      "date": "2026-09-18",
+      "time": "12h",
+      "eloStart": 0,
+      "eloEnd": 0,
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2877329984"
+        },
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2877228889?t=04h49m09s"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=fGcXTOLoiRI&t=900s"
+        }
+      ]
+    },
+    {
+      "id": "26W39.01",
+      "year": 2026,
+      "week": 39,
+      "weekKey": "2026-W39",
+      "num": 1,
+      "date": "2026-09-22",
+      "time": "17h",
+      "eloStart": 0,
+      "eloEnd": 0,
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2881083094?t=00h04m04s"
+        },
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2881085517"
+        },
+        {
+          "platform": "youtube",
+          "player": "jday",
+          "url": "https://www.youtube.com/watch?v=feSmXzPBCSI&t=630s"
+        }
+      ]
+    },
+    {
+      "id": "26W39.02",
+      "year": 2026,
+      "week": 39,
+      "weekKey": "2026-W39",
+      "num": 2,
+      "date": "2026-09-26",
+      "time": "12h",
+      "eloStart": 0,
+      "eloEnd": 0,
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "vods": [
+        {
+          "platform": "twitch",
+          "player": "jday",
+          "url": "https://www.twitch.tv/videos/2884406209"
+        },
+        {
+          "platform": "twitch",
+          "player": "nema",
+          "url": "https://www.twitch.tv/videos/2884332914?t=03h05m05s"
         }
       ]
     }
