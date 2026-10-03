@@ -36,7 +36,12 @@ const sharedMultForRound = (roundNum: number) =>
     ? STARTING_MULT
     : STARTING_MULT + (roundNum - SHARED_MULT_START_ROUND + 1) * MULT_STEP;
 
-const roundDamage = (delta: number, mult: number) => Math.floor(Math.abs(delta) * mult + 0.5);
+// Le jeu arrondit les dégâts au pair le plus proche (comme round() en Python, cf. geoscore.round_damage).
+const roundDamage = (delta: number, mult: number) => {
+  const x = Math.abs(delta) * mult;
+  const f = Math.floor(x);
+  return x - f === 0.5 ? (f % 2 === 0 ? f : f + 1) : Math.round(x);
+};
 
 const simulateGame = (gameId: string, rs: Round[], rule: Rule): Simulation => {
   let myHp = STARTING_HP;

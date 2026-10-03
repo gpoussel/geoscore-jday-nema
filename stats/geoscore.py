@@ -9,7 +9,6 @@ from __future__ import annotations
 import csv
 import difflib
 import json
-import math
 import os
 import re
 import sys
@@ -96,6 +95,13 @@ class ParsedRound:
     excluded: bool = False
 
 
+def round_damage(score_diff: int, mult: float) -> int:
+    """Dégâts d'un round. Le jeu arrondit au pair le plus proche (round() Python) :
+    3,5 → 4 mais 2,5 → 2. Vérifié contre les PV affichés en jeu (251/257 rounds
+    cohérents, contre 129 avec floor(x + 0,5) ; les 6 restants = erreurs de lecture)."""
+    return round(score_diff * mult)
+
+
 def compute_state(rounds: list[Round], *, shared_mult: bool = False) -> list[dict]:
     my_hp, opp_hp = STARTING_HP, STARTING_HP
     my_mult, opp_mult = STARTING_MULT, STARTING_MULT
@@ -104,11 +110,11 @@ def compute_state(rounds: list[Round], *, shared_mult: bool = False) -> list[dic
         if shared_mult:
             used = shared_mult_for_round(round_num)
             if r.my_score > r.opp_score:
-                damage = math.floor((r.my_score - r.opp_score) * used + 0.5)
+                damage = round_damage(r.my_score - r.opp_score, used)
                 opp_hp = max(0, opp_hp - damage)
                 winner = "me"
             elif r.opp_score > r.my_score:
-                damage = math.floor((r.opp_score - r.my_score) * used + 0.5)
+                damage = round_damage(r.opp_score - r.my_score, used)
                 my_hp = max(0, my_hp - damage)
                 winner = "opp"
             else:
@@ -118,13 +124,13 @@ def compute_state(rounds: list[Round], *, shared_mult: bool = False) -> list[dic
             opp_mult = my_mult
         else:
             if r.my_score > r.opp_score:
-                damage = math.floor((r.my_score - r.opp_score) * my_mult + 0.5)
+                damage = round_damage(r.my_score - r.opp_score, my_mult)
                 used = my_mult
                 opp_hp = max(0, opp_hp - damage)
                 my_mult += MULT_STEP
                 winner = "me"
             elif r.opp_score > r.my_score:
-                damage = math.floor((r.opp_score - r.my_score) * opp_mult + 0.5)
+                damage = round_damage(r.opp_score - r.my_score, opp_mult)
                 used = opp_mult
                 my_hp = max(0, my_hp - damage)
                 opp_mult += MULT_STEP

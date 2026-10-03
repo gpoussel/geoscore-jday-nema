@@ -46,6 +46,7 @@ Sessions are identified by `<yy>W<iso_week>.<num>` (ISO 8601 year + week), e.g. 
 - **Country validation** (`countries.py`): ISO 3166-1 alpha-2 countries + `uk` alias (GeoGuessr quirk — they use `uk`, not the ISO `gb`). `build_stats.py` prints a warning for unknown codes; `geoscore.py` rejects unknown codes at input time.
 - **`opp1_country` / `opp2_country`**: game-level columns repeated on each round row (like `opp_elo`). `""` = non renseignée (not yet entered), `--` = non communiquée (the opponent shows the generic GeoGuessr flag), otherwise a lowercase country code (`uk` alias kept, same convention as `country`). Currently ignored by `build_stats.py`.
 - **`game.year` / `game.week` / `game.weekKey`** in the JSON output are derived from the session id, not stored separately in the CSV.
+- **Damage rounding**: the game rounds `score_diff × mult` half-to-even (Python `round()`: 2.5 → 2, 3.5 → 4), implemented in `geoscore.round_damage` and mirrored in `../src/components/BlockMultiplier.astro`. Verified against on-screen HP (251/257 rounds of session 26W23.04 match vs 129 with `floor(x + 0.5)`). Changing it requires `uv run geoscore.py --fix-multipliers`.
 - **Starting HP / mult step** (`6000` / `0.5`) are defined in `geoscore.py`; `build_stats.py` uses `STARTING_HP` only for margin bucketing.
 - **`margin_bucket`** classifies by the winner's remaining HP: `crush` ≥ 4000, `clean` ≥ 2000, else `tight`. **`score_bucket`** maps round score (0–5000) to 5 buckets.
 
