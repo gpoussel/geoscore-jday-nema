@@ -1,12 +1,25 @@
 ---
 import BlockHead from "./ui/BlockHead.astro";
-import type { Player, Session } from "../types";
+import type { Player, Session, Vod } from "../types";
 import { rankIcon, rankLabel } from "../lib/ranks";
 
 interface Props { sessions: Session[]; players: Record<string, Player>; rankByWeek: Record<string, string>; }
 const { sessions, players, rankByWeek } = Astro.props;
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+// Twitch deletes Partner VODs after 60 days (checked against the GQL API on 2026-10-04:
+// every VOD ≤ 51 days old was still up, every one ≥ 72 days old was gone). IDs stay in the
+// data; only the dead links are hidden. One day of margin since a stream may start the day
+// before the session date. Evaluated at build time, so it is as fresh as the last deploy.
+const TWITCH_VOD_RETENTION_DAYS = 60;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const buildTime = Date.now();
+const isVodAvailable = (vod: Vod, sessionDate: string) => {
+  if (vod.platform !== "twitch") return true;
+  const t = new Date(sessionDate).getTime();
+  return Number.isNaN(t) || buildTime - t < (TWITCH_VOD_RETENTION_DAYS - 1) * DAY_MS;
+};
 
 const formatDate = (raw: string) => {
   const d = new Date(raw);
@@ -24,6 +37,7 @@ const formatDate = (raw: string) => {
       "Une session regroupe les parties jouées sur un même créneau.",
       "L'ELO affiché va de l'ELO avant la première partie à l'ELO après la dernière partie de la session.",
       "Le score de session compte victoires, défaites et nombre total de parties ; les liens pointent vers les VOD disponibles.",
+      "Twitch supprime les VOD après 60 jours : les liens Twitch des sessions plus anciennes sont masqués.",
     ]}
   />
   <div class="timeline">
@@ -35,6 +49,7 @@ const formatDate = (raw: string) => {
       const rankName = rank ? rankLabel(rank) : "";
       const rankIconFile = rank ? rankIcon(rank) : undefined;
       const rankIconUrl = rankIconFile ? `${base}/ranks/${rankIconFile}` : undefined;
+      const vods = s.vods.filter((vod) => isVodAvailable(vod, s.date));
       return (
         <div class:list={["sc", { pending: isPending }]}>
           <div class="head">
@@ -68,9 +83,9 @@ const formatDate = (raw: string) => {
               <span class="pending-label">À venir</span>
             </div>
           )}
-          {s.vods.length > 0 && (
+          {vods.length > 0 && (
             <div class="vods">
-              {s.vods.map((vod) => {
+              {vods.map((vod) => {
                 const player = vod.player ? players[vod.player] : null;
                 const label = player ? player.name : vod.platform;
                 return (
