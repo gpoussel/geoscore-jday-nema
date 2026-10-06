@@ -2223,5 +2223,21 @@
         "url": "https://www.twitch.tv/videos/2891632485"
       }
     ]
+  },
+  "26W41.01": {
+    "date": "2026-10-06",
+    "time": "17h",
+    "vods": [
+      {
+        "platform": "twitch",
+        "player": "jday",
+        "url": "https://www.twitch.tv/videos/2893472763?t=02h48m10s"
+      },
+      {
+        "platform": "twitch",
+        "player": "nema",
+        "url": "https://www.twitch.tv/videos/2893468510?t=02h54m35s"
+      }
+    ]
   }
 }
