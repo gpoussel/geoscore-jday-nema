@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-12T19:35:12",
+  "generatedAt": "2026-10-12T19:35:56",
   "eloRescale": {
     "date": "9999-12-31",
     "formula": "elo/2 + 250"
@@ -58762,7 +58762,7 @@
       "roundBuckets": [
         0,
         0,
-        1,
+        0,
         0,
         2
       ],
@@ -305317,18 +305317,6 @@
       "damage": 150,
       "usedMult": 1.5,
       "myMult": 2.0,
-      "oppMult": 1.0
-    },
-    {
-      "gameId": "2099",
-      "roundNum": 3,
-      "country": "TH",
-      "myScore": 4219,
-      "oppScore": 9,
-      "winner": "me",
-      "damage": 8420,
-      "usedMult": 2.0,
-      "myMult": 2.5,
       "oppMult": 1.0
     },
     {
