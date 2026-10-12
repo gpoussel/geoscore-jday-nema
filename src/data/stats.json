@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-12T18:55:21",
+  "generatedAt": "2026-10-12T19:35:12",
   "eloRescale": {
     "date": "9999-12-31",
     "formula": "elo/2 + 250"
@@ -58788,10 +58788,10 @@
       "eloBefore": 1333,
       "eloDelta": 7,
       "roundBuckets": [
-        4,
         0,
         0,
-        1,
+        0,
+        0,
         0
       ],
       "perfects": 0,
@@ -305330,66 +305330,6 @@
       "usedMult": 2.0,
       "myMult": 2.5,
       "oppMult": 1.0
-    },
-    {
-      "gameId": "2100",
-      "roundNum": 1,
-      "country": "CA",
-      "myScore": 406,
-      "oppScore": 455,
-      "winner": "opp",
-      "damage": 49,
-      "usedMult": 1.0,
-      "myMult": 1.0,
-      "oppMult": 1.5
-    },
-    {
-      "gameId": "2100",
-      "roundNum": 2,
-      "country": "AR",
-      "myScore": 82,
-      "oppScore": 663,
-      "winner": "opp",
-      "damage": 872,
-      "usedMult": 1.5,
-      "myMult": 1.0,
-      "oppMult": 2.0
-    },
-    {
-      "gameId": "2100",
-      "roundNum": 3,
-      "country": "VE",
-      "myScore": 6,
-      "oppScore": 65,
-      "winner": "opp",
-      "damage": 118,
-      "usedMult": 2.0,
-      "myMult": 1.0,
-      "oppMult": 2.5
-    },
-    {
-      "gameId": "2100",
-      "roundNum": 4,
-      "country": "CL",
-      "myScore": 4773,
-      "oppScore": 8,
-      "winner": "me",
-      "damage": 4765,
-      "usedMult": 1.0,
-      "myMult": 1.5,
-      "oppMult": 2.5
-    },
-    {
-      "gameId": "2100",
-      "roundNum": 5,
-      "country": "BR",
-      "myScore": 3421,
-      "oppScore": 0,
-      "winner": "me",
-      "damage": 5132,
-      "usedMult": 1.5,
-      "myMult": 2.0,
-      "oppMult": 2.5
     },
     {
       "gameId": "2101",
