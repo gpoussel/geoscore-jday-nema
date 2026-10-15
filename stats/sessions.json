@@ -2310,6 +2310,11 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2896869812?t=00h06m32s"
+      },
+      {
+        "platform": "youtube",
+        "player": "jday",
+        "url": "https://www.youtube.com/watch?v=WT845Aa_74o"
       }
     ]
   },
@@ -2326,6 +2331,38 @@
         "platform": "twitch",
         "player": "nema",
         "url": "https://www.twitch.tv/videos/2898629879?t=04h14m33s"
+      }
+    ]
+  },
+  "26W42.02": {
+    "date": "2026-10-13",
+    "time": "23h",
+    "vods": [
+      {
+        "platform": "twitch",
+        "player": "jday",
+        "url": "https://www.twitch.tv/videos/2899854418?t=02h54m48s"
+      },
+      {
+        "platform": "twitch",
+        "player": "nema",
+        "url": "https://www.twitch.tv/videos/2899857658?t=02h50m51s"
+      }
+    ]
+  },
+  "26W42.03": {
+    "date": "2026-10-14",
+    "time": "13h",
+    "vods": [
+      {
+        "platform": "twitch",
+        "player": "jday",
+        "url": "https://www.twitch.tv/videos/2900445679?t=00h08m04s"
+      },
+      {
+        "platform": "twitch",
+        "player": "nema",
+        "url": "https://www.twitch.tv/videos/2900361237?t=04h26m54s"
       }
     ]
   }
